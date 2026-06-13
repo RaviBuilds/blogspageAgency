@@ -25,6 +25,20 @@ export type NicheDashboard = {
   description: string;
 };
 
+export type NicheMetric = {
+  /** The headline figure, e.g. "30%" or "<1.2s". */
+  value: string;
+  /** What the figure represents. */
+  label: string;
+};
+
+export type LaunchPhase = {
+  /** Day range, e.g. "Days 1-2". */
+  window: string;
+  title: string;
+  detail: string;
+};
+
 export type Niche = {
   /** Stable internal id from the blueprint vertical matrix. */
   id: string;
@@ -61,6 +75,10 @@ export type Niche = {
     capabilities: string[];
   };
   dashboards: NicheDashboard[];
+  /** Localized conversion metrics shown on the solution page. */
+  metrics: NicheMetric[];
+  /** Step-by-step 10-15 day launch schedule. */
+  launchSchedule: LaunchPhase[];
   /**
    * Builds the canonical, SEO-optimized solution route.
    * Lowercased, hyphenated, special chars stripped (per SEO rules).
@@ -570,8 +588,165 @@ const NICHE_SEEDS: NicheSeed[] = [
   },
 ];
 
+/**
+ * Deep enrichment keyed by niche id: localized conversion metrics and a
+ * step-by-step 10-15 day launch schedule. Kept separate from the seed
+ * objects so the core content model stays readable.
+ *
+ * NOTE: the blueprint (§5) only fully specifies Gym, Online Delivery, and a
+ * truncated Hotel. The Gym schedule encodes the blueprint's exact
+ * Pause-Credit mechanics; remaining figures/timelines are agency estimates
+ * and should be replaced with verified numbers where available.
+ */
+const NICHE_ENRICHMENT: Record<
+  string,
+  { metrics: NicheMetric[]; launchSchedule: LaunchPhase[] }
+> = {
+  "online-delivery": {
+    metrics: [
+      { value: "0%", label: "Marketplace commission on direct orders" },
+      { value: "25-30%", label: "Aggregator fee eliminated per order" },
+      { value: "100%", label: "Customer data owned by you" },
+    ],
+    launchSchedule: [
+      { window: "Days 1-2", title: "Discovery & menu modelling", detail: "Map catalogue, zones, and courier roster into the data model." },
+      { window: "Days 3-6", title: "Ordering PWA build", detail: "White-label storefront with direct-checkout optimization." },
+      { window: "Days 7-9", title: "Dispatch map & SSE", detail: "Real-time driver tracking via secure server-sent events." },
+      { window: "Days 10-12", title: "Payments & savings calculator", detail: "Local gateway plus the commission-avoidance ledger." },
+      { window: "Days 13-15", title: "Launch & native wrap", detail: "QA, Capacitor iOS/Android wrap, and go-live." },
+    ],
+  },
+  "hotel-booking": {
+    metrics: [
+      { value: "0%", label: "OTA commission on direct bookings" },
+      { value: "4", label: "Permission-split access roles" },
+      { value: "0", label: "Double-bookings via atomic allocation" },
+    ],
+    launchSchedule: [
+      { window: "Days 1-2", title: "Property & rate modelling", detail: "Room types, rate plans, and role permissions." },
+      { window: "Days 3-6", title: "Booking engine", detail: "Direct booking flow with atomic room allocation." },
+      { window: "Days 7-9", title: "Room matrix & scheduling", detail: "Live availability grid and multi-role scheduling." },
+      { window: "Days 10-12", title: "Payments & guest comms", detail: "Deposits, full payment, and automated notifications." },
+      { window: "Days 13-15", title: "Launch & handover", detail: "Staff onboarding, QA, and go-live." },
+    ],
+  },
+  "pet-care": {
+    metrics: [
+      { value: "1", label: "Unified profile per pet" },
+      { value: "100%", label: "Services bookable in one flow" },
+      { value: "↓", label: "No-shows via automated reminders" },
+    ],
+    launchSchedule: [
+      { window: "Days 1-2", title: "Service & profile modelling", detail: "Medical and lifestyle services against a shared pet record." },
+      { window: "Days 3-6", title: "Reservation wizard", detail: "Guided multi-step booking flow build." },
+      { window: "Days 7-9", title: "Scheduling engine", detail: "Conflict-free slots and provider calendars." },
+      { window: "Days 10-12", title: "Reminders & payments", detail: "Automated reminders and deposit collection." },
+      { window: "Days 13-14", title: "Launch", detail: "QA and go-live." },
+    ],
+  },
+  consulting: {
+    metrics: [
+      { value: "1", label: "ROI calculator at funnel core" },
+      { value: "↑", label: "Qualified discovery calls booked" },
+      { value: "24h", label: "Inbound lead response window" },
+    ],
+    launchSchedule: [
+      { window: "Days 1-2", title: "Positioning & ROI logic", detail: "Define the engagement model and ROI inputs." },
+      { window: "Days 3-6", title: "Authority site build", detail: "Content-first architecture for high-value inbound." },
+      { window: "Days 7-9", title: "ROI calculator", detail: "Embedded interactive discovery calculator." },
+      { window: "Days 10-12", title: "Pipeline wiring", detail: "Lead capture to discovery-call pipeline." },
+      { window: "Days 13-14", title: "Launch", detail: "QA and go-live." },
+    ],
+  },
+  education: {
+    metrics: [
+      { value: "↑", label: "Course completion rate" },
+      { value: "1", label: "Builder for all courses" },
+      { value: "Early", label: "At-risk learner detection" },
+    ],
+    launchSchedule: [
+      { window: "Days 1-3", title: "Curriculum modelling", detail: "Course structure and progression rules." },
+      { window: "Days 4-7", title: "Syllabus builder", detail: "Interactive modular course assembly." },
+      { window: "Days 8-11", title: "Progressive player", detail: "Adaptive pacing and progress tracking." },
+      { window: "Days 12-14", title: "Engagement & analytics", detail: "Retention mechanics and at-risk signals." },
+      { window: "Day 15", title: "Launch", detail: "QA and go-live." },
+    ],
+  },
+  "gym-fitness": {
+    metrics: [
+      { value: "↓", label: "Cancellations via pause-credit" },
+      { value: "Real-time", label: "Contract expiry recalculation" },
+      { value: "QR", label: "Native gym-floor check-ins" },
+    ],
+    launchSchedule: [
+      { window: "Days 1-2", title: "Membership & ledger schema", detail: "membership_ledger with accumulated_pause_days modelling." },
+      { window: "Days 3-6", title: "Client interface", detail: "High-conversion signup and package selection." },
+      { window: "Days 7-9", title: "Pause-Credit Engine", detail: "Each pause day injects an extension record, recalculating expiry in real time." },
+      { window: "Days 10-12", title: "Capacitor native bridge", detail: "Biometric re-engagement alerts and QR floor check-ins." },
+      { window: "Days 13-15", title: "Owner dashboards & launch", detail: "Live occupancy and conversion widgets, then go-live." },
+    ],
+  },
+  "dental-medical": {
+    metrics: [
+      { value: "HIPAA", label: "Aligned data handling" },
+      { value: "↓", label: "No-shows via reminders" },
+      { value: "1", label: "Orchestrated calendar" },
+    ],
+    launchSchedule: [
+      { window: "Days 1-2", title: "Practice & compliance modelling", detail: "Practitioners, rooms, and compliance rules." },
+      { window: "Days 3-6", title: "Booking pipeline", detail: "Frictionless self-service patient booking." },
+      { window: "Days 7-9", title: "Calendar orchestration", detail: "Unified, compliance-aware scheduling view." },
+      { window: "Days 10-12", title: "Reminders & records", detail: "Automated reminders and structured data handling." },
+      { window: "Days 13-14", title: "Launch", detail: "QA and go-live." },
+    ],
+  },
+  ecommerce: {
+    metrics: [
+      { value: "↑", label: "Checkout completion rate" },
+      { value: "<1.2s", label: "Target LCP on storefront" },
+      { value: "1", label: "Codebase for web + native" },
+    ],
+    launchSchedule: [
+      { window: "Days 1-2", title: "Catalogue & checkout modelling", detail: "Products, variants, and checkout steps." },
+      { window: "Days 3-6", title: "Storefront build", detail: "Image-optimized, Core Web Vitals-tuned storefront." },
+      { window: "Days 7-9", title: "Optimized checkout", detail: "Streamlined multi-step checkout." },
+      { window: "Days 10-12", title: "Payments & fulfillment", detail: "Integrated payments and fulfillment pipeline." },
+      { window: "Days 13-15", title: "Native wrap & launch", detail: "Capacitor wrap, QA, and go-live." },
+    ],
+  },
+  "saas-platform": {
+    metrics: [
+      { value: "Tiered", label: "Pricing toggles" },
+      { value: "Metered", label: "Usage simulation" },
+      { value: "RLS", label: "Row-level security on Supabase" },
+    ],
+    launchSchedule: [
+      { window: "Days 1-3", title: "Pricing & data modelling", detail: "Tiers, metering, and RLS-secured schema." },
+      { window: "Days 4-7", title: "Subscription core", detail: "Lifecycle automation and billing logic." },
+      { window: "Days 8-11", title: "Pricing toggles & simulator", detail: "Tier toggles and metered-usage simulator." },
+      { window: "Days 12-14", title: "Metrics dashboard", detail: "MRR, churn, and usage analytics." },
+      { window: "Day 15", title: "Launch", detail: "QA and go-live." },
+    ],
+  },
+  "seo-blogs": {
+    metrics: [
+      { value: "<1.2s", label: "Target LCP" },
+      { value: "0.00", label: "Target CLS" },
+      { value: "Edge", label: "Cached delivery" },
+    ],
+    launchSchedule: [
+      { window: "Days 1-2", title: "Content model", detail: "MDX schema and reading-canvas layout." },
+      { window: "Days 3-6", title: "Reading canvas", detail: "Edge-to-edge MDX reading experience." },
+      { window: "Days 7-9", title: "Edge delivery", detail: "Edge caching and AVIF image strategy." },
+      { window: "Days 10-12", title: "Web Vitals hardening", detail: "LCP/INP/CLS budgets enforced." },
+      { window: "Days 13-14", title: "Launch", detail: "QA and go-live." },
+    ],
+  },
+};
+
 export const NICHES: Niche[] = NICHE_SEEDS.map((seed) => ({
   ...seed,
+  ...NICHE_ENRICHMENT[seed.id],
   href: (city: string = DEFAULT_CITY) => `/solutions/${nicheSlug(seed as Niche, city)}`,
 }));
 

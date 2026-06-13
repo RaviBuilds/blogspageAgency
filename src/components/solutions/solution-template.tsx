@@ -130,6 +130,64 @@ export function SolutionTemplate({ niche, city }: SolutionTemplateProps) {
         </div>
       </section>
 
+      {/* Localized conversion metrics */}
+      <section className="border-t border-white/[0.06] py-20 lg:py-24">
+        <div className="mx-auto max-w-6xl px-6 lg:px-8">
+          <FadeUp>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {niche.metrics.map((metric) => (
+                <div
+                  key={metric.label}
+                  className="rounded-xl border border-white/[0.08] bg-card p-6 text-center"
+                >
+                  <p className="text-4xl font-semibold tracking-tight text-primary">
+                    {metric.value}
+                  </p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {metric.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </FadeUp>
+        </div>
+      </section>
+
+      {/* Step-by-step launch schedule */}
+      <section className="border-t border-white/[0.06] py-20 lg:py-24">
+        <div className="mx-auto max-w-6xl px-6 lg:px-8">
+          <FadeUp>
+            <div className="max-w-2xl">
+              <p className="text-sm font-medium text-primary">Launch Schedule</p>
+              <h2 className="mt-3 text-3xl font-semibold tracking-tight">
+                From kickoff to live in {niche.launchSchedule.length >= 5 ? "under three weeks" : "two weeks"}.
+              </h2>
+            </div>
+          </FadeUp>
+
+          <ol className="mt-12 flex flex-col">
+            {niche.launchSchedule.map((phase, index) => (
+              <FadeUp key={phase.window} delay={index * 0.06}>
+                <li className="relative flex gap-6 border-l border-white/[0.1] pb-8 pl-6 last:pb-0">
+                  <span className="absolute -left-[5px] top-1.5 size-2.5 rounded-full bg-primary" />
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-[0.18em] text-primary">
+                      {phase.window}
+                    </p>
+                    <h3 className="mt-1 text-lg font-medium tracking-tight">
+                      {phase.title}
+                    </h3>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                      {phase.detail}
+                    </p>
+                  </div>
+                </li>
+              </FadeUp>
+            ))}
+          </ol>
+        </div>
+      </section>
+
       {/* Local SEO CTA */}
       <section className="border-t border-white/[0.06] py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
