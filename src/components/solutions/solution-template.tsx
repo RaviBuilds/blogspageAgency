@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Check, TrendingDown } from "lucide-react";
+import { ArrowRight, Check, Sparkles, TrendingDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FadeUp } from "@/components/solutions/fade-up";
 import { SolutionHero } from "@/components/solutions/solution-hero";
@@ -129,6 +129,54 @@ export function SolutionTemplate({ niche, city }: SolutionTemplateProps) {
           </div>
         </div>
       </section>
+
+      {/* Real-world case study (only when present) */}
+      {niche.caseStudy && (
+        <section className="border-t border-white/[0.06] py-20 lg:py-24">
+          <div className="mx-auto max-w-6xl px-6 lg:px-8">
+            <FadeUp>
+              <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-card p-8 lg:p-10">
+                <div className="pointer-events-none absolute -left-24 -top-24 size-72 rounded-full bg-primary/15 blur-3xl" />
+                <div className="relative grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+                  <div>
+                    <p className="flex items-center gap-2 text-sm font-medium text-primary">
+                      <Sparkles className="size-4" />
+                      Case Study
+                    </p>
+                    <h2 className="mt-3 text-3xl font-semibold tracking-tight">
+                      {niche.caseStudy.title}
+                    </h2>
+                    <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+                      {niche.caseStudy.narrative}
+                    </p>
+                    <div className="mt-6 flex flex-wrap gap-2">
+                      {niche.caseStudy.stack.map((tech) => (
+                        <span
+                          key={tech}
+                          className="rounded-full border border-white/[0.1] bg-white/[0.03] px-3 py-1 text-xs text-foreground/80"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <ul className="grid content-start gap-3">
+                    {niche.caseStudy.outcomes.map((outcome) => (
+                      <li
+                        key={outcome}
+                        className="flex gap-3 rounded-xl border border-white/[0.08] bg-popover p-4 text-sm text-muted-foreground"
+                      >
+                        <Check className="mt-0.5 size-4 shrink-0 text-primary" />
+                        <span>{outcome}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </FadeUp>
+          </div>
+        </section>
+      )}
 
       {/* Localized conversion metrics */}
       <section className="border-t border-white/[0.06] py-20 lg:py-24">

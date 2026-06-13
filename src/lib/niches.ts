@@ -39,6 +39,17 @@ export type LaunchPhase = {
   detail: string;
 };
 
+export type CaseStudy = {
+  /** Project headline. */
+  title: string;
+  /** Technologies in the delivered architecture. */
+  stack: string[];
+  /** Production-grade technical narrative. */
+  narrative: string;
+  /** Measurable outcomes. */
+  outcomes: string[];
+};
+
 export type Niche = {
   /** Stable internal id from the blueprint vertical matrix. */
   id: string;
@@ -79,6 +90,8 @@ export type Niche = {
   metrics: NicheMetric[];
   /** Step-by-step 10-15 day launch schedule. */
   launchSchedule: LaunchPhase[];
+  /** Optional real-world case study narrative. */
+  caseStudy?: CaseStudy;
   /**
    * Builds the canonical, SEO-optimized solution route.
    * Lowercased, hyphenated, special chars stripped (per SEO rules).
@@ -744,9 +757,50 @@ const NICHE_ENRICHMENT: Record<
   },
 };
 
+/**
+ * Real-world case studies keyed by niche id. Only a subset of niches carry
+ * one; the rest render without a case-study section.
+ */
+const NICHE_CASE_STUDIES: Record<string, CaseStudy> = {
+  "hotel-booking": {
+    title: "Commission-free multi-property booking platform",
+    stack: ["MongoDB", "Express", "React", "Node.js", "JWT"],
+    narrative:
+      "A MERN-stack platform delivering role-based dashboards across four permission tiers (Global Admin, Property Manager, Front-desk Staff, Verified Guest) with multi-tenant isolation so each property only ever sees its own inventory. Automated transaction workflows handle deposits, confirmations, and refunds end to end, routing bookings through the property's own gateway to mitigate OTA fees on every direct reservation.",
+    outcomes: [
+      "Direct bookings processed with zero marketplace commission.",
+      "Four-tier RBAC with strict multi-tenant data isolation.",
+      "Automated deposit, confirmation, and refund workflows.",
+    ],
+  },
+  "saas-platform": {
+    title: "AI photo restoration pipeline",
+    stack: ["Next.js", "Replicate API", "Serverless Functions", "Postgres"],
+    narrative:
+      "A Next.js application integrated with the Replicate API to run historical photo-restoration models. Uploads trigger serverless inference jobs, and a serverless database tracks each job's state (queued, processing, complete, failed) so the UI can poll and resume reliably without holding long-lived connections. Restored assets are streamed back and cached at the edge for instant re-delivery.",
+    outcomes: [
+      "Replicate-powered restoration pipeline with resumable job state.",
+      "Serverless inference that scales to zero between requests.",
+      "Edge-cached output for instant re-delivery.",
+    ],
+  },
+  ecommerce: {
+    title: "Headless WordPress B2B catalog",
+    stack: ["Next.js", "Headless WordPress", "WPGraphQL", "ISR"],
+    narrative:
+      "A decoupled architecture where WordPress serves purely as a content and catalog backend over GraphQL, while a high-speed Next.js front end renders the product showcase. Incremental Static Regeneration keeps catalog pages statically fast yet current, separating editorial workflows from the storefront performance budget so content teams move freely without degrading Core Web Vitals.",
+    outcomes: [
+      "Decoupled headless WordPress backend over WPGraphQL.",
+      "Statically-fast Next.js catalog with ISR freshness.",
+      "Editorial workflow isolated from storefront performance.",
+    ],
+  },
+};
+
 export const NICHES: Niche[] = NICHE_SEEDS.map((seed) => ({
   ...seed,
   ...NICHE_ENRICHMENT[seed.id],
+  caseStudy: NICHE_CASE_STUDIES[seed.id],
   href: (city: string = DEFAULT_CITY) => `/solutions/${nicheSlug(seed as Niche, city)}`,
 }));
 
