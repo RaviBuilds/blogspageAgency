@@ -3,6 +3,7 @@ import { BentoGrid } from "@/components/home/bento-grid";
 import { ComparisonSection } from "@/components/home/comparison-section";
 import { DeliveryModels } from "@/components/home/delivery-models";
 import { ProcessTimeline } from "@/components/home/process-timeline";
+import { ProjectBriefForm } from "@/components/home/project-brief-form";
 import { ContactCTA } from "@/components/home/contact-cta";
 
 export default function HomePage() {
@@ -13,6 +14,7 @@ export default function HomePage() {
       <ComparisonSection />
       <DeliveryModels />
       <ProcessTimeline />
+      <ProjectBriefForm />
       <ContactCTA />
     </>
   );

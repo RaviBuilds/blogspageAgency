@@ -10,12 +10,13 @@ function NicheCard({ niche }: { niche: Niche }) {
   const cardRef = useRef<HTMLAnchorElement>(null);
 
   // Mouse-tracking glow: write cursor position into CSS vars (no re-render).
+  // Animating only custom properties keeps this off the layout/paint path.
   const handleMouseMove = (event: MouseEvent<HTMLAnchorElement>) => {
     const card = cardRef.current;
     if (!card) return;
     const rect = card.getBoundingClientRect();
-    card.style.setProperty("--mx", `${event.clientX - rect.left}px`);
-    card.style.setProperty("--my", `${event.clientY - rect.top}px`);
+    card.style.setProperty("--x", `${event.clientX - rect.left}px`);
+    card.style.setProperty("--y", `${event.clientY - rect.top}px`);
   };
 
   const Icon = niche.icon;
@@ -27,17 +28,33 @@ function NicheCard({ niche }: { niche: Niche }) {
       onMouseMove={handleMouseMove}
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.02] p-6",
-        "transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.02] hover:border-white/[0.16] hover:bg-white/[0.04]",
+        "transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.02] hover:bg-white/[0.04] motion-reduce:transition-none motion-reduce:hover:scale-100",
         niche.className,
       )}
     >
-      {/* Mouse-tracking radial glow overlay */}
+      {/* Layer 1 — mouse-tracked BORDER glow (Linear signature).
+          A radial gradient clipped to a 1px ring via mask. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{
+          background:
+            "radial-gradient(220px circle at var(--x,50%) var(--y,50%), rgba(94,106,210,0.65), transparent 65%)",
+          padding: "1px",
+          WebkitMask:
+            "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+          WebkitMaskComposite: "xor",
+          maskComposite: "exclude",
+        }}
+      />
+
+      {/* Layer 2 — mouse-tracked BACKGROUND wash. */}
       <span
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
           background:
-            "radial-gradient(280px circle at var(--mx,50%) var(--my,50%), rgba(94,106,210,0.20), transparent 60%)",
+            "radial-gradient(280px circle at var(--x,50%) var(--y,50%), rgba(94,106,210,0.18), transparent 60%)",
         }}
       />
 
