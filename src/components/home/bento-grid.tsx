@@ -37,7 +37,7 @@ function NicheCard({ niche }: { niche: Niche }) {
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
           background:
-            "radial-gradient(280px circle at var(--mx,50%) var(--my,50%), rgba(99,102,241,0.18), transparent 60%)",
+            "radial-gradient(280px circle at var(--mx,50%) var(--my,50%), rgba(94,106,210,0.20), transparent 60%)",
         }}
       />
 
