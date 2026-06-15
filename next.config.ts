@@ -1,25 +1,36 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "cdn.sanity.io",
+      },
+    ],
+  },
   async redirects() {
     return [
-      /*
-       * WordPress root URL -> new /blog/ URL 301 redirect matrix.
-       * Paste the rest of the live migrated slugs below using the same shape:
-       * {
-       *   source: "/old-wordpress-slug",
-       *   destination: "/blog/old-wordpress-slug",
-       *   permanent: true,
-       * },
-       */
+      // Legacy singular /blog paths → /blogs
       {
-        source: "/how-to-connect-a-react-app-to-mongodb-database-easily",
-        destination: "/blog/how-to-connect-a-react-app-to-mongodb-database-easily",
+        source: "/blog",
+        destination: "/blogs",
         permanent: true,
       },
       {
-        source: "/how-to-build-a-saas-mvp-with-nextjs",
-        destination: "/blog/how-to-build-a-saas-mvp-with-nextjs",
+        source: "/blog/:slug",
+        destination: "/blogs/:slug",
+        permanent: true,
+      },
+
+      /*
+       * WordPress root URLs (blogspage.com/post-slug) → /blogs/post-slug
+       * Excludes reserved app routes so /blogs, /studio, etc. are not rewritten.
+       */
+      {
+        source:
+          "/:slug((?!blogs|studio|solutions|api|_next|favicon\\.ico|robots\\.txt|sitemap\\.xml).+)",
+        destination: "/blogs/:slug",
         permanent: true,
       },
     ];

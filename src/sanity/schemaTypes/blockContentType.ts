@@ -5,11 +5,11 @@ import {ImageIcon} from '@sanity/icons'
  * This is the schema type for block content used in the post document type
  * Importing this type into the studio configuration's `schema` property
  * lets you reuse it in other document types with:
- *  {
- *    name: 'someName',
- *    title: 'Some title',
- *    type: 'blockContent'
- *  }
+ * {
+ * name: 'someName',
+ * title: 'Some title',
+ * type: 'blockContent'
+ * }
  */
 
 export const blockContentType = defineType({
@@ -29,9 +29,14 @@ export const blockContentType = defineType({
         {title: 'H2', value: 'h2'},
         {title: 'H3', value: 'h3'},
         {title: 'H4', value: 'h4'},
+        {title: 'H5', value: 'h5'},
+        {title: 'H6', value: 'h6'},
         {title: 'Quote', value: 'blockquote'},
       ],
-      lists: [{title: 'Bullet', value: 'bullet'}],
+      lists: [
+        {title: 'Bullet', value: 'bullet'},
+        {title: 'Numbered', value: 'number'}
+      ],
       // Marks let you mark up inline text in the Portable Text Editor
       marks: {
         // Decorators usually describe a single property – e.g. a typographic
@@ -39,6 +44,9 @@ export const blockContentType = defineType({
         decorators: [
           {title: 'Strong', value: 'strong'},
           {title: 'Emphasis', value: 'em'},
+          {title: 'Underline', value: 'underline'},
+          {title: 'Strike-through', value: 'strike-through'},
+          {title: 'Code', value: 'code'}
         ],
         // Annotations can be any object structure – e.g. a link or a footnote.
         annotations: [

@@ -1,66 +1,34 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+
+import { client } from "@/sanity/lib/client";
 
 export const metadata: Metadata = {
-  title: "Blogs | Blogspage",
+  title: "Insights & Engineering | Blogspage",
   description:
-    "Field notes on product engineering, local SEO, and building revenue systems for modern businesses.",
+    "Technical deep-dives, web architecture, and field notes on building high-conversion business platforms.",
 };
 
 type BlogPost = {
-  slug: string;
+  _id: string;
   title: string;
-  excerpt: string;
-  category: string;
-  date: string;
-  readingTime: string;
+  slug: string;
+  imageUrl?: string;
+  publishedAt?: string;
+  authorName?: string;
+  categories?: string[];
 };
 
-/**
- * MDX-ready listing source.
- * Replace this static array with a content-collection / MDX loader
- * (e.g. reading from `content/blog/*.mdx` frontmatter) during migration.
- * The listing UI below is decoupled from the source shape via BlogPost.
- */
-const posts: BlogPost[] = [
-  {
-    slug: "escape-aggregator-commissions",
-    title: "How to escape 30% aggregator commissions for good",
-    excerpt:
-      "A practical teardown of the white-label ordering stack that lets local operators keep their margin and their customers.",
-    category: "Online Delivery",
-    date: "2026-05-28",
-    readingTime: "8 min read",
-  },
-  {
-    slug: "core-web-vitals-budget",
-    title: "Shipping a Core Web Vitals budget your team won't break",
-    excerpt:
-      "LCP under 1.2s, INP under 50ms, CLS at zero. The constraints we hold every page to, and how we enforce them in CI.",
-    category: "Performance",
-    date: "2026-05-14",
-    readingTime: "6 min read",
-  },
-  {
-    slug: "pause-credit-engine",
-    title: "Designing a pause-credit engine that defends recurring revenue",
-    excerpt:
-      "Letting gym members freeze fairly without bleeding contract value, modelled as an append-only ledger.",
-    category: "Gym & Fitness",
-    date: "2026-04-30",
-    readingTime: "7 min read",
-  },
-  {
-    slug: "local-seo-routing",
-    title: "A deterministic local-SEO routing engine in Next.js",
-    excerpt:
-      "One slug contract, ten verticals, every city. How we generate ProfessionalService schema from a single registry.",
-    category: "Local SEO",
-    date: "2026-04-16",
-    readingTime: "9 min read",
-  },
-];
+const POSTS_QUERY = `*[_type == "post"] | order(publishedAt desc) {
+  _id,
+  title,
+  "slug": slug.current,
+  "imageUrl": mainImage.asset->url,
+  publishedAt,
+  "authorName": author->name,
+  "categories": categories[]->title
+}`;
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("en-US", {
@@ -69,57 +37,99 @@ const formatDate = (iso: string) =>
     day: "numeric",
   });
 
-export default function BlogsPage() {
+async function getPosts(): Promise<BlogPost[]> {
+  return client.fetch<BlogPost[]>(POSTS_QUERY);
+}
+
+export default async function BlogsPage() {
+  const posts = await getPosts();
+
   return (
-    <main className="min-h-screen">
-      {/* Header band */}
-      <section className="border-b border-white/[0.06]">
-        <div className="mx-auto max-w-3xl px-6 py-24 lg:px-8 lg:py-32">
-          <p className="text-sm font-medium text-primary">Writing</p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-            The Blogspage journal.
+    <main className="min-h-screen bg-background">
+      {/* Hero */}
+      <section className="border-b border-border">
+        <div className="mx-auto max-w-6xl px-6 py-20 lg:px-8 lg:py-28">
+          <p className="text-sm font-medium tracking-wide text-primary">
+            Journal
+          </p>
+          <h1 className="mt-3 max-w-3xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">
+            Insights &amp; Engineering
           </h1>
-          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-            Engineering deep-dives, local SEO playbooks, and the systems behind
-            high-conversion business platforms.
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+            Technical deep-dives and web architecture — engineering playbooks,
+            AI automation, and the systems behind scalable digital products.
           </p>
         </div>
       </section>
 
-      {/* Reading canvas: constrained measure, MDX-ready listing */}
-      <section className="mx-auto max-w-3xl px-6 py-16 lg:px-8 lg:py-20">
+      {/* Post grid */}
+      <section className="mx-auto max-w-6xl px-6 py-16 lg:px-8 lg:py-24">
         {posts.length === 0 ? (
-          <p className="text-center text-sm text-muted-foreground">
-            Posts coming soon.
-          </p>
+          <div className="rounded-2xl border border-border bg-card px-8 py-16 text-center">
+            <p className="text-sm text-muted-foreground">
+              Articles coming soon. Check back shortly.
+            </p>
+          </div>
         ) : (
-          <ul className="flex flex-col divide-y divide-white/[0.06]">
-            {posts.map((post) => (
-              <li key={post.slug}>
-                <Link
-                  href={`/blogs/${post.slug}`}
-                  className="group flex flex-col gap-3 py-8 transition-colors"
-                >
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="rounded-full border border-white/[0.08] bg-white/[0.03] px-2.5 py-0.5 text-foreground/70">
-                      {post.category}
-                    </span>
-                    <span>{formatDate(post.date)}</span>
-                    <span aria-hidden>·</span>
-                    <span>{post.readingTime}</span>
-                  </div>
+          <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {posts.map((post) => {
+              const category = post.categories?.[0];
 
-                  <h2 className="flex items-start gap-2 text-xl font-medium tracking-tight transition-colors group-hover:text-primary">
-                    {post.title}
-                    <ArrowUpRight className="mt-1 size-4 shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
-                  </h2>
+              return (
+                <li key={post._id}>
+                  <Link
+                    href={`/blogs/${post.slug}`}
+                    className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary"
+                  >
+                    <div className="relative aspect-video overflow-hidden bg-muted">
+                      {post.imageUrl ? (
+                        <Image
+                          src={post.imageUrl}
+                          alt=""
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center">
+                          <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                            Blogspage
+                          </span>
+                        </div>
+                      )}
+                    </div>
 
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {post.excerpt}
-                  </p>
-                </Link>
-              </li>
-            ))}
+                    <div className="flex flex-1 flex-col p-6">
+                      {category ? (
+                        <span className="inline-flex w-fit rounded-full border border-border bg-background px-2.5 py-0.5 text-xs text-muted-foreground">
+                          {category}
+                        </span>
+                      ) : null}
+
+                      <h2 className="mt-3 line-clamp-2 text-lg font-medium tracking-tight text-foreground transition-colors group-hover:text-primary">
+                        {post.title}
+                      </h2>
+
+                      <p className="mt-auto pt-4 text-xs text-muted-foreground">
+                        {post.authorName ? (
+                          <span>{post.authorName}</span>
+                        ) : null}
+                        {post.authorName && post.publishedAt ? (
+                          <span aria-hidden className="mx-1.5">
+                            ·
+                          </span>
+                        ) : null}
+                        {post.publishedAt ? (
+                          <time dateTime={post.publishedAt}>
+                            {formatDate(post.publishedAt)}
+                          </time>
+                        ) : null}
+                      </p>
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>
