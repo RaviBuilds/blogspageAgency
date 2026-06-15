@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import ChatWidget from "@/components/chat-widget";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,9 +17,45 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Blogspage Agency | Business Systems, SaaS, and Mobile Apps",
+  metadataBase: new URL("https://blogspage.com"),
+  title: {
+    default: "Blogspage | AI Automation & SaaS Agency",
+    template: "%s | Blogspage",
+  },
   description:
-    "Premium business solutions consultancy building scalable digital systems, custom SaaS platforms, and native mobile apps.",
+    "Blogspage builds production-grade SaaS, digital systems, and AI workflows for ambitious founders. We turn bold product ideas into scalable, revenue-ready platforms.",
+  keywords: [
+    "SaaS agency",
+    "AI automation",
+    "digital systems",
+    "AI workflows",
+    "product engineering",
+    "web development",
+  ],
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://blogspage.com",
+    siteName: "Blogspage",
+    title: "Blogspage | AI Automation & SaaS Agency",
+    description:
+      "We build production-grade SaaS, digital systems, and AI workflows for ambitious founders. Turn bold product ideas into scalable, revenue-ready platforms.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Blogspage | AI Automation & SaaS Agency",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blogspage | AI Automation & SaaS Agency",
+    description:
+      "We build production-grade SaaS, digital systems, and AI workflows for ambitious founders.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({
@@ -31,8 +69,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
         <Navbar />
-        <main className="min-h-screen">{children}</main>
+        <main className="min-h-screen">{children}
+        
+        </main>
         <Footer />
+        <ChatWidget />
+        <Analytics />
       </body>
     </html>
   );
