@@ -39,7 +39,11 @@ function SubmitButton() {
   );
 }
 
-export function ContactForm() {
+type ContactFormProps = {
+  source?: string;
+};
+
+export function ContactForm({ source = "homepage-contact-form" }: ContactFormProps) {
   const [state, formAction] = useActionState(submitLead, initialState);
 
   return (
@@ -49,10 +53,10 @@ export function ContactForm() {
           <div>
             <p className="text-sm font-medium text-primary">Project Brief</p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-              Tell us what you're building.
+              {"Tell us what you're building."}
             </h2>
             <p className="mt-4 max-w-md text-muted-foreground">
-              Share a few details and we'll respond within one business day with
+              {"Share a few details and we'll respond within one business day with"}{" "}
               a tailored strategy outline. No commitment required.
             </p>
           </div>
@@ -74,7 +78,7 @@ export function ContactForm() {
                 </div>
               ) : (
                 <form action={formAction} className="flex flex-col gap-5" noValidate>
-                  <input type="hidden" name="source" value="homepage-contact-form" />
+                  <input type="hidden" name="source" value={source} />
 
                   <div className="grid gap-5 sm:grid-cols-2">
                     <div>

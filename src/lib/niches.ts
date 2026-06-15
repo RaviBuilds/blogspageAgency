@@ -111,7 +111,7 @@ export const slugify = (value: string) =>
 export const nicheSlug = (niche: Niche, city: string = DEFAULT_CITY) =>
   slugify(niche.slugTemplate.replace("[city]", city));
 
-type NicheSeed = Omit<Niche, "href">;
+type NicheSeed = Omit<Niche, "href" | "metrics" | "launchSchedule">;
 
 /**
  * The 10 Business Vertical Matrix (agency-context-blueprint.md §4).

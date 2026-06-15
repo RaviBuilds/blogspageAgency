@@ -8,7 +8,7 @@ import {
   TrendingDown,
 } from "lucide-react";
 
-import { ContactForm } from "@/components/contact-form";
+import { ContactForm } from "@/components/home/contact-form";
 import { Button } from "@/components/ui/button";
 import {
   Card,

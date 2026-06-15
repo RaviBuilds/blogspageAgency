@@ -58,8 +58,8 @@ export function ProcessTimeline() {
                   delay: index * 0.08,
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="relative pl-14 md:pl-16 lg:pl-0 lg:pt-14"
               >
+                <div className="relative pl-14 md:pl-16 lg:pl-0 lg:pt-14">
                 <div className="absolute left-0 top-2 flex size-10 items-center justify-center rounded-full border border-primary/30 bg-background shadow-[0_0_32px_rgba(79,70,229,0.35)] lg:top-0">
                   <div className="size-2.5 rounded-full bg-primary" />
                 </div>
@@ -71,6 +71,7 @@ export function ProcessTimeline() {
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                     {step.description}
                   </p>
+                </div>
                 </div>
               </motion.article>
             ))}
