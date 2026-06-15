@@ -11,7 +11,7 @@ import { recordLead, isValidEmail } from "@/lib/lead-store";
 import { AGENCY_OVERVIEW, renderServiceCatalog } from "@/lib/services-catalog";
 
 export const dynamic = "force-dynamic";
-
+console.log("API route");
 const MODEL = "meta/llama-3.3-70b-instruct";
 
 const SYSTEM_PROMPT = `You are "Sweety", the friendly AI assistant and lead specialist for Blogspage.
