@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import ChatWidget from "@/components/chat-widget";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -68,8 +69,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
         <Navbar />
-        <main className="min-h-screen">{children}</main>
+        <main className="min-h-screen">{children}
+        
+        </main>
         <Footer />
+        <ChatWidget />
         <Analytics />
       </body>
     </html>
