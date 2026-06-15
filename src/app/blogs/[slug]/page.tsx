@@ -6,8 +6,9 @@ import type { PortableTextBlock } from "@portabletext/types";
 
 import { client } from "@/sanity/lib/client";
 
-type BlogPostPageProps = {
+type Props = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 type BlogPost = {
@@ -63,10 +64,9 @@ async function getPost(slug: string): Promise<BlogPost | null> {
   return client.fetch<BlogPost | null>(POST_QUERY, { slug });
 }
 
-export async function generateMetadata({
-  params,
-}: BlogPostPageProps): Promise<Metadata> {
-  const { slug } = await params;
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const resolvedParams = await params;
+  const slug = resolvedParams.slug;
   const post = await getPost(slug);
 
   if (!post) {
@@ -79,8 +79,9 @@ export async function generateMetadata({
   };
 }
 
-export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const { slug } = await params;
+export default async function BlogPost({ params }: Props) {
+  const resolvedParams = await params;
+  const slug = resolvedParams.slug;
   const post = await getPost(slug);
 
   if (!post) {
