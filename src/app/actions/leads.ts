@@ -1,5 +1,7 @@
 "use server";
 
+import { recordLead } from "@/lib/lead-store";
+
 export type LeadActionState = {
   success: boolean;
   message: string;
@@ -44,10 +46,16 @@ export async function submitLead(
     phone: phone || null,
     message,
     source: source || "website",
-    submittedAt: new Date().toISOString(),
   };
 
-  console.log("[Lead Submission]", JSON.stringify(payload, null, 2));
+  const result = await recordLead(payload);
+
+  if (!result.success) {
+    return {
+      success: false,
+      message: "Something went wrong on our end. Please try again or email us directly.",
+    };
+  }
 
   return {
     success: true,
