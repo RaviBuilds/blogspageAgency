@@ -3,8 +3,30 @@
 import { useRef, type MouseEvent } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { motion, type Variants } from "framer-motion";
 import { NICHES, type Niche } from "@/lib/niches";
 import { cn } from "@/lib/utils";
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   0. MOTION PRIMITIVES (design system §5)
+   Premium spring + staggered reveal variants shared by the grid and cards.
+   ───────────────────────────────────────────────────────────────────────────── */
+const SPRING = { type: "spring", stiffness: 100, damping: 20, mass: 1 } as const;
+
+const gridVariants: Variants = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.08 },
+  },
+};
+
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 40 },
+  show: { opacity: 1, y: 0, transition: SPRING },
+};
+
+/* Motion-enabled Link: keeps next/link routing + ref, gains motion props. */
+const MotionLink = motion.create(Link);
 
 /* ─────────────────────────────────────────────────────────────────────────────
    1. ACCENT COLOR MAP
@@ -78,15 +100,21 @@ function NicheCard({ niche }: { niche: Niche }) {
   const Icon = niche.icon;
 
   return (
-    <Link
+    <MotionLink
       ref={cardRef}
       href={niche.href()}
       onMouseMove={handleMouseMove}
+      variants={cardVariants}
+      whileHover={{ scale: 1.015 }}
+      transition={SPRING}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-neutral-950 p-6",
-        "transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-        "hover:scale-[1.015] hover:border-white/[0.15]",
-        "motion-reduce:transition-none motion-reduce:hover:scale-100",
+        // Glassmorphism + ultra-subtle boundary (§4) and debossed inset (§6)
+        "group relative flex flex-col overflow-hidden rounded-2xl p-6",
+        "border border-white/[0.08] bg-white/[0.02] backdrop-blur-md",
+        "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]",
+        // Border illumination + brightness bump on hover (spring-driven scale above)
+        "transition-colors duration-300 hover:border-white/[0.15] hover:bg-white/[0.04]",
+        "motion-reduce:hover:scale-100",
         "col-span-1",
         span,
         isFeatured && "min-h-[15rem]",
@@ -176,7 +204,7 @@ function NicheCard({ niche }: { niche: Niche }) {
           <ArrowUpRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </span>
       </div>
-    </Link>
+    </MotionLink>
   );
 }
 
@@ -199,12 +227,18 @@ export function BentoGrid() {
           </p>
         </div>
 
-        {/* Bento grid — 1 col mobile, 3 col md+ */}
-        <div className="mt-16 grid grid-cols-1 gap-4 md:grid-cols-3">
+        {/* Bento grid — 1 col mobile, 3 col md+. Staggered spring reveal (§5). */}
+        <motion.div
+          className="mt-16 grid grid-cols-1 gap-4 md:grid-cols-3"
+          variants={gridVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-100px" }}
+        >
           {NICHES.map((niche) => (
             <NicheCard key={niche.id} niche={niche} />
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
