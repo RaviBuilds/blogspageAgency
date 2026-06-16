@@ -33,3 +33,7 @@ All entrance animations must use spring physics, not linear eases.
 *   **The Cursor:** Implement a custom global cursor that scales up when hovering over actionable items.
 *   **The Navigation:** Minimalist, glassmorphic pill floating at the top/bottom, or a brutalist full-screen overlay menu.
 *   **Bento Grids:** If using bento grids, animate them in staggeringly. Use inner `box-shadow` to create debossed depth.
+
+## 7. Strict Content Preservation (The Golden Rule)
+*   **Zero Copywriting Changes:** The actual text, paragraphs, headings, button labels, and image sources of the website MUST NOT be altered. 
+*   **Visual Wrapping Only:** Your job is to wrap the *existing* content in the Awwwards-tier architecture (Tailwind classes, Framer Motion elements, layout structures). You are not a copywriter; you are a UI Engineer.
