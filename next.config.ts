@@ -29,7 +29,7 @@ const nextConfig: NextConfig = {
        */
       {
         source:
-          "/:slug((?!blogs|studio|solutions|api|_next|favicon\\.ico|robots\\.txt|sitemap\\.xml).+)",
+          "/:slug((?!blogs|studio|solutions|contact|privacy|terms|api|_next|favicon\\.ico|robots\\.txt|sitemap\\.xml).+)",
         destination: "/blogs/:slug",
         permanent: true,
       },

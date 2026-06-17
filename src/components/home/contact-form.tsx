@@ -63,7 +63,7 @@ function TypedLine({
 /* ─────────────────────────────────────────────────────────────────────────────
    CONTACT SECTION — Terminal / IDE Interface
    ───────────────────────────────────────────────────────────────────────────── */
-export function ContactForm() {
+export function ContactForm({ source }: { source?: string } = {}) {
   const openChat = () => {
     window.dispatchEvent(new Event("open-ai-chat"));
   };
