@@ -1,175 +1,183 @@
 "use client";
 
-import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
-import { submitLead, type LeadActionState } from "@/app/actions/leads";
-import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
+import { motion, type Variants } from "framer-motion";
+import { Terminal, ChevronRight, Sparkles } from "lucide-react";
 
-const initialState: LeadActionState = { success: false, message: "" };
+/* ─────────────────────────────────────────────────────────────────────────────
+   MOTION PRIMITIVES — design system §5
+   ───────────────────────────────────────────────────────────────────────────── */
+const SPRING = { type: "spring", stiffness: 100, damping: 20, mass: 1 } as const;
 
-// Glassmorphic input: bg-white/[0.02], sharp border-white/10, and a
-// subtle upward translate on focus (transform/opacity only — no reflow).
-const inputClass =
-  "w-full rounded-md border border-white/10 bg-white/[0.02] px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none backdrop-blur-sm transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-white/20 focus:-translate-y-0.5 focus:border-primary/60 focus:bg-white/[0.04] focus:ring-2 focus:ring-primary/30 motion-reduce:transform-none";
+const container: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08 } },
+};
 
-const labelClass = "mb-1.5 block text-xs font-medium text-muted-foreground";
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: SPRING },
+};
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+/* ─────────────────────────────────────────────────────────────────────────────
+   TYPING EFFECT for terminal lines
+   ───────────────────────────────────────────────────────────────────────────── */
+function TypedLine({
+  text,
+  delay = 0,
+  className = "",
+}: {
+  text: string;
+  delay?: number;
+  className?: string;
+}) {
+  const [displayed, setDisplayed] = useState("");
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    const startTimeout = setTimeout(() => setStarted(true), delay);
+    return () => clearTimeout(startTimeout);
+  }, [delay]);
+
+  useEffect(() => {
+    if (!started) return;
+    let i = 0;
+    const interval = setInterval(() => {
+      i++;
+      setDisplayed(text.slice(0, i));
+      if (i >= text.length) clearInterval(interval);
+    }, 28);
+    return () => clearInterval(interval);
+  }, [started, text]);
+
   return (
-    <button
-      type="submit"
-      disabled={pending}
-      className={cn(
-        "group relative inline-flex h-11 items-center justify-center gap-2 overflow-hidden rounded-md bg-primary px-7",
-        "text-sm font-medium text-primary-foreground transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-        "hover:scale-[1.02] hover:bg-primary/90 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60",
-        "motion-reduce:transform-none",
+    <span className={className}>
+      {displayed}
+      {started && displayed.length < text.length && (
+        <span className="animate-pulse">▌</span>
       )}
-    >
-      {/* Hovering shimmer sweep */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -translate-x-full bg-[linear-gradient(110deg,transparent_30%,rgba(255,255,255,0.35)_50%,transparent_70%)] transition-transform duration-700 ease-out group-hover:translate-x-full"
-      />
-      <span className="relative">{pending ? "Sending…" : "Send project brief"}</span>
-      {!pending && <ArrowRight className="relative size-4" />}
-    </button>
+    </span>
   );
 }
 
-type ContactFormProps = {
-  source?: string;
-};
-
-export function ContactForm({ source = "homepage-contact-form" }: ContactFormProps) {
-  const [state, formAction] = useActionState(submitLead, initialState);
+/* ─────────────────────────────────────────────────────────────────────────────
+   CONTACT SECTION — Terminal / IDE Interface
+   ───────────────────────────────────────────────────────────────────────────── */
+export function ContactForm() {
+  const openChat = () => {
+    window.dispatchEvent(new Event("open-ai-chat"));
+  };
 
   return (
-    <section id="contact" className="border-t border-white/[0.06] py-24 lg:py-32">
+    <section id="contact" className="border-t border-white/[0.05] py-24 lg:py-32">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-        <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
-          <div>
-            <p className="text-sm font-medium text-primary">Project Brief</p>
+        <motion.div
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-100px" }}
+          className="grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-16"
+        >
+          {/* Left column — positioning copy */}
+          <motion.div variants={fadeUp}>
+            <p className="text-sm font-medium text-primary">Initialize</p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-              {"Tell us what you're building."}
+              Your AI system is one conversation away.
             </h2>
             <p className="mt-4 max-w-md text-muted-foreground">
-              {"Share a few details and we'll respond within one business day with"}{" "}
-              a tailored strategy outline. No commitment required.
+              No forms. No waiting. Talk directly to Sweety — our AI SDR — and
+              get a strategy recommendation in under 2 minutes.
             </p>
-          </div>
+            <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
+              <li className="flex items-center gap-2">
+                <ChevronRight className="size-3 text-primary" />
+                Instant lead qualification
+              </li>
+              <li className="flex items-center gap-2">
+                <ChevronRight className="size-3 text-primary" />
+                Personalized strategy preview
+              </li>
+              <li className="flex items-center gap-2">
+                <ChevronRight className="size-3 text-primary" />
+                Zero friction — no email required to start
+              </li>
+            </ul>
+          </motion.div>
 
-          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-sm sm:p-8">
-            <div className="gradient-mesh pointer-events-none absolute inset-0 opacity-30" />
-            <div className="relative">
-              {state.success ? (
-                <div className="flex min-h-72 flex-col items-center justify-center text-center">
-                  <div className="flex size-12 items-center justify-center rounded-xl border border-white/[0.1] bg-primary/10">
-                    <CheckCircle2 className="size-6 text-primary" />
-                  </div>
-                  <h3 className="mt-5 text-xl font-medium tracking-tight">
-                    Brief received.
-                  </h3>
-                  <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-                    {state.message}
-                  </p>
+          {/* Right column — Terminal UI */}
+          <motion.div variants={fadeUp}>
+            <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0a0a0f] shadow-2xl shadow-black/40">
+              {/* Terminal chrome */}
+              <div className="flex items-center gap-2 border-b border-white/[0.06] px-4 py-3">
+                <div className="flex gap-1.5">
+                  <span className="size-2.5 rounded-full bg-red-500/70" />
+                  <span className="size-2.5 rounded-full bg-yellow-500/70" />
+                  <span className="size-2.5 rounded-full bg-emerald-500/70" />
                 </div>
-              ) : (
-                <form action={formAction} className="flex flex-col gap-5" noValidate>
-                  <input type="hidden" name="source" value={source} />
+                <span className="ml-3 flex items-center gap-1.5 text-xs text-white/30">
+                  <Terminal className="size-3" />
+                  blogspage-ai-engine
+                </span>
+              </div>
 
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <div>
-                      <label htmlFor="cf-name" className={labelClass}>
-                        Name
-                      </label>
-                      <input
-                        id="cf-name"
-                        name="name"
-                        type="text"
-                        placeholder="Jane Doe"
-                        autoComplete="name"
-                        aria-invalid={Boolean(state.errors?.name)}
-                        className={inputClass}
-                      />
-                      {state.errors?.name && (
-                        <p className="mt-1.5 text-xs text-destructive">
-                          {state.errors.name}
-                        </p>
-                      )}
-                    </div>
+              {/* Terminal body */}
+              <div className="p-5 font-mono text-sm leading-relaxed">
+                <div className="text-white/40">
+                  <span className="text-emerald-400">$</span>{" "}
+                  <TypedLine
+                    text="npx blogspage-ai --init"
+                    delay={400}
+                    className="text-white/70"
+                  />
+                </div>
 
-                    <div>
-                      <label htmlFor="cf-email" className={labelClass}>
-                        Email
-                      </label>
-                      <input
-                        id="cf-email"
-                        name="email"
-                        type="email"
-                        placeholder="jane@company.com"
-                        autoComplete="email"
-                        aria-invalid={Boolean(state.errors?.email)}
-                        className={inputClass}
-                      />
-                      {state.errors?.email && (
-                        <p className="mt-1.5 text-xs text-destructive">
-                          {state.errors.email}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+                <div className="mt-3 text-white/40">
+                  <TypedLine
+                    text="✓ Connecting to AI engine..."
+                    delay={1800}
+                    className="text-white/50"
+                  />
+                </div>
 
-                  <div>
-                    <label htmlFor="cf-phone" className={labelClass}>
-                      Phone <span className="text-muted-foreground/60">(optional)</span>
-                    </label>
-                    <input
-                      id="cf-phone"
-                      name="phone"
-                      type="tel"
-                      placeholder="+91 90000 00000"
-                      autoComplete="tel"
-                      className={inputClass}
-                    />
-                  </div>
+                <div className="mt-1 text-white/40">
+                  <TypedLine
+                    text="✓ Loading strategy models..."
+                    delay={3000}
+                    className="text-white/50"
+                  />
+                </div>
 
-                  <div>
-                    <label htmlFor="cf-message" className={labelClass}>
-                      Project details
-                    </label>
-                    <textarea
-                      id="cf-message"
-                      name="message"
-                      rows={4}
-                      placeholder="What are you building, and what outcome matters most?"
-                      aria-invalid={Boolean(state.errors?.message)}
-                      className={cn(inputClass, "resize-none")}
-                    />
-                    {state.errors?.message && (
-                      <p className="mt-1.5 text-xs text-destructive">
-                        {state.errors.message}
-                      </p>
-                    )}
-                  </div>
+                <div className="mt-1 text-white/40">
+                  <TypedLine
+                    text="✓ Sweety (AI SDR) online. Ready to qualify."
+                    delay={4200}
+                    className="text-emerald-400/80"
+                  />
+                </div>
 
-                  {!state.success && state.message && (
-                    <p className="text-xs text-destructive">{state.message}</p>
-                  )}
+                <div className="mt-5 border-t border-white/[0.05] pt-5">
+                  <p className="text-white/30 text-xs mb-3">
+                    {">"} Click below to initialize a live strategy session
+                  </p>
 
-                  <div className="flex items-center justify-between gap-4">
-                    <SubmitButton />
-                    <p className="text-xs text-muted-foreground">
-                      One business day response.
-                    </p>
-                  </div>
-                </form>
-              )}
+                  {/* The trigger button */}
+                  <button
+                    onClick={openChat}
+                    className="group inline-flex items-center gap-2 rounded-lg border border-white/[0.1] bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-white/80 transition-all duration-200 hover:border-primary/40 hover:bg-primary/10 hover:text-white"
+                  >
+                    <Sparkles className="size-3.5 text-primary" />
+                    <span>Initialize System</span>
+                    <ChevronRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+
+            <p className="mt-4 text-center text-xs text-muted-foreground/50">
+              Powered by our proprietary LLM pipeline · Response in &lt;5s
+            </p>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );

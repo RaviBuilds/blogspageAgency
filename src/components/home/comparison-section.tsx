@@ -1,4 +1,7 @@
+"use client";
+
 import { CheckCircle2, XCircle } from "lucide-react";
+import { motion, type Variants } from "framer-motion";
 
 import {
   Card,
@@ -8,83 +11,126 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+// Premium spring from the design system (§5 Motion Physics).
+const SPRING = { type: "spring", stiffness: 100, damping: 20, mass: 1 } as const;
+
+const container: Variants = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.1, delayChildren: 0.05 },
+  },
+};
+
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 40 },
+  show: { opacity: 1, y: 0, transition: SPRING },
+};
+
 const freelancerPainPoints = [
-  "Ghosting after the first milestone",
-  "Spaghetti code that breaks under growth",
-  "No business context behind technical choices",
-  "Hand-offs that leave your team guessing",
+  "Static, “dumb” websites that just sit there looking pretty",
+  "Generic templates recycled across a hundred other clients",
+  "Zero automation — every lead waits on a manual reply",
+  "You become the sales team, chasing follow-ups by hand",
 ];
 
 const agencyAdvantages = [
-  "Business-first architecture before code",
-  "Scalable Next.js systems with clean ownership",
-  "Direct communication and weekly decision rhythm",
-  "Product thinking across UX, data, and operations",
+  "Intelligent, AI-integrated platforms engineered around your funnel",
+  "Custom AI sales agents that qualify and capture leads 24/7",
+  "Automated follow-ups and CRM sync that never drop a prospect",
+  "Seamless backend systems doing the operational heavy lifting",
 ];
 
 export function ComparisonSection() {
   return (
-    <section id="comparison" className="border-t border-white/6 py-24 lg:py-32">
+    <section id="comparison" className="border-t border-white/[0.08] py-24 lg:py-32">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium text-primary">Built Like A Product Team</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-            We do more than typical freelancers.
-          </h2>
-          <p className="mt-4 text-muted-foreground">
-            You get senior product judgment, disciplined delivery, and systems
-            that are designed to keep working after launch.
-          </p>
-        </div>
+        <motion.div
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-100px" }}
+          className="mx-auto max-w-2xl text-center"
+        >
+          <motion.p variants={fadeUp} className="text-sm font-medium text-primary">
+            Static Sites vs. Intelligent Systems
+          </motion.p>
+          <motion.h2
+            variants={fadeUp}
+            className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl"
+          >
+            A website that looks good isn&apos;t the same as a system that sells.
+          </motion.h2>
+          <motion.p variants={fadeUp} className="mt-4 text-muted-foreground">
+            Most freelancers hand you a static brochure and walk away. We deploy
+            AI-powered platforms that capture, qualify, and convert on autopilot.
+          </motion.p>
+        </motion.div>
 
-        <div className="mt-16 grid gap-5 lg:grid-cols-2">
-          <Card className="relative overflow-hidden bg-white/2">
-            <div className="pointer-events-none absolute -right-24 -top-24 size-64 rounded-full bg-red-500/10 blur-3xl" />
-            <CardHeader>
-              <div className="flex size-11 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/10">
-                <XCircle className="size-5 text-red-400" />
-              </div>
-              <CardTitle className="mt-5 text-2xl">Typical Freelancer</CardTitle>
-              <CardDescription>
-                Cheap up front, expensive once the product meets real users.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-4">
-                {freelancerPainPoints.map((item) => (
-                  <li key={item} className="flex gap-3 text-sm text-muted-foreground">
-                    <span className="mt-2 size-1.5 shrink-0 rounded-full bg-red-400" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+        <motion.div
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-100px" }}
+          className="mt-16 grid gap-5 lg:grid-cols-2"
+        >
+          {/* Typical Freelancer — deep glass, muted, the "before". */}
+          <motion.div variants={fadeUp}>
+            <Card className="relative h-full overflow-hidden border-white/[0.08] bg-white/[0.02] backdrop-blur-md">
+              <div className="pointer-events-none absolute -right-24 -top-24 size-64 rounded-full bg-red-500/10 blur-3xl" />
+              <CardHeader>
+                <div className="flex size-11 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/10">
+                  <XCircle className="size-5 text-red-400" />
+                </div>
+                <CardTitle className="mt-5 text-2xl">Typical Freelancer</CardTitle>
+                <CardDescription>
+                  Cheap up front, expensive once the leads start slipping through
+                  the cracks.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-4">
+                  {freelancerPainPoints.map((item) => (
+                    <li
+                      key={item}
+                      className="flex gap-3 text-sm text-muted-foreground"
+                    >
+                      <span className="mt-2 size-1.5 shrink-0 rounded-full bg-red-400" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <Card className="relative overflow-hidden border-indigo-400/20 bg-indigo-950/18">
-            <div className="pointer-events-none absolute -right-24 -top-24 size-64 rounded-full bg-indigo-500/20 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-24 -left-24 size-56 rounded-full bg-emerald-500/10 blur-3xl" />
-            <CardHeader>
-              <div className="flex size-11 items-center justify-center rounded-xl border border-emerald-400/20 bg-emerald-400/10">
-                <CheckCircle2 className="size-5 text-emerald-300" />
-              </div>
-              <CardTitle className="mt-5 text-2xl">Our Approach</CardTitle>
-              <CardDescription>
-                A focused agency operating system for SaaS and business-critical tools.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-4">
-                {agencyAdvantages.map((item) => (
-                  <li key={item} className="flex gap-3 text-sm text-zinc-200">
-                    <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-300" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
+          {/* Our Approach — deep glass with accent glows, the "after". */}
+          <motion.div variants={fadeUp}>
+            <Card className="relative h-full overflow-hidden border-white/[0.08] bg-white/[0.02] backdrop-blur-md">
+              <div className="pointer-events-none absolute -right-24 -top-24 size-64 rounded-full bg-indigo-500/20 blur-3xl" />
+              <div className="pointer-events-none absolute -bottom-24 -left-24 size-56 rounded-full bg-emerald-500/10 blur-3xl" />
+              <CardHeader>
+                <div className="flex size-11 items-center justify-center rounded-xl border border-emerald-400/20 bg-emerald-400/10">
+                  <CheckCircle2 className="size-5 text-emerald-300" />
+                </div>
+                <CardTitle className="mt-5 text-2xl">Our Approach</CardTitle>
+                <CardDescription>
+                  AI-integrated platforms with sales agents and backend systems
+                  that do the heavy lifting for you.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-4">
+                  {agencyAdvantages.map((item) => (
+                    <li key={item} className="flex gap-3 text-sm text-zinc-200">
+                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-300" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );

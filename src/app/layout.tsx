@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import ChatWidget from "@/components/chat-widget";
+import { Preloader } from "@/components/ui/preloader";
 import { SmoothScrollProvider } from "@/components/providers/smooth-scroll-provider";
 import { CustomCursor } from "@/components/ui/custom-cursor";
 import "./globals.css";
@@ -70,6 +71,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
+        <Preloader />
         <CustomCursor />
         <SmoothScrollProvider>
           <Navbar />

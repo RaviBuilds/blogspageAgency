@@ -5,7 +5,7 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { motion, type Variants } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
-const trustedLogos = ["Next.js", "Supabase", "Vercel", "Stripe", "Sanity"];
+const trustedLogos = ["OpenAI", "Vercel", "Supabase", "Next.js", "Stripe"];
 
 // Premium spring from the design system (§5 Motion Physics).
 const SPRING = { type: "spring", stiffness: 100, damping: 20, mass: 1 } as const;
@@ -17,11 +17,16 @@ const container: Variants = {
   },
 };
 
+const lineReveal: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08 } },
+};
+
 const wordReveal: Variants = {
-  hidden: { opacity: 0, y: "0.45em", rotateX: 40 },
+  hidden: { opacity: 0, y: "100%", rotateX: -55 },
   show: {
     opacity: 1,
-    y: "0em",
+    y: "0%",
     rotateX: 0,
     transition: SPRING,
   },
@@ -32,23 +37,36 @@ const fadeUp: Variants = {
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
-// Kinetic helper: splits a heading string into animatable word spans WITHOUT
-// altering the copy. Each token is wrapped for the stagger; spacing preserved.
-function KineticWords({ text }: { text: string }) {
-  const words = text.split(" ");
+// Kinetic helper: handles multi-line headlines.
+// The `overflow-hidden` mask lives at the LINE level with generous padding
+// so the 3D-rotated words rise into view from behind an invisible floor.
+// Each line is a motion.span (block) so variant propagation flows from the
+// parent container → line → words without breaks.
+function KineticHeadline({ lines, className }: { lines: string[]; className?: string }) {
   return (
     <>
-      {words.map((word, i) => (
-        <span
-          key={`${word}-${i}`}
-          className="inline-block overflow-hidden align-bottom"
-          style={{ perspective: "800px" }}
+      {lines.map((line, lineIdx) => (
+        <motion.span
+          key={lineIdx}
+          variants={lineReveal}
+          className={`block overflow-hidden pb-3 ${lineIdx > 0 ? "mt-2" : ""} ${className ?? ""}`}
         >
-          <motion.span variants={wordReveal} className="inline-block will-change-transform">
-            {word}
-          </motion.span>
-          {i < words.length - 1 ? "\u00A0" : null}
-        </span>
+          {line.split(" ").map((word, i, arr) => (
+            <span
+              key={`${word}-${lineIdx}-${i}`}
+              className="inline-block align-bottom"
+              style={{ perspective: "1000px" }}
+            >
+              <motion.span
+                variants={wordReveal}
+                className="inline-block origin-bottom will-change-transform"
+              >
+                {word}
+              </motion.span>
+              {i < arr.length - 1 ? "\u00A0" : null}
+            </span>
+          ))}
+        </motion.span>
       ))}
     </>
   );
@@ -88,16 +106,17 @@ export function Hero() {
               className="mb-10 inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/4 px-4 py-1.5 text-xs text-muted-foreground shadow-2xl shadow-indigo-500/10 backdrop-blur"
             >
               <Sparkles className="size-3.5 text-primary" />
-              Premium product engineering for founders who need momentum
+              AI automation & product engineering for category-defining founders
             </motion.div>
 
             <h1 className="max-w-5xl text-5xl font-semibold leading-[0.85] tracking-tighter text-balance sm:text-7xl lg:text-[7.5rem]">
-              <span className="block">
-                <KineticWords text="SaaS & Digital Systems for" />
-              </span>
-              <span className="mt-2 block text-gradient">
-                <KineticWords text="Ambitious Founders." />
-              </span>
+              <KineticHeadline
+                lines={[
+                  "We Build AI Systems That",
+                  "Sell While You Sleep.",
+                ]}
+                className="last:text-gradient"
+              />
             </h1>
           </motion.div>
 
@@ -112,9 +131,10 @@ export function Hero() {
               variants={fadeUp}
               className="max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg"
             >
-              We turn high-stakes ideas into polished SaaS products, workflow
-              automations, and internal operating systems with senior technical
-              strategy from day one.
+              We engineer intelligent SaaS platforms and custom AI sales agents
+              that capture leads, automate your follow-ups, and run revenue
+              operations around the clock — so growth stops depending on
+              headcount.
             </motion.p>
 
             <motion.div
@@ -128,7 +148,7 @@ export function Hero() {
                   asChild
                 >
                   <Link href="#contact">
-                    Book a strategy call
+                    Deploy your AI system
                     <ArrowRight className="size-4" />
                   </Link>
                 </Button>
@@ -140,7 +160,7 @@ export function Hero() {
                   className="h-11 border-white/[0.08] bg-white/2 px-6 hover:bg-white/6"
                   asChild
                 >
-                  <Link href="#models">Explore delivery models</Link>
+                  <Link href="#models">See what we automate</Link>
                 </Button>
               </motion.div>
             </motion.div>
@@ -159,7 +179,7 @@ export function Hero() {
             variants={fadeUp}
             className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground"
           >
-            Trusted by teams building with
+            AI-native systems built on
           </motion.p>
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
             {trustedLogos.map((logo) => (

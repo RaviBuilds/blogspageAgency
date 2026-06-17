@@ -21,6 +21,13 @@ export default function ChatWidget() {
   const isLoading = status === "submitted" || status === "streaming";
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Listen for global "open-ai-chat" event so other components can trigger the widget.
+  useEffect(() => {
+    const handleOpen = () => setIsOpen(true);
+    window.addEventListener("open-ai-chat", handleOpen);
+    return () => window.removeEventListener("open-ai-chat", handleOpen);
+  }, []);
+
   // Keep the conversation pinned to the latest message.
   useEffect(() => {
     scrollRef.current?.scrollTo({
