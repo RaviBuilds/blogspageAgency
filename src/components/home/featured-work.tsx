@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import { motion, useScroll, useTransform, type Variants } from "framer-motion";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -18,102 +19,102 @@ const mobileFadeUp: Variants = {
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
+/* Shared filter classes for the "Muted Reveal" interaction.
+   Default: pushed into the dark canvas. Hover: full fidelity. */
+const MUTED_REVEAL =
+  "grayscale-[40%] brightness-[0.7] opacity-80 transition-all duration-[800ms] ease-out group-hover:grayscale-0 group-hover:brightness-100 group-hover:opacity-100";
+
 /* ─────────────────────────────────────────────────────────────────────────────
-   PROJECT DATA
+   PROJECT DATA — real portfolio assets
    ───────────────────────────────────────────────────────────────────────────── */
 const projects = [
   {
     id: "phixl-ai",
+    image: "/phixlAI.jpg",
     tag: "AI SaaS Product",
     headline: "Phixl AI Restoration Engine",
     description:
-      "A production-grade SaaS leveraging Next.js and the Replicate API to autonomously restore and upscale historical imagery. Users upload damaged photos and receive cinematic, AI-enhanced outputs in seconds — no manual intervention, no Photoshop.",
+      "Autonomous photo restoration SaaS. Users upload damaged imagery and receive cinematic, AI-enhanced outputs in seconds via headless infrastructure.",
+    tech: ["Next.js", "Replicate API", "Tailwind", "Supabase"],
     accent: "99,102,241",
     gradient: "from-indigo-500/20 via-violet-500/10 to-transparent",
   },
   {
     id: "nextinn",
-    tag: "Enterprise Cloud System",
-    headline: "NextInn Hotel Management SaaS",
+    image: "/NextInn.jpg",
+    tag: "Enterprise SaaS",
+    headline: "NextInn Hotel OS",
     description:
-      "A comprehensive MERN stack architecture featuring role-based dashboards, super-admin controls, and automated booking workflows. Multi-property operators manage rooms, revenue, and guest communications from a single command center.",
+      "Comprehensive hotel management architecture featuring role-based super-admin dashboards, real-time availability sync, and automated booking workflows.",
+    tech: ["MERN Stack", "Redux", "Stripe", "WebSockets"],
     accent: "56,189,248",
     gradient: "from-sky-500/20 via-cyan-500/10 to-transparent",
   },
   {
-    id: "ecopetkit",
-    tag: "Headless E-Commerce",
-    headline: "EcoPetKit B2B Platform",
+    id: "arogyadiet",
+    image: "/ArogyaDiet.jpg",
+    tag: "HealthTech Dashboard",
+    headline: "ArogyaDiet Analytics",
     description:
-      "A high-performance headless architecture utilizing Next.js and WordPress as a data layer for multilingual product showcasing and programmatic SEO. Thousands of auto-generated, schema-rich pages drive organic traffic at scale.",
+      "High-performance data visualization interface for dietary tracking and patient analytics, built for seamless scale and instant data mutation.",
+    tech: ["React", "TypeScript", "Tailwind", "Data Viz"],
     accent: "16,185,129",
     gradient: "from-emerald-500/20 via-teal-500/10 to-transparent",
+  },
+  {
+    id: "best100movies",
+    image: "/movieDB.png",
+    tag: "Programmatic Media",
+    headline: "Best100Movies Engine",
+    description:
+      "A lightning-fast, visually immersive media directory with programmatic SEO architectures, infinite scroll, and dynamic API routing.",
+    tech: ["Next.js", "REST APIs", "Framer Motion", "SEO"],
+    accent: "139,92,246",
+    gradient: "from-violet-500/20 via-purple-500/10 to-transparent",
   },
 ];
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   PROJECT CARD — used in both mobile (vertical) and desktop (horizontal)
+   TECH STACK PILLS
    ───────────────────────────────────────────────────────────────────────────── */
-function ProjectCardInner({
-  project,
-}: {
-  project: (typeof projects)[number];
-}) {
+function TechPills({ stack }: { stack: string[] }) {
   return (
-    <>
-      {/* Background gradient glow */}
-      <div
-        aria-hidden
-        className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${project.gradient} opacity-60`}
-      />
-
-      {/* Abstract "product screen" placeholder */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <div className="relative h-[55%] w-[65%] rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-2xl shadow-black/40 md:h-[60%] md:w-[70%]">
-          <div className="flex items-center gap-1.5 border-b border-white/[0.06] px-4 py-3">
-            <span className="size-2 rounded-full bg-white/20" />
-            <span className="size-2 rounded-full bg-white/20" />
-            <span className="size-2 rounded-full bg-white/20" />
-            <span className="ml-3 h-2 w-24 rounded-full bg-white/[0.06]" />
-          </div>
-          <div className="space-y-3 p-4 md:p-6">
-            <div className="h-3 w-2/3 rounded bg-white/[0.04]" />
-            <div className="h-3 w-1/2 rounded bg-white/[0.04]" />
-            <div className="mt-4 h-16 w-full rounded-lg bg-white/[0.03] md:mt-6 md:h-24" />
-            <div className="flex gap-3">
-              <div className="h-7 w-16 rounded-md bg-white/[0.04] md:h-8 md:w-20" />
-              <div className="h-7 w-16 rounded-md bg-white/[0.03] md:h-8 md:w-20" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Text overlay at bottom */}
-      <div className="relative z-10 bg-gradient-to-t from-[#050505] via-[#050505]/90 to-transparent p-6 pt-20 md:p-12 md:pt-32">
+    <div className="mt-4 flex flex-wrap gap-2">
+      {stack.map((t) => (
         <span
-          className="inline-block rounded-full border px-3 py-1 text-[10px] font-medium uppercase tracking-[0.18em] md:text-xs"
-          style={{
-            borderColor: `rgba(${project.accent}, 0.3)`,
-            color: `rgba(${project.accent}, 0.9)`,
-          }}
+          key={t}
+          className="rounded-full border border-white/[0.05] bg-white/[0.03] px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-white/60 md:text-xs"
         >
-          {project.tag}
+          {t}
         </span>
-
-        <h3 className="mt-3 text-2xl font-semibold leading-tight tracking-tight sm:text-3xl md:mt-4 md:text-5xl lg:text-6xl">
-          {project.headline}
-        </h3>
-
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/50 md:mt-4 md:text-base">
-          {project.description}
-        </p>
-      </div>
-    </>
+      ))}
+    </div>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   DESKTOP: Horizontal pinned card with parallax
+   BROWSER WINDOW — macOS-style chrome wrapper.
+   Aspect-locked by the caller; this just supplies the title bar + content frame.
+   ───────────────────────────────────────────────────────────────────────────── */
+function BrowserChrome({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative flex h-full w-full flex-col overflow-hidden rounded-xl border border-white/[0.06] bg-[#0c0c0c] shadow-2xl shadow-black/50">
+      {/* Title bar */}
+      <div className="flex h-7 shrink-0 items-center gap-1.5 border-b border-white/[0.05] bg-white/[0.04] px-3">
+        <span className="size-2 rounded-full bg-[#ff5f57]/70" />
+        <span className="size-2 rounded-full bg-[#febc2e]/70" />
+        <span className="size-2 rounded-full bg-[#28c840]/70" />
+      </div>
+      {/* Content area — relative + overflow-hidden so the fill image is framed */}
+      <div className="relative min-h-0 flex-1 overflow-hidden bg-[#0c0c0c]">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESKTOP CARD — horizontal pinned with inner image parallax + muted reveal
    ───────────────────────────────────────────────────────────────────────────── */
 function DesktopCard({
   project,
@@ -124,49 +125,52 @@ function DesktopCard({
   progress: ReturnType<typeof useTransform<number, number>>;
   index: number;
 }) {
-  const parallaxX = useTransform(
-    progress,
-    [0, 1],
-    [30 * (index + 1), -30 * (index + 1)],
-  );
+  // Inner image parallax. Base scale stays > 1 so the horizontal pan never
+  // exposes the frame edges (the scale overscan always covers the x offset).
+  const imgScale = useTransform(progress, [0, 1], [1.1, 1.18]);
+  const imgX = useTransform(progress, [0, 1], ["-3%", "3%"]);
 
   return (
     <article
-      className="relative flex h-[75vh] w-[80vw] flex-shrink-0 flex-col justify-end overflow-hidden rounded-3xl border border-white/[0.08] bg-[#0a0a0a]/50 backdrop-blur-sm"
+      className="group relative flex h-[78vh] w-[80vw] flex-shrink-0 flex-col overflow-hidden rounded-3xl border border-white/[0.08] bg-[#0a0a0a]/60 backdrop-blur-sm"
       style={{ "--card-accent": project.accent } as React.CSSProperties}
     >
       {/* Background gradient glow */}
       <div
         aria-hidden
-        className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${project.gradient} opacity-60`}
+        className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${project.gradient} opacity-50`}
       />
 
-      {/* Parallax image layer */}
-      <motion.div
-        style={{ x: parallaxX }}
-        className="pointer-events-none absolute inset-0 flex items-center justify-center"
-      >
-        <div className="relative h-[60%] w-[70%] rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-2xl shadow-black/40">
-          <div className="flex items-center gap-1.5 border-b border-white/[0.06] px-4 py-3">
-            <span className="size-2 rounded-full bg-white/20" />
-            <span className="size-2 rounded-full bg-white/20" />
-            <span className="size-2 rounded-full bg-white/20" />
-            <span className="ml-3 h-2 w-24 rounded-full bg-white/[0.06]" />
-          </div>
-          <div className="space-y-3 p-6">
-            <div className="h-3 w-2/3 rounded bg-white/[0.04]" />
-            <div className="h-3 w-1/2 rounded bg-white/[0.04]" />
-            <div className="mt-6 h-24 w-full rounded-lg bg-white/[0.03]" />
-            <div className="flex gap-3">
-              <div className="h-8 w-20 rounded-md bg-white/[0.04]" />
-              <div className="h-8 w-20 rounded-md bg-white/[0.03]" />
-            </div>
-          </div>
-        </div>
-      </motion.div>
+      {/* Image region — aspect-locked browser window, centered */}
+      <div className="relative flex flex-1 items-center justify-center px-8 pt-12 md:px-14 md:pt-14">
+        <div className="aspect-[16/10] w-full max-w-4xl">
+          <BrowserChrome>
+            {/* Parallax layer */}
+            <motion.div
+              style={{ scale: imgScale, x: imgX }}
+              className="relative h-full w-full"
+            >
+              <Image
+                src={project.image}
+                alt={project.headline}
+                fill
+                sizes="80vw"
+                priority={index === 0}
+                className={`object-cover object-top ${MUTED_REVEAL}`}
+              />
+            </motion.div>
 
-      {/* Text overlay */}
-      <div className="relative z-10 bg-gradient-to-t from-[#050505] via-[#050505]/90 to-transparent p-12 pt-32">
+            {/* Brand color-grade tint — fades out on hover */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 bg-indigo-900/20 mix-blend-overlay transition-opacity duration-[800ms] ease-out group-hover:opacity-0"
+            />
+          </BrowserChrome>
+        </div>
+      </div>
+
+      {/* Text block */}
+      <div className="relative z-10 px-10 pb-10 pt-6 md:px-14 md:pb-12">
         <span
           className="inline-block rounded-full border px-3 py-1 text-xs font-medium uppercase tracking-[0.18em]"
           style={{
@@ -176,12 +180,16 @@ function DesktopCard({
         >
           {project.tag}
         </span>
-        <h3 className="mt-4 text-5xl font-semibold leading-tight tracking-tight lg:text-6xl">
+
+        <h3 className="mt-4 text-3xl font-semibold leading-tight tracking-tight lg:text-4xl xl:text-5xl">
           {project.headline}
         </h3>
-        <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/50">
+
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/50 md:text-base">
           {project.description}
         </p>
+
+        <TechPills stack={project.tech} />
       </div>
     </article>
   );
@@ -198,13 +206,15 @@ function DesktopHorizontalScroll() {
     offset: ["start start", "end end"],
   });
 
-  const trackX = useTransform(scrollYProgress, [0, 1], ["0%", "-66.666%"]);
+  // 4 cards × 80vw + 3 gaps × 2rem + 12 left-pad ≈ 326vw track.
+  // Translate to land the last card comfortably inside the 100vw viewport.
+  const trackX = useTransform(scrollYProgress, [0, 1], ["0vw", "-232vw"]);
 
   return (
-    <section ref={sectionRef} className="relative hidden h-[300vh] md:block">
+    <section ref={sectionRef} className="relative hidden h-[400vh] md:block">
       <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
         {/* Section header */}
-        <div className="absolute left-0 top-12 z-10 px-6 lg:px-12">
+        <div className="absolute left-0 top-10 z-10 px-6 lg:px-12">
           <p className="text-sm font-medium text-primary">Featured Systems</p>
           <h2 className="mt-2 text-3xl font-semibold tracking-tight">
             Proof, not promises.
@@ -212,10 +222,7 @@ function DesktopHorizontalScroll() {
         </div>
 
         {/* Horizontal track */}
-        <motion.div
-          style={{ x: trackX }}
-          className="flex gap-8 pl-12 pr-[20vw]"
-        >
+        <motion.div style={{ x: trackX }} className="flex gap-8 pl-12 pr-[20vw]">
           {projects.map((project, index) => (
             <DesktopCard
               key={project.id}
@@ -238,7 +245,8 @@ function DesktopHorizontalScroll() {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   MOBILE: Vertical stacked cards with whileInView fade-ins
+   MOBILE: Vertical stacked cards with whileInView fade-ins.
+   Images render at full fidelity (no hover on touch devices to trigger reveal).
    ───────────────────────────────────────────────────────────────────────────── */
 function MobileVerticalStack() {
   return (
@@ -261,10 +269,59 @@ function MobileVerticalStack() {
           <motion.article
             key={project.id}
             variants={mobileFadeUp}
-            className="relative flex min-h-[420px] w-full flex-col justify-end overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0a0a0a]/50 backdrop-blur-sm"
+            className="relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0a0a0a]/60 backdrop-blur-sm"
             style={{ "--card-accent": project.accent } as React.CSSProperties}
           >
-            <ProjectCardInner project={project} />
+            {/* Background gradient */}
+            <div
+              aria-hidden
+              className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${project.gradient} opacity-40`}
+            />
+
+            {/* Aspect-locked browser window */}
+            <div className="relative mx-4 mt-4">
+              <div className="aspect-[16/10] w-full">
+                <BrowserChrome>
+                  <div className="relative h-full w-full">
+                    <Image
+                      src={project.image}
+                      alt={project.headline}
+                      fill
+                      sizes="100vw"
+                      className="object-cover object-top brightness-90"
+                    />
+                  </div>
+                  {/* Light brand tint for canvas consistency */}
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 bg-indigo-900/15 mix-blend-overlay"
+                  />
+                </BrowserChrome>
+              </div>
+            </div>
+
+            {/* Text content */}
+            <div className="relative z-10 p-5 pt-4">
+              <span
+                className="inline-block rounded-full border px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.16em]"
+                style={{
+                  borderColor: `rgba(${project.accent}, 0.3)`,
+                  color: `rgba(${project.accent}, 0.9)`,
+                }}
+              >
+                {project.tag}
+              </span>
+
+              <h3 className="mt-3 text-xl font-semibold leading-tight tracking-tight sm:text-2xl">
+                {project.headline}
+              </h3>
+
+              <p className="mt-2 text-sm leading-relaxed text-white/50">
+                {project.description}
+              </p>
+
+              <TechPills stack={project.tech} />
+            </div>
           </motion.article>
         ))}
       </motion.div>
