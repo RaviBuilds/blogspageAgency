@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Github, Linkedin, Twitter } from "lucide-react";
 
@@ -32,9 +33,13 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { icon: Twitter, href: "#", label: "Twitter" },
-  { icon: Github, href: "#", label: "GitHub" },
-  { icon: Linkedin, href: "#", label: "LinkedIn" },
+  { icon: Twitter, href: "https://x.com/ravindra5k", label: "X (Twitter)" },
+  { icon: Github, href: "https://github.com/RaviBuilds", label: "GitHub" },
+  {
+    icon: Linkedin,
+    href: "https://www.linkedin.com/in/ravindra-kamble-97094220a/",
+    label: "LinkedIn",
+  },
 ];
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -84,12 +89,17 @@ export function Footer() {
           <div className="lg:col-span-2">
             <Link
               href="/"
-              className="flex items-center gap-2 text-sm font-semibold text-white/90"
+              className="inline-flex items-center"
+              aria-label="Blogspage AI — home"
             >
-              <span className="flex size-7 items-center justify-center rounded-md border border-white/[0.08] bg-white/[0.04] text-xs font-bold">
-                B
-              </span>
-              Blogspage
+              <Image
+                src="/blogspage-logo.png"
+                alt="Blogspage AI"
+                width={400}
+                height={120}
+                quality={100}
+                className="h-10 w-auto"
+              />
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/40">
               Premium AI automation &amp; product engineering. We build
@@ -107,6 +117,8 @@ export function Footer() {
                   key={label}
                   href={href}
                   aria-label={label}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex size-9 items-center justify-center rounded-lg border border-white/[0.08] text-white/40 transition-colors duration-200 hover:border-white/[0.15] hover:text-white/80"
                 >
                   <Icon className="size-4" />

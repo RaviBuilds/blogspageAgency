@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Menu, X } from "lucide-react";
 import {
   motion,
@@ -66,13 +67,19 @@ export function Navbar() {
         {/* Brand */}
         <Link
           href="/"
-          className="flex items-center gap-2 text-sm font-semibold tracking-tight text-white/90"
+          className="flex items-center"
+          aria-label="Blogspage AI — home"
           onClick={() => setOpen(false)}
         >
-          <span className="flex size-6 items-center justify-center rounded-md border border-white/[0.08] bg-white/[0.04] text-[10px] font-bold">
-            B
-          </span>
-          Blogspage
+          <Image
+            src="/blogspage-logo.png"
+            alt="Blogspage AI"
+            width={320}
+            height={96}
+            priority
+            quality={100}
+            className="h-11 w-auto"
+          />
         </Link>
 
         {/* Desktop nav links — centered */}
