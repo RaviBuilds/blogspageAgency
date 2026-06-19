@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { GymSolutionLanding } from "@/components/solutions/gym-solution-landing";
 import { SolutionTemplate } from "@/components/solutions/solution-template";
 import { allNicheParams, getNicheBySlug } from "@/lib/niches";
 
@@ -82,7 +83,11 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <SolutionTemplate niche={niche} city={city} />
+      {niche.id === "gym-fitness" ? (
+        <GymSolutionLanding cityLabel={cityLabel} />
+      ) : (
+        <SolutionTemplate niche={niche} city={city} />
+      )}
     </>
   );
 }

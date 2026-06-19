@@ -16,13 +16,21 @@ type BlogPost = {
   imageUrl?: string;
   publishedAt?: string;
   content?: PortableTextBlock[];
+  seoTitle?: string;
+  metaDescription?: string;
+  seoKeywords?: string[];
+  ogImageUrl?: string;
 };
 
 const POST_QUERY = `*[_type == "post" && slug.current == $slug][0] {
   title,
   "imageUrl": mainImage.asset->url,
   publishedAt,
-  content
+  content,
+  seoTitle,
+  metaDescription,
+  seoKeywords,
+  "ogImageUrl": coalesce(ogImage.asset->url, mainImage.asset->url)
 }`;
 
 const portableTextComponents: PortableTextComponents = {
@@ -65,23 +73,51 @@ async function getPost(slug: string): Promise<BlogPost | null> {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const resolvedParams = await params;
-  const slug = resolvedParams.slug;
+  const { slug } = await params;
   const post = await getPost(slug);
 
   if (!post) {
     return { title: "Post Not Found | Blogspage" };
   }
 
-  return {
-    title: `${decodeHtmlEntities(post.title)} | Blogspage`,
-    description: `Read ${decodeHtmlEntities(post.title)} on the Blogspage journal.`,
+  const title = decodeHtmlEntities(post.seoTitle || post.title);
+  const description = post.metaDescription
+    ? decodeHtmlEntities(post.metaDescription)
+    : `Read ${decodeHtmlEntities(post.title)} on the Blogspage journal.`;
+
+  const metadata: Metadata = {
+    title: `${title} | Blogspage`,
+    description,
+    keywords: post.seoKeywords?.length ? post.seoKeywords : undefined,
+    openGraph: {
+      title,
+      description,
+      type: "article",
+      publishedTime: post.publishedAt,
+      ...(post.ogImageUrl && {
+        images: [
+          {
+            url: post.ogImageUrl,
+            width: 1200,
+            height: 630,
+            alt: title,
+          },
+        ],
+      }),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      ...(post.ogImageUrl && { images: [post.ogImageUrl] }),
+    },
   };
+
+  return metadata;
 }
 
 export default async function BlogPost({ params }: Props) {
-  const resolvedParams = await params;
-  const slug = resolvedParams.slug;
+  const { slug } = await params;
   const post = await getPost(slug);
 
   if (!post) {
