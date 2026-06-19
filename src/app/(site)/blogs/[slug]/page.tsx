@@ -6,6 +6,7 @@ import type { PortableTextBlock } from "@portabletext/types";
 
 import { BlogFooterCTA } from "@/components/blogs/BlogFooterCTA";
 import { client } from "@/sanity/lib/client";
+import { urlFor } from "@/sanity/lib/image";
 
 export const revalidate = 60; // Revalidate the page every 60 seconds
 
@@ -44,6 +45,11 @@ type CtaBlockValue = {
   secondaryHref?: string;
 };
 
+type PortableTextImageValue = {
+  asset?: { _ref?: string; _type?: string };
+  alt?: string;
+};
+
 const portableTextComponents: PortableTextComponents = {
   types: {
     ctaBlock: ({ value }) => {
@@ -65,6 +71,24 @@ const portableTextComponents: PortableTextComponents = {
             primaryLabel={cta.primaryLabel}
             secondaryLabel={cta.secondaryLabel}
             secondaryHref={cta.secondaryHref}
+          />
+        </div>
+      );
+    },
+    image: ({ value }) => {
+      const image = value as PortableTextImageValue | undefined;
+      if (!image?.asset) return null;
+
+      const src = urlFor(image).url();
+      if (!src) return null;
+
+      return (
+        <div className="not-prose">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={src}
+            alt={image.alt || "Blog illustration"}
+            className="my-12 h-auto w-full rounded-2xl border border-white/[0.08] object-cover shadow-2xl"
           />
         </div>
       );
