@@ -7,6 +7,8 @@ import type { PortableTextBlock } from "@portabletext/types";
 import { BlogFooterCTA } from "@/components/blogs/BlogFooterCTA";
 import { client } from "@/sanity/lib/client";
 
+export const revalidate = 60; // Revalidate the page every 60 seconds
+
 type Props = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
