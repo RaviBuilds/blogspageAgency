@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
-import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
-import ChatWidget from "@/components/chat-widget";
-import { Preloader } from "@/components/ui/preloader";
-import { SmoothScrollProvider } from "@/components/providers/smooth-scroll-provider";
-import { CustomCursor } from "@/components/ui/custom-cursor";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -71,14 +65,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
-        <Preloader />
-        <CustomCursor />
-        <SmoothScrollProvider>
-          <Navbar />
-          <main className="min-h-screen">{children}</main>
-          <Footer />
-          <ChatWidget />
-        </SmoothScrollProvider>
+        {children}
         <Analytics />
       </body>
     </html>

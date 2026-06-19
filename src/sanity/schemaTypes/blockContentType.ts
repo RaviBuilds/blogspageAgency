@@ -80,5 +80,8 @@ export const blockContentType = defineType({
         }
       ]
     }),
+    defineArrayMember({
+      type: 'ctaBlock',
+    }),
   ],
 })

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import type { PortableTextBlock } from "@portabletext/types";
 
+import { BlogFooterCTA } from "@/components/blogs/BlogFooterCTA";
 import { client } from "@/sanity/lib/client";
 
 type Props = {
@@ -33,7 +34,40 @@ const POST_QUERY = `*[_type == "post" && slug.current == $slug][0] {
   "ogImageUrl": coalesce(ogImage.asset->url, mainImage.asset->url)
 }`;
 
+type CtaBlockValue = {
+  headline?: string;
+  body?: string;
+  primaryLabel?: string;
+  secondaryLabel?: string;
+  secondaryHref?: string;
+};
+
 const portableTextComponents: PortableTextComponents = {
+  types: {
+    ctaBlock: ({ value }) => {
+      const cta = value as CtaBlockValue | undefined;
+      if (
+        !cta?.headline ||
+        !cta.body ||
+        !cta.secondaryLabel ||
+        !cta.secondaryHref
+      ) {
+        return null;
+      }
+
+      return (
+        <div className="not-prose my-12">
+          <BlogFooterCTA
+            headline={cta.headline}
+            body={cta.body}
+            primaryLabel={cta.primaryLabel}
+            secondaryLabel={cta.secondaryLabel}
+            secondaryHref={cta.secondaryHref}
+          />
+        </div>
+      );
+    },
+  },
   marks: {
     link: ({ children, value }) => {
       const href = value?.href;
