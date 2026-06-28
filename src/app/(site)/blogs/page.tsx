@@ -3,34 +3,16 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { client } from "@/sanity/lib/client";
+import { POSTS_QUERY, type PostCard } from "@/sanity/lib/queries";
 
-export const revalidate = 60; // Revalidate the page every 60 seconds
+export const revalidate = 300; // Index updates more often than individual posts.
 
 export const metadata: Metadata = {
-  title: "Insights & Engineering | Blogspage",
+  title: "Insights & Engineering",
   description:
     "Technical deep-dives, web architecture, and field notes on building high-conversion business platforms.",
+  alternates: { canonical: "https://blogspage.com/blogs" },
 };
-
-type BlogPost = {
-  _id: string;
-  title: string;
-  slug: string;
-  imageUrl?: string;
-  publishedAt?: string;
-  authorName?: string;
-  categories?: string[];
-};
-
-const POSTS_QUERY = `*[_type == "post"] | order(publishedAt desc) {
-  _id,
-  title,
-  "slug": slug.current,
-  "imageUrl": mainImage.asset->url,
-  publishedAt,
-  "authorName": author->name,
-  "categories": categories[]->title
-}`;
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("en-US", {
@@ -39,8 +21,8 @@ const formatDate = (iso: string) =>
     day: "numeric",
   });
 
-async function getPosts(): Promise<BlogPost[]> {
-  return client.fetch<BlogPost[]>(POSTS_QUERY);
+async function getPosts(): Promise<PostCard[]> {
+  return client.fetch<PostCard[]>(POSTS_QUERY);
 }
 
 export default async function BlogsPage() {
@@ -87,7 +69,7 @@ export default async function BlogsPage() {
                       {post.imageUrl ? (
                         <Image
                           src={post.imageUrl}
-                          alt=""
+                          alt={post.imageAlt || post.title}
                           fill
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -111,6 +93,12 @@ export default async function BlogsPage() {
                       <h2 className="mt-3 line-clamp-2 text-lg font-medium tracking-tight text-foreground transition-colors group-hover:text-primary">
                         {post.title}
                       </h2>
+
+                      {post.excerpt ? (
+                        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                          {post.excerpt}
+                        </p>
+                      ) : null}
 
                       <p className="mt-auto pt-4 text-xs text-muted-foreground">
                         {post.authorName ? (

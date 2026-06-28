@@ -2,20 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
 import { client } from "@/sanity/lib/client";
-
-type LatestPost = {
-  _id: string;
-  title: string;
-  slug: string;
-  publishedAt?: string;
-};
-
-const LATEST_POSTS_QUERY = `*[_type == "post"] | order(publishedAt desc)[0...3] {
-  _id,
-  title,
-  "slug": slug.current,
-  publishedAt
-}`;
+import { LATEST_POSTS_QUERY, type LatestPost } from "@/sanity/lib/queries";
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("en-US", {

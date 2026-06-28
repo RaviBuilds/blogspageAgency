@@ -1,18 +1,9 @@
 import type { MetadataRoute } from "next";
 
 import { client } from "@/sanity/lib/client";
+import { POST_SITEMAP_QUERY, type PostSitemapEntry } from "@/sanity/lib/queries";
 
 const BASE_URL = "https://blogspage.com";
-
-const POST_SLUGS_QUERY = `*[_type == "post"] {
-  "slug": slug.current,
-  _updatedAt
-}`;
-
-type PostSlug = {
-  slug: string;
-  _updatedAt: string;
-};
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -31,29 +22,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
-      url: `${BASE_URL}/process`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
       url: `${BASE_URL}/contact`,
       lastModified: now,
       changeFrequency: "monthly",
-      priority: 0.8,
+      priority: 0.7,
+    },
+    {
+      url: `${BASE_URL}/privacy`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.2,
+    },
+    {
+      url: `${BASE_URL}/terms`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.2,
     },
   ];
 
-  const posts = await client.fetch<PostSlug[]>(POST_SLUGS_QUERY);
+  const posts = await client.fetch<PostSitemapEntry[]>(POST_SITEMAP_QUERY);
 
   const blogRoutes: MetadataRoute.Sitemap = posts
     .filter((post) => Boolean(post.slug))
-    .map((post) => ({
-      url: `${BASE_URL}/blogs/${post.slug}`,
-      lastModified: post._updatedAt ? new Date(post._updatedAt) : now,
-      changeFrequency: "weekly",
-      priority: 0.6,
-    }));
+    .map((post) => {
+      const lastmod =
+        post.lastReviewed || post._updatedAt || post.publishedAt;
+      return {
+        url: `${BASE_URL}/blogs/${post.slug}`,
+        lastModified: lastmod ? new Date(lastmod) : now,
+        changeFrequency: post.evergreen ? "monthly" : "weekly",
+        priority: 0.6,
+      };
+    });
 
   return [...staticRoutes, ...blogRoutes];
 }
