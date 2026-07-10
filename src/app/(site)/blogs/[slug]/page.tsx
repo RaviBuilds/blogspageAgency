@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
 
 import { BlogFooterCTA } from "@/components/blogs/BlogFooterCTA";
+import { CodeBlock } from "@/components/blogs/CodeBlock";
 import { client } from "@/sanity/lib/client";
 import { urlFor } from "@/sanity/lib/image";
 import {
@@ -24,6 +25,7 @@ import {
   postUrl,
   resolveDescription,
 } from "@/lib/blog";
+import { Suspense } from "react";
 
 export const revalidate = 3600; // Posts change rarely; revalidate hourly.
 
@@ -43,12 +45,6 @@ type PortableTextImageValue = {
   asset?: { _ref?: string; _type?: string };
   alt?: string;
   caption?: string;
-};
-
-type CodeBlockValue = {
-  language?: string;
-  code?: string;
-  filename?: string;
 };
 
 const portableTextComponents: PortableTextComponents = {
@@ -100,22 +96,16 @@ const portableTextComponents: PortableTextComponents = {
       );
     },
     codeBlock: ({ value }) => {
-      const block = value as CodeBlockValue | undefined;
+      const block = value as
+        | { language?: string; code?: string; filename?: string }
+        | undefined;
       if (!block?.code) return null;
-
       return (
-        <div className="not-prose my-8 overflow-hidden rounded-xl border border-white/[0.08] bg-[#0d0d12]">
-          {block.filename ? (
-            <div className="border-b border-white/[0.08] px-4 py-2 font-mono text-xs text-muted-foreground">
-              {block.filename}
-            </div>
-          ) : null}
-          <pre className="overflow-x-auto p-4 text-sm leading-relaxed">
-            <code className={block.language ? `language-${block.language}` : undefined}>
-              {block.code}
-            </code>
-          </pre>
-        </div>
+        <CodeBlock
+          language={block.language}
+          code={block.code}
+          filename={block.filename}
+        />
       );
     },
   },
@@ -360,32 +350,34 @@ export default async function BlogPost({ params }: Props) {
           </section>
         ) : null}
 
-        {related.length ? (
-          <section className="mt-16 border-t border-border pt-10">
-            <h2 className="text-2xl font-semibold tracking-tight">
-              Related reading
-            </h2>
-            <ul className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {related.map((item) => (
-                <li key={item._id}>
-                  <Link
-                    href={`/blogs/${item.slug}`}
-                    className="group flex h-full flex-col rounded-lg border border-border bg-card p-5 transition-all duration-300 hover:border-primary"
-                  >
-                    {item.categories?.[0] ? (
-                      <span className="text-xs text-muted-foreground">
-                        {item.categories[0]}
-                      </span>
-                    ) : null}
-                    <h3 className="mt-2 line-clamp-2 text-base font-medium tracking-tight transition-colors group-hover:text-primary">
-                      {item.title}
-                    </h3>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
+        <Suspense fallback={null}>
+          {related.length ? (
+            <section className="mt-16 border-t border-border pt-10">
+              <h2 className="text-2xl font-semibold tracking-tight">
+                Related reading
+              </h2>
+              <ul className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {related.map((item) => (
+                  <li key={item._id}>
+                    <Link
+                      href={`/blogs/${item.slug}`}
+                      className="group flex h-full flex-col rounded-lg border border-border bg-card p-5 transition-all duration-300 hover:border-primary"
+                    >
+                      {item.categories?.[0] ? (
+                        <span className="text-xs text-muted-foreground">
+                          {item.categories[0]}
+                        </span>
+                      ) : null}
+                      <h3 className="mt-2 line-clamp-2 text-base font-medium tracking-tight transition-colors group-hover:text-primary">
+                        {item.title}
+                      </h3>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+        </Suspense>
       </article>
     </>
   );
