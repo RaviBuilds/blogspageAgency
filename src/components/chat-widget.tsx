@@ -12,7 +12,7 @@ const QUICK_REPLIES = [
 ];
 
 const WELCOME =
-  "Hi, I'm Sweety — your AI SDR from Blogspage. 👋 Tell me about your business and what you're trying to build. I'll qualify the fit and show you exactly how we can help.";
+  "Hi, I'm Sweety, your AI Business Consultant at Blogspage. 👋 Tell me a little about your business and what you're trying to achieve. Whether you're looking for a professional website, AI automation, a customer portal, or a complete digital transformation, I'll recommend the right solution and guide you on the next steps.";
 
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
