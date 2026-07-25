@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { motion, type Variants } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -91,6 +92,19 @@ export function Hero() {
         className="pointer-events-none absolute -bottom-40 left-[12%] -z-10 size-[36rem] rounded-full bg-[radial-gradient(circle,rgba(56,189,248,0.22),transparent_64%)] blur-[120px]"
       />
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgba(9,9,11,0.15),#09090b_78%)]" />
+
+      {/* Decorative hero visual — abstract AI-system render, bleeds off the
+          right edge behind the copy. Drop /public/hero-visual.png to activate. */}
+      <div className="pointer-events-none absolute -right-24 top-0 -z-10 hidden h-[52rem] w-[52rem] opacity-70 mix-blend-lighten lg:block xl:-right-10">
+        <Image
+          src="/hero-visual.png"
+          alt=""
+          fill
+          priority
+          sizes="52rem"
+          className="object-contain object-right-top"
+        />
+      </div>
 
       {/* Extreme negative space + structural asymmetry (§1). */}
       <div className="mx-auto max-w-7xl px-6 pb-32 pt-32 lg:px-8 lg:pb-48 lg:pt-44">
