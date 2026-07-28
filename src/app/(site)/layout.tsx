@@ -1,9 +1,10 @@
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
-import ChatWidget from "@/components/chat-widget";
+import { SkipLink } from "@/components/layout/skip-link";
 import { Preloader } from "@/components/ui/preloader";
-import { SmoothScrollProvider } from "@/components/providers/smooth-scroll-provider";
-import { CustomCursor } from "@/components/ui/custom-cursor";
+import { ClientEnhancements } from "@/components/providers/client-enhancements";
+import { JsonLd } from "@/components/seo/json-ld";
+import { organizationNode } from "@/lib/structured-data";
 
 export default function SiteLayout({
   children,
@@ -12,14 +13,15 @@ export default function SiteLayout({
 }>) {
   return (
     <>
+      <SkipLink />
+      <JsonLd nodes={[organizationNode()]} />
       <Preloader />
-      <CustomCursor />
-      <SmoothScrollProvider>
-        <Navbar />
-        <main className="min-h-screen">{children}</main>
-        <Footer />
-        <ChatWidget />
-      </SmoothScrollProvider>
+      <Navbar />
+      <main id="main" tabIndex={-1} className="min-h-screen">
+        {children}
+      </main>
+      <Footer />
+      <ClientEnhancements />
     </>
   );
 }

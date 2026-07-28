@@ -151,3 +151,44 @@
   }
 
 }
+
+/*
+ * Hero word-by-word reveal — CSS replacement for the Framer Motion
+ * `wordReveal` variant (opacity 0 -> 1, y: 100% -> 0%, rotateX: -55deg -> 0),
+ * driven by a `--word-index` custom property set per word inline. The
+ * `cubic-bezier(0.16, 1, 0.3, 1)` easing approximates the settle of the
+ * original spring (stiffness 100, damping 20, mass 1) without overshoot.
+ * `100ms` reproduces the container's `delayChildren`, and `80ms` per word
+ * reproduces `staggerChildren: 0.08`.
+ *
+ * `animation-fill-mode: both` (the `both` keyword below) holds the `from`
+ * state before the delay elapses and the `to` state after the animation
+ * ends, so the word never flashes at its natural opacity before the CSS
+ * takes effect — the same guarantee Framer Motion's `initial`/persisted
+ * `animate` state gave us.
+ */
+@keyframes hero-word-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(100%) rotateX(-55deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0%) rotateX(0deg);
+  }
+}
+
+.hero-word {
+  transform-origin: bottom;
+  opacity: 0;
+  animation: hero-word-reveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(100ms + var(--word-index, 0) * 80ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-word {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

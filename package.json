@@ -4,9 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/gen-route-lastmod.mjs",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "vitest run",
+    "test:properties": "vitest run tests/properties",
+    "seo:check": "next build && vitest run --config vitest.seo.config.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.71",
@@ -47,9 +51,12 @@
     "@types/node": "^22.15.29",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
+    "@vitejs/plugin-react": "5.2.0",
     "eslint": "^9.28.0",
     "eslint-config-next": "^15.3.3",
+    "fast-check": "4.9.0",
     "tailwindcss": "^4.1.8",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "4.1.10"
   }
 }

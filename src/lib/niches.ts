@@ -12,6 +12,13 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import {
+  APPROVED_CITIES,
+  findApprovedCity,
+  type ApprovedCity,
+} from "@/lib/cities";
+import type { FaqPair } from "@/lib/structured-data";
+
 /**
  * Default geographic target for the local-SEO routing engine.
  * The blueprint defines the slug pattern as:
@@ -93,6 +100,12 @@ export type Niche = {
   /** Optional real-world case study narrative. */
   caseStudy?: CaseStudy;
   /**
+   * At least three question-and-answer pairs rendered on the solution route
+   * (Requirement 9.6). City-agnostic by design: the copy stays correct for
+   * any future Approved_City_List addition without per-city templating.
+   */
+  faq: FaqPair[];
+  /**
    * Builds the canonical, SEO-optimized solution route.
    * Lowercased, hyphenated, special chars stripped (per SEO rules).
    */
@@ -166,6 +179,23 @@ const NICHE_SEEDS: NicheSeed[] = [
           "See aggregate lifetime savings versus commercial aggregators at a glance.",
       },
     ],
+    faq: [
+      {
+        question: "How much commission does a white-label delivery platform save?",
+        answer:
+          "Most aggregators take 25-30% of every order, a cut that disappears entirely once orders route through your own branded app. Owners typically recover that margin within the first month of live orders, since the platform, dispatch, and payments all run on infrastructure you own rather than a marketplace you rent from.",
+      },
+      {
+        question: "Can we keep using aggregators alongside our own delivery app?",
+        answer:
+          "Yes. Most operators run both during a transition period, steering repeat customers toward the owned app while aggregators still bring in new discovery traffic. The dispatch map and order pipeline handle both channels without extra staff, so the switch happens gradually instead of as a risky cutover.",
+      },
+      {
+        question: "How does real-time driver tracking work without extra hardware?",
+        answer:
+          "Drivers use the same phone they already carry, running a lightweight app that streams location over secure server-sent events into the live dispatch map. No dedicated GPS units or extra hardware purchases are needed, and the tracking view updates for customers and staff at the same time.",
+      },
+    ],
   },
   {
     id: "hotel-booking",
@@ -212,6 +242,23 @@ const NICHE_SEEDS: NicheSeed[] = [
         title: "Multi-role operations",
         description:
           "Permission-aware views for global admin, property manager, front desk, and guests.",
+      },
+    ],
+    faq: [
+      {
+        question: "How does a direct booking engine reduce OTA commission costs?",
+        answer:
+          "A direct booking engine lets guests reserve rooms straight through your own site, so the reservation never touches an OTA and its commission never gets deducted. The room matrix stays synchronized across every channel in real time, so direct bookings and OTA bookings draw from the same inventory without double-booking risk.",
+      },
+      {
+        question: "What stops two channels from booking the same room at once?",
+        answer:
+          "Atomic room allocation locks a room the instant a booking is confirmed on any channel, so a second request for that same room and date range is rejected before it can create a conflict. This removes the sync race conditions that cause double-bookings when inventory is managed across disconnected systems.",
+      },
+      {
+        question: "Can front-desk staff and property managers see different data?",
+        answer:
+          "Yes. The platform ships four permission tiers, Global Admin, Property Manager, Front-desk Staff, and Verified Guest, each seeing only the views and actions relevant to their role. A front-desk user can check guests in and out without touching billing configuration or cross-property reporting reserved for managers and admins.",
       },
     ],
   },
@@ -262,6 +309,26 @@ const NICHE_SEEDS: NicheSeed[] = [
           "A single record of every booking, visit, and service across the business.",
       },
     ],
+    faq: [
+      {
+        question:
+          "How does a unified reservation wizard handle both medical and lifestyle bookings for the same pet?",
+        answer:
+          "The wizard walks an owner through one guided flow that reads from a single shared pet profile, so a vaccination appointment and a grooming slot both draw from the same record instead of two disconnected calendars. Staff see every upcoming booking for a pet in one view, which removes the double-entry and scheduling conflicts that come from running medical and lifestyle services on separate systems.",
+      },
+      {
+        question:
+          "Can pet owners see their pet's full service history in one place?",
+        answer:
+          "Yes. Every visit, whether medical, grooming, or boarding, is logged against a single unified pet profile that owners and staff can both reference. That gives a vet or groomer instant context on past treatments and preferences without calling around to other providers, and it gives owners one place to check what their pet has already had done.",
+      },
+      {
+        question:
+          "How does automated scheduling cut down on no-shows for pet services?",
+        answer:
+          "The system sends automated reminders ahead of every booked slot, whether it is a grooming appointment, a boarding check-in, or a medical visit, so owners are nudged before they forget. Combined with smart scheduling that avoids overlapping or conflicting slots, this keeps the calendar reliable and reduces the gaps and lost revenue that come from unconfirmed appointments.",
+      },
+    ],
   },
   {
     id: "consulting",
@@ -308,6 +375,26 @@ const NICHE_SEEDS: NicheSeed[] = [
         title: "Inbound lead pipeline",
         description:
           "A clean view of qualified inbound leads and their projected engagement value.",
+      },
+    ],
+    faq: [
+      {
+        question:
+          "How does an embedded ROI calculator help convert consulting website visitors?",
+        answer:
+          "An embedded ROI calculator lets a visitor plug in their own numbers and see a quantified projection of what your engagement could be worth to their business, rather than reading generic claims about expertise. That self-generated figure is a stronger reason to book a call than any testimonial, because the prospect arrives already convinced by a number they calculated themselves.",
+      },
+      {
+        question:
+          "Does the ROI calculator replace a discovery call, or lead into one?",
+        answer:
+          "It leads into one. The calculator is designed to qualify and warm up a visitor, producing a shareable, quantified output that anchors the conversation, but the discovery call is still where scope, fit, and pricing get finalized. Lead capture is wired directly into the calculator so a completed calculation routes straight into your booking pipeline.",
+      },
+      {
+        question:
+          "Can the calculator be tuned to different consulting engagement models?",
+        answer:
+          "Yes. The inputs and output formulas are configured around your specific engagement model, whether that is retainer-based, project-based, or outcome-based pricing, so the projected ROI reflects how you actually bill. This keeps the number credible to prospects instead of feeling like a generic, one-size-fits-all sales gimmick.",
       },
     ],
   },
@@ -358,6 +445,26 @@ const NICHE_SEEDS: NicheSeed[] = [
           "Monitor engagement and completion, with early signals for at-risk learners.",
       },
     ],
+    faq: [
+      {
+        question:
+          "How does a progressive player improve course completion rates?",
+        answer:
+          "A progressive player paces content based on how a learner is actually moving through the material, rather than dumping an entire syllabus on them at once. That structure keeps momentum high by unlocking the next lesson at the right moment, which is what drives completion up compared to a flat list of static videos or PDFs learners have to self-pace through alone.",
+      },
+      {
+        question:
+          "What does the interactive syllabus builder let instructors do?",
+        answer:
+          "The syllabus builder lets an instructor assemble a course from modular lessons in a visual interface, reordering, grouping, and gating content without touching code. New courses go from outline to a published, interactive structure quickly, and existing courses can be restructured as an instructor learns what pacing actually works for their learners.",
+      },
+      {
+        question:
+          "How are at-risk learners identified before they drop off?",
+        answer:
+          "Progress tracking surfaces engagement signals, like stalled lessons or missed milestones, early enough that an instructor or support team can reach out before a learner disengages entirely. This turns retention from a lagging metric you discover after the fact into something you can act on while the learner is still reachable.",
+      },
+    ],
   },
   {
     id: "gym-fitness",
@@ -404,6 +511,26 @@ const NICHE_SEEDS: NicheSeed[] = [
         title: "Floor occupancy",
         description:
           "Live attendance, conversion uplift, and lead-capture widgets in one view.",
+      },
+    ],
+    faq: [
+      {
+        question:
+          "How does a pause-credit engine stop members from cancelling instead of pausing?",
+        answer:
+          "The pause-credit engine recalculates a membership's contract expiry in real time as a member freezes and resumes their plan, so a seasonal break extends the contract fairly instead of forcing a full cancellation. Each active pause day writes an extension record into the ledger, giving members an easy, transparent option that protects your recurring revenue instead of losing it outright.",
+      },
+      {
+        question:
+          "Can members check in and get alerts without extra hardware at the front desk?",
+        answer:
+          "Yes. A native mobile bridge handles QR check-ins on the member's own phone and pushes re-engagement alerts directly to them, so front-desk staff are not manually scanning cards or chasing down members who have gone quiet. This keeps check-in fast during busy hours and keeps at-risk members engaged before they lapse.",
+      },
+      {
+        question:
+          "What do gym owners see on their dashboard day to day?",
+        answer:
+          "Owners get a live view of floor occupancy, conversion uplift from lead-capture widgets, and the pause-credit ledger, all in one dashboard rather than scattered across separate tools. That gives a clear read on attendance patterns and revenue health without needing to cross-reference spreadsheets or ask staff for manual updates.",
       },
     ],
   },
@@ -454,6 +581,26 @@ const NICHE_SEEDS: NicheSeed[] = [
           "Track bookings from request to visit with automated reminders.",
       },
     ],
+    faq: [
+      {
+        question:
+          "What does HIPAA-aligned calendar orchestration mean in practice?",
+        answer:
+          "It means the scheduling system coordinates practitioners, rooms, and patients through a compliance-aware structure, so patient data is handled with the safeguards a medical or dental practice needs rather than bolted on afterward. The calendar view stays unified across the whole practice, but access and data handling follow rules built for sensitive health information from the start.",
+      },
+      {
+        question:
+          "How does self-service booking reduce friction for patients?",
+        answer:
+          "Patients can request and confirm appointments directly through the booking pipeline instead of relying on phone calls during office hours, which removes a common drop-off point. The same pipeline routes the request into the orchestrated calendar automatically, so front-desk staff are not re-entering information that a patient already provided themselves.",
+      },
+      {
+        question:
+          "Can automated reminders be tuned per practitioner or appointment type?",
+        answer:
+          "Yes. Reminder timing and content can be configured per appointment type, so a routine cleaning and a specialist consultation trigger different reminder cadences. This keeps no-show rates down across varied appointment types without treating every booking on the calendar the same way.",
+      },
+    ],
   },
   {
     id: "ecommerce",
@@ -500,6 +647,26 @@ const NICHE_SEEDS: NicheSeed[] = [
         title: "Orders & fulfillment",
         description:
           "A single view of payments, orders, and fulfillment status.",
+      },
+    ],
+    faq: [
+      {
+        question:
+          "How much does an optimized multi-step checkout actually improve conversion?",
+        answer:
+          "Every added checkout step is a point where a ready buyer can abandon the cart, so an optimized flow minimizes steps and removes friction like unnecessary account creation or unclear shipping costs. The checkout is also tuned for speed and Core Web Vitals, since a slow or janky checkout loses buyers just as reliably as a confusing one.",
+      },
+      {
+        question:
+          "Does a fast, image-optimized storefront affect search rankings too?",
+        answer:
+          "Yes. A storefront tuned for Core Web Vitals loads faster and feels more stable while scrolling, which is both a ranking factor and a direct driver of conversion, since slow pages lose buyers before they even see the product. Image optimization keeps product photos sharp without dragging down load times across the catalog.",
+      },
+      {
+        question:
+          "Can the same e-commerce codebase power a native mobile app too?",
+        answer:
+          "Yes. The storefront can be wrapped into native iOS and Android apps from the same codebase using Capacitor, so product data, checkout logic, and fulfillment stay in sync across web and app without maintaining two separate systems. That keeps mobile shoppers in a native-feeling experience without doubling the engineering workload.",
       },
     ],
   },
@@ -550,6 +717,26 @@ const NICHE_SEEDS: NicheSeed[] = [
           "MRR, churn, and usage trends across your subscriber base.",
       },
     ],
+    faq: [
+      {
+        question:
+          "How do tiered pricing toggles help a new SaaS product monetize different segments?",
+        answer:
+          "Tiered pricing toggles let prospects compare monthly and annual plans side by side and see exactly what each tier unlocks, which makes the pricing page itself a conversion tool instead of a static list. Different customer segments naturally sort themselves into the tier that fits their usage, which is harder to achieve with a single flat price.",
+      },
+      {
+        question:
+          "What does a metered-usage simulator actually show customers?",
+        answer:
+          "The simulator lets a prospective customer estimate their usage and see a transparent preview of what that usage would cost before they commit, removing the surprise-invoice concern that makes usage-based pricing feel risky. That transparency builds trust during the sales process and reduces billing disputes after signup.",
+      },
+      {
+        question:
+          "Is subscription billing and access control secure by default?",
+        answer:
+          "Yes. The subscription lifecycle runs on Supabase with row-level security enforced at the database layer, so a customer's data and billing state stay isolated from every other tenant without relying solely on application-level checks. Billing queries are also optimized with relational indexing, so performance holds up as the subscriber base grows.",
+      },
+    ],
   },
   {
     id: "seo-blogs",
@@ -596,6 +783,26 @@ const NICHE_SEEDS: NicheSeed[] = [
         title: "Web Vitals monitor",
         description:
           "Track LCP, INP, and CLS against the blueprint's performance targets.",
+      },
+    ],
+    faq: [
+      {
+        question:
+          "Why does edge delivery matter more for a blog than for other website types?",
+        answer:
+          "A blog lives or dies on organic search traffic, and search rankings increasingly factor in Core Web Vitals like load speed and layout stability. Edge-delivered content reaches readers from a server close to them instead of a single distant origin, which keeps load times low even during a traffic spike from a post that suddenly ranks well.",
+      },
+      {
+        question:
+          "How does an MDX-based reading canvas avoid layout shift while loading images?",
+        answer:
+          "Every image ships with explicit width and height dimensions and uses the AVIF format, so the browser reserves the correct space before the image finishes loading instead of shifting text around it. That explicit dimensioning is what keeps cumulative layout shift near zero, which both readers and search rankings reward.",
+      },
+      {
+        question:
+          "Can a heavy CMS be replaced without losing content editing convenience?",
+        answer:
+          "Yes. The reading canvas is built to preserve Core Web Vitals as a first-class constraint while still giving editors a clean MDX-based authoring flow, so publishing does not require choosing between a good writer experience and a fast, rankable page. Performance discipline is enforced by the platform rather than left to each author's habits.",
       },
     ],
   },
@@ -804,28 +1011,73 @@ export const NICHES: Niche[] = NICHE_SEEDS.map((seed) => ({
   href: (city: string = DEFAULT_CITY) => `/solutions/${nicheSlug(seed as Niche, city)}`,
 }));
 
+/** A successful `/solutions/<slug>` resolution: a catalog entry plus an approved city. */
+export type SolutionMatch = { niche: Niche; city: ApprovedCity };
+
+/** Escape regex metacharacters in a literal slug fragment. */
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 /**
- * Resolve a niche + city from a full canonical slug.
- * Returns null when no niche template matches (route should 404).
+ * Per-niche matcher built once from the slug template. The template is split on
+ * the raw `[city]` token *before* slugification, so the placeholder can never
+ * be confused with literal template text, and both surrounding fragments are
+ * escaped. Fully anchored, with the city segment narrowed to `[a-z0-9-]+`.
  */
-export function getNicheBySlug(
-  slug: string,
-): { niche: Niche; city: string } | null {
-  for (const niche of NICHES) {
-    // Build a matcher from the slug template, capturing the city segment.
-    const pattern = slugify(niche.slugTemplate).replace(
-      "city",
-      "(?<city>[a-z0-9-]+)",
-    );
-    const match = slug.match(new RegExp(`^${pattern}$`));
-    if (match?.groups?.city) {
-      return { niche, city: match.groups.city };
-    }
+const NICHE_SLUG_MATCHERS: ReadonlyArray<{ niche: Niche; pattern: RegExp }> =
+  NICHES.map((niche) => {
+    const [rawPrefix, rawSuffix = ""] = niche.slugTemplate.split("[city]");
+    const prefix = escapeRegExp(slugify(rawPrefix));
+    const suffix = escapeRegExp(slugify(rawSuffix));
+    return { niche, pattern: new RegExp(`^${prefix}([a-z0-9-]+)${suffix}$`) };
+  });
+
+/**
+ * Resolve a `/solutions/<slug>` path segment to a Service_Catalog entry and an
+ * Approved_City_List member.
+ *
+ * Pure and total: string in, `SolutionMatch` or `null` out. No I/O, no throw.
+ *
+ * Returns `null` when the slug matches no niche template and — the point of
+ * this function — also when the captured city token is not approved. The
+ * audited resolver captured the city as `[a-z0-9-]+` and returned it
+ * unchecked, so every arbitrary token rendered a live, self-canonicalising,
+ * indexable page (audit Finding F-01). Requirements 3.4 through 3.6 bound that
+ * space to the catalog-by-approved-city cross product.
+ */
+export function resolveSolutionSlug(slug: string): SolutionMatch | null {
+  // Requirement 3.4 matches the city token "after lowercasing", and the
+  // templates are lowercase throughout, so normalise the whole segment once
+  // rather than widening the pattern to accept mixed case.
+  const normalised = slug.trim().toLowerCase();
+  for (const { niche, pattern } of NICHE_SLUG_MATCHERS) {
+    const captured = normalised.match(pattern)?.[1];
+    if (!captured) continue;
+    const city = findApprovedCity(captured);
+    // A template match carrying an unapproved city is a 404, not a
+    // fall-through: the literal fragments of the ten templates differ, so no
+    // two of them can claim the same slug and there is nothing left to try.
+    return city ? { niche, city } : null;
   }
   return null;
 }
 
-/** All static params for the default city (used by generateStaticParams). */
-export function allNicheParams(city: string = DEFAULT_CITY) {
-  return NICHES.map((niche) => ({ slug: nicheSlug(niche, city) }));
+/**
+ * Back-compatible alias of {@link resolveSolutionSlug}.
+ *
+ * The result shape changed with the bound resolver: `city` is now an
+ * `ApprovedCity` record rather than the raw captured string, so callers read
+ * `city.token` for the slug fragment and `city.displayName` for rendered copy.
+ */
+export const getNicheBySlug = resolveSolutionSlug;
+
+/**
+ * Every indexable solution route: the Service_Catalog crossed with the
+ * Approved_City_List. Consumed by `generateStaticParams`, which together with
+ * `dynamicParams = false` makes this set the entire served route space.
+ */
+export function allNicheParams(): { slug: string }[] {
+  return NICHES.flatMap((niche) =>
+    APPROVED_CITIES.map((city) => ({ slug: nicheSlug(niche, city.token) })),
+  );
 }

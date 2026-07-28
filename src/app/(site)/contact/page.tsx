@@ -1,38 +1,52 @@
 import type { Metadata } from "next";
 import { MapPin, Phone, Mail, ArrowRight } from "lucide-react";
 import { ContactChatTrigger } from "./contact-chat-trigger";
+import { buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/json-ld";
+import { Breadcrumb } from "@/components/seo/breadcrumb";
+import { localBusinessNode } from "@/lib/structured-data";
+import { NAP } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Contact",
+// Must stay consistent with `OPENING_HOURS` ("Mo-Su 10:00-19:00") in
+// `src/lib/site.ts`, which drives the `LocalBusiness` `openingHours` value
+// below. Both cover all seven days, 10 AM-7 PM IST.
+const OPENING_HOURS_COPY = "Mon-Sun, 10:00 AM - 7:00 PM IST";
+
+export const metadata: Metadata = buildMetadata({
+  path: "/contact",
+  title: "Contact Blogspage: hire an ai agency in hyderabad",
   description:
-    "Get in touch with Blogspage — AI Automation & Product Engineering Agency based in Hyderabad, India.",
-};
+    "Contact Blogspage, the AI automation and product engineering agency based in Hyderabad, India, to discuss your project, timeline, and next steps directly.",
+  keywordPhrase: "hire an ai agency in hyderabad",
+});
 
 const details = [
   {
     icon: MapPin,
     label: "Office Address",
-    value: "Ayodhya Nagar Colony, Mehdipatnam\nHyderabad, Telangana 500028\nIndia",
+    value: `${NAP.streetAddress}\n${NAP.locality}, ${NAP.region} ${NAP.postalCode}\n${NAP.country}`,
   },
   {
     icon: Phone,
     label: "Phone",
-    value: "+91 80194 43314",
-    href: "tel:+918019443314",
+    value: NAP.telephone,
+    href: NAP.telephoneHref,
   },
   {
     icon: Mail,
     label: "Email",
-    value: "ravi@blogspage.com",
-    href: "mailto:ravi@blogspage.com",
+    value: NAP.email,
+    href: NAP.emailHref,
   },
 ];
 
 export default function ContactPage() {
   return (
     <div className="mx-auto max-w-4xl px-6 py-24 lg:px-8 lg:py-32">
+      <Breadcrumb trail={[{ name: "Contact", path: "/contact" }]} />
+
       {/* Header */}
-      <p className="text-sm font-medium text-primary">Contact</p>
+      <p className="mt-6 text-sm font-medium text-primary">Contact</p>
       <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
         Let&apos;s build something intelligent.
       </h1>
@@ -86,9 +100,10 @@ export default function ContactPage() {
 
       {/* Availability note */}
       <p className="mt-12 text-center text-xs text-white/30">
-        Business hours: Mon–Sat, 10:00 AM – 7:00 PM IST · Response within 24
-        hours
+        Business hours: {OPENING_HOURS_COPY} · Response within 24 hours
       </p>
+
+      <JsonLd nodes={[localBusinessNode()]} />
     </div>
   );
 }
