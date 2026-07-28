@@ -1,15 +1,21 @@
 import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/seo";
+import { Breadcrumb } from "@/components/seo/breadcrumb";
+import { NAP } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Terms of Service",
+export const metadata: Metadata = buildMetadata({
+  path: "/terms",
+  title: "Read the blogspage terms of service",
   description:
-    "Terms of Service for Blogspage — AI Automation & Product Engineering Agency.",
-};
+    "Review the terms governing Blogspage client engagements, covering payment schedules, intellectual property, AI output disclaimers, and liability limits.",
+  keywordPhrase: "blogspage terms of service",
+});
 
 export default function TermsPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-24 lg:px-8 lg:py-32">
-      <p className="text-sm font-medium text-primary">Legal</p>
+      <Breadcrumb trail={[{ name: "Terms of Service", path: "/terms" }]} />
+      <p className="mt-6 text-sm font-medium text-primary">Legal</p>
       <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
         Terms of Service
       </h1>
@@ -339,19 +345,22 @@ export default function TermsPage() {
             For questions regarding these Terms of Service, contact us at:
           </p>
           <div className="mt-3 rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 text-white/80">
-            <p className="font-medium">Blogspage</p>
-            <p>Ayodhya Nagar Colony, Mehdipatnam</p>
-            <p>Hyderabad, Telangana 500028, India</p>
+            <p className="font-medium">{NAP.legalName}</p>
+            <p>{NAP.streetAddress}</p>
+            <p>
+              {NAP.locality}, {NAP.region} {NAP.postalCode}
+            </p>
+            <p>{NAP.country}</p>
             <p className="mt-2">
               Email:{" "}
               <a
-                href="mailto:ravi@blogspage.com"
+                href={NAP.emailHref}
                 className="text-primary hover:underline"
               >
-                ravi@blogspage.com
+                {NAP.email}
               </a>
             </p>
-            <p>Phone: +91 80194 43314</p>
+            <p>Phone: {NAP.telephone}</p>
           </div>
         </section>
       </article>

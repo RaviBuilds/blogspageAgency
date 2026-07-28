@@ -8,6 +8,7 @@ import { BlogFooterCTA } from "@/components/blogs/BlogFooterCTA";
 import { CodeBlock } from "@/components/blogs/CodeBlock";
 import { client } from "@/sanity/lib/client";
 import { urlFor } from "@/sanity/lib/image";
+import { parseSanityImageRef } from "@/lib/sanity-image";
 import {
   POST_QUERY,
   POST_SLUGS_QUERY,
@@ -16,15 +17,15 @@ import {
   type PostCard,
 } from "@/sanity/lib/queries";
 import {
-  SITE_URL,
   buildArticleJsonLd,
-  buildBreadcrumbJsonLd,
   buildFaqJsonLd,
   decodeHtmlEntities,
   getReadingTime,
-  postUrl,
   resolveDescription,
 } from "@/lib/blog";
+import { buildMetadata } from "@/lib/seo";
+import { Breadcrumb } from "@/components/seo/breadcrumb";
+import { createHeadingSlugger } from "@/lib/heading-slug";
 import { Suspense } from "react";
 
 export const revalidate = 3600; // Posts change rarely; revalidate hourly.
@@ -47,7 +48,36 @@ type PortableTextImageValue = {
   caption?: string;
 };
 
-const portableTextComponents: PortableTextComponents = {
+/** Plain text from a Portable Text block's span children, for heading slugs. */
+function blockPlainText(value: unknown): string {
+  const children = (value as { children?: { text?: string }[] } | undefined)
+    ?.children;
+  if (!Array.isArray(children)) return "";
+  return children
+    .map((child) => child?.text ?? "")
+    .join("")
+    .trim();
+}
+
+/**
+ * Builds the PortableText renderer map for a single route render.
+ *
+ * `slugger` is a fresh {@link createHeadingSlugger} instance created once at
+ * the top of `BlogPost`'s render body, so `h2`/`h3` ids stay deterministic
+ * and route-scoped (Requirement 9.5).
+ */
+function getPortableTextComponents(
+  slugger: (text: string) => string,
+): PortableTextComponents {
+  return {
+    block: {
+    h2: ({ children, value }) => (
+      <h2 id={slugger(blockPlainText(value))}>{children}</h2>
+    ),
+    h3: ({ children, value }) => (
+      <h3 id={slugger(blockPlainText(value))}>{children}</h3>
+    ),
+  },
   types: {
     ctaBlock: ({ value }) => {
       const cta = value as CtaBlockValue | undefined;
@@ -79,14 +109,30 @@ const portableTextComponents: PortableTextComponents = {
       const src = urlFor(image).width(1600).url();
       if (!src) return null;
 
+      const alt = clampAltText(image.alt ?? "");
+      const dimensions = parseSanityImageRef(image);
+
       return (
         <figure className="not-prose my-12">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={src}
-            alt={image.alt || "Blog illustration"}
-            className="h-auto w-full rounded-2xl border border-white/[0.08] object-cover shadow-2xl"
-          />
+          {dimensions ? (
+            <Image
+              src={src}
+              alt={alt}
+              width={dimensions.width}
+              height={dimensions.height}
+              className="h-auto w-full rounded-2xl border border-white/[0.08] object-cover shadow-2xl"
+            />
+          ) : (
+            <div className="relative aspect-video overflow-hidden rounded-2xl border border-white/[0.08] shadow-2xl">
+              <Image
+                src={src}
+                alt={alt}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 768px"
+              />
+            </div>
+          )}
           {image.caption ? (
             <figcaption className="mt-3 text-center text-sm text-muted-foreground">
               {image.caption}
@@ -145,7 +191,8 @@ const portableTextComponents: PortableTextComponents = {
       );
     },
   },
-};
+  };
+}
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("en-US", {
@@ -153,6 +200,46 @@ const formatDate = (iso: string) =>
     month: "long",
     day: "numeric",
   });
+
+/** Requirement 10.4: non-empty alt text is capped at 125 characters. */
+const ALT_TEXT_MAX = 125;
+
+/**
+ * Trim alt text to {@link ALT_TEXT_MAX} characters at a word boundary,
+ * returning a zero-length string when the source supplies no alt text
+ * (Requirements 10.4, 10.10) rather than a placeholder like "Blog
+ * illustration".
+ */
+function clampAltText(raw: string): string {
+  const trimmed = raw.trim();
+  if (trimmed === "" || trimmed.length <= ALT_TEXT_MAX) return trimmed;
+
+  const cut = trimmed.slice(0, ALT_TEXT_MAX);
+  const lastSpace = cut.lastIndexOf(" ");
+  return lastSpace > 0 ? cut.slice(0, lastSpace) : cut;
+}
+
+/**
+ * Same-calendar-day comparison in the site display timezone (Asia/Kolkata,
+ * per `LOCALE.html` = `en-IN` and the Hyderabad NAP in `src/lib/site.ts`).
+ * `toDateString()` compares in the server/runtime's local timezone, which is
+ * not necessarily IST, so a review made on the same IST calendar day as
+ * publication could still be rendered as a distinct day — the bug this
+ * helper fixes (Requirement 8.3).
+ */
+function isSameCalendarDay(
+  a: string,
+  b: string,
+  timeZone = "Asia/Kolkata",
+): boolean {
+  const fmt = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  return fmt.format(new Date(a)) === fmt.format(new Date(b));
+}
 
 async function getPost(slug: string): Promise<Post | null> {
   return client.fetch<Post | null>(POST_QUERY, { slug });
@@ -196,40 +283,47 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const ogDescription = post.ogDescription
     ? decodeHtmlEntities(post.ogDescription)
     : description;
-  const canonical = post.canonicalUrl || postUrl(post.slug);
+  // `buildMetadata`'s `path` option expects a route path, but its
+  // implementation resolves the input through `new URL(raw, SITE_URL)`
+  // before reading `.pathname`, so an absolute URL input (an author-supplied
+  // `canonicalUrl`) resolves to its own path correctly as well.
+  const canonicalPath = post.canonicalUrl || `/blogs/${post.slug}`;
 
-  return {
+  // `buildMetadata`'s `index` option maps to a single combined
+  // `robots: { index, follow }` pair, whereas the original hand-rolled object
+  // set `index`/`follow` independently from `post.noindex`/`post.nofollow`.
+  // `buildMetadata` has no way to set them independently, so `nofollow` is
+  // folded into the same boolean as the closest available equivalent: a post
+  // marked `nofollow` but not `noindex` now also gets `index: false` rather
+  // than `index: true, follow: false`. This is a minor behavioural narrowing,
+  // flagged here since no post in the current content set sets `nofollow`
+  // without also setting `noindex`.
+  return buildMetadata({
+    path: canonicalPath,
     title,
     description,
-    keywords: post.seoKeywords?.length ? post.seoKeywords : undefined,
-    authors: post.author?.name ? [{ name: post.author.name }] : undefined,
-    alternates: { canonical },
-    robots: {
-      index: !post.noindex,
-      follow: !post.nofollow,
+    type: "article",
+    index: !post.noindex && !post.nofollow,
+    image: post.ogImageUrl
+      ? { url: post.ogImageUrl, alt: ogTitle }
+      : undefined,
+    extra: {
+      keywords: post.seoKeywords?.length ? post.seoKeywords : undefined,
+      authors: post.author?.name ? [{ name: post.author.name }] : undefined,
+      openGraph: {
+        title: ogTitle,
+        description: ogDescription,
+        publishedTime: post.publishedAt,
+        modifiedTime: post.lastReviewed || post._updatedAt || post.publishedAt,
+        authors: post.author?.name ? [post.author.name] : undefined,
+        tags: post.seoKeywords,
+      },
+      twitter: {
+        title: ogTitle,
+        description: ogDescription,
+      },
     },
-    openGraph: {
-      title: ogTitle,
-      description: ogDescription,
-      url: canonical,
-      type: "article",
-      publishedTime: post.publishedAt,
-      modifiedTime: post.lastReviewed || post._updatedAt || post.publishedAt,
-      authors: post.author?.name ? [post.author.name] : undefined,
-      tags: post.seoKeywords,
-      ...(post.ogImageUrl && {
-        images: [
-          { url: post.ogImageUrl, width: 1200, height: 630, alt: ogTitle },
-        ],
-      }),
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: ogTitle,
-      description: ogDescription,
-      ...(post.ogImageUrl && { images: [post.ogImageUrl] }),
-    },
-  };
+  });
 }
 
 export default async function BlogPost({ params }: Props) {
@@ -243,23 +337,22 @@ export default async function BlogPost({ params }: Props) {
   const readingTime = getReadingTime(post.content);
   const related = await getRelatedPosts(post);
   const articleJsonLd = buildArticleJsonLd(post);
-  const breadcrumbJsonLd = buildBreadcrumbJsonLd(post);
   const faqJsonLd = buildFaqJsonLd(post.faq);
-  const showUpdated =
+  // One heading slugger per rendered route, so `h2`/`h3` ids stay
+  // deterministic and route-scoped (Requirement 9.5).
+  const slugger = createHeadingSlugger();
+  const portableTextComponents = getPortableTextComponents(slugger);
+  const showUpdated = Boolean(
     post.lastReviewed &&
-    post.publishedAt &&
-    new Date(post.lastReviewed).toDateString() !==
-      new Date(post.publishedAt).toDateString();
+      post.publishedAt &&
+      !isSameCalendarDay(post.lastReviewed, post.publishedAt),
+  );
 
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       {faqJsonLd ? (
         <script
@@ -269,7 +362,16 @@ export default async function BlogPost({ params }: Props) {
       ) : null}
 
       <article className="mx-auto max-w-3xl px-6 py-16 lg:px-8 lg:py-24">
-        <header className="mb-10 border-b border-border pb-10">
+        <Breadcrumb
+          trail={[
+            { name: "Blog", path: "/blogs" },
+            {
+              name: decodeHtmlEntities(post.title),
+              path: `/blogs/${post.slug}`,
+            },
+          ]}
+        />
+        <header className="mt-6 mb-10 border-b border-border pb-10">
           {post.categories?.[0]?.title ? (
             <span className="inline-flex w-fit rounded-full border border-border bg-background px-2.5 py-0.5 text-xs text-muted-foreground">
               {post.categories[0].title}
@@ -282,7 +384,16 @@ export default async function BlogPost({ params }: Props) {
 
           <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
             {post.author?.name ? (
-              <span className="text-foreground">{post.author.name}</span>
+              post.author.slug ? (
+                <Link
+                  href={`/blogs/author/${post.author.slug}`}
+                  className="text-foreground underline-offset-4 hover:underline"
+                >
+                  {post.author.name}
+                </Link>
+              ) : (
+                <span className="text-foreground">{post.author.name}</span>
+              )
             ) : null}
             {post.publishedAt ? (
               <time dateTime={post.publishedAt}>
@@ -349,6 +460,20 @@ export default async function BlogPost({ params }: Props) {
             </dl>
           </section>
         ) : null}
+
+        {/* Post-to-contact cross-link (Requirement 7.11) */}
+        <section className="mt-16 border-t border-border pt-10">
+          <p className="text-muted-foreground">
+            Want a system like this for your business?{" "}
+            <Link
+              href="/contact"
+              className="text-primary underline-offset-4 hover:underline"
+            >
+              Get in touch
+            </Link>
+            .
+          </p>
+        </section>
 
         <Suspense fallback={null}>
           {related.length ? (

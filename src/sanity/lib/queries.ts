@@ -92,6 +92,62 @@ export const POST_SITEMAP_QUERY = `*[${LIVE_POST_FILTER} && noindex != true] {
 /** Slugs only, for generateStaticParams. */
 export const POST_SLUGS_QUERY = `*[${LIVE_POST_FILTER}].slug.current`
 
+/**
+ * Paginated `/blogs` archive. `$start`/`$end` are a 0-indexed GROQ slice
+ * range (e.g. start=0, end=12 for page 1 of a 12-per-page listing).
+ */
+export const POSTS_PAGE_QUERY = `*[${LIVE_POST_FILTER}] | order(publishedAt desc)[$start...$end] {${CARD_PROJECTION}}`
+
+/** Total count of live posts, needed alongside POSTS_PAGE_QUERY to compute page count. */
+export const POSTS_COUNT_QUERY = `count(*[${LIVE_POST_FILTER}])`
+
+/** Paginated category archive: posts referencing the category with slug $slug. */
+export const CATEGORY_POSTS_QUERY = `*[${LIVE_POST_FILTER} && $slug in categories[]->slug.current] | order(publishedAt desc)[$start...$end] {${CARD_PROJECTION}}`
+
+/** Total count of live posts in a category, for page-count computation. */
+export const CATEGORY_POSTS_COUNT_QUERY = `count(*[${LIVE_POST_FILTER} && $slug in categories[]->slug.current])`
+
+/** Paginated author archive: posts authored by the author with slug $slug. */
+export const AUTHOR_POSTS_QUERY = `*[${LIVE_POST_FILTER} && author->slug.current == $slug] | order(publishedAt desc)[$start...$end] {${CARD_PROJECTION}}`
+
+/** Total count of live posts by an author, for page-count computation. */
+export const AUTHOR_POSTS_COUNT_QUERY = `count(*[${LIVE_POST_FILTER} && author->slug.current == $slug])`
+
+/**
+ * Every category slug referenced by at least one live post. Categories with
+ * zero live posts are excluded so their archive route never becomes a thin
+ * indexable page.
+ */
+export const CATEGORY_SLUGS_QUERY = `*[_type == "category" && count(*[${LIVE_POST_FILTER} && references(^._id)]) > 0].slug.current`
+
+/**
+ * Every author slug referenced by at least one live post. Authors with zero
+ * live posts are excluded so their profile route never becomes a thin
+ * indexable page.
+ */
+export const AUTHOR_SLUGS_QUERY = `*[_type == "author" && count(*[${LIVE_POST_FILTER} && author._ref == ^._id]) > 0].slug.current`
+
+/** Single category's display title by slug, for the category archive route. */
+export const CATEGORY_BY_SLUG_QUERY = `*[_type == "category" && slug.current == $slug][0] { title, "slug": slug.current }`
+
+/** Single author profile by slug, for the author archive route. */
+export const AUTHOR_PROFILE_QUERY = `*[_type == "author" && slug.current == $slug][0] {
+  name,
+  "slug": slug.current,
+  jobTitle,
+  bio,
+  sameAs,
+  "imageUrl": image.asset->url
+}`
+
+/** 20 most recent live posts, excluding noindex, for the RSS/Atom feed. */
+export const FEED_POSTS_QUERY = `*[${LIVE_POST_FILTER} && noindex != true] | order(publishedAt desc)[0...20] {
+  title,
+  "slug": slug.current,
+  excerpt,
+  publishedAt
+}`
+
 // --------------------------------------------------------------------- Types
 
 export type FaqItem = {
@@ -168,4 +224,25 @@ export type PostSitemapEntry = {
   lastReviewed?: string
   evergreen?: boolean
   _updatedAt?: string
+}
+
+export type CategoryProfile = {
+  title?: string
+  slug?: string
+}
+
+export type AuthorProfile = {
+  name?: string
+  slug?: string
+  jobTitle?: string
+  bio?: PortableTextBlock[]
+  sameAs?: string[]
+  imageUrl?: string
+}
+
+export type FeedPost = {
+  title: string
+  slug: string
+  excerpt?: string
+  publishedAt?: string
 }

@@ -20,6 +20,7 @@ const SPRING = { type: "spring", stiffness: 100, damping: 20, mass: 1 } as const
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/#services", label: "Services" },
+  { href: "/solutions", label: "Solutions" },
   { href: "/#process", label: "Process" },
   { href: "/blogs", label: "Blogs" },
 ];

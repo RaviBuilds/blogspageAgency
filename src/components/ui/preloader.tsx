@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -12,31 +12,59 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const EXIT_SPRING = { type: "spring", stiffness: 100, damping: 30, mass: 1 } as const;
 
+// Counter + hold must stay well inside the 1500ms visible-duration budget
+// (Requirement 11.8). EXIT_DURATION_MS is a documented estimate of the
+// EXIT_SPRING's settling time (spring physics has no fixed duration), kept
+// here so any future consumer summing counter + hold + exit has a value to use.
+const COUNTER_DURATION_MS = 900;
+const HOLD_DURATION_MS = 150;
+const EXIT_DURATION_MS = 400;
+
 export function Preloader() {
   const [loading, setLoading] = useState<boolean | null>(null);
   const [counter, setCounter] = useState(0);
+  const releasedRef = useRef(false);
 
-  // Guard: only show once per session
+  const release = () => {
+    if (releasedRef.current) return;
+    releasedRef.current = true;
+    sessionStorage.setItem("blogspage-preloaded", "true");
+    setLoading(false);
+  };
+
+  // Guard: only show once per session, and skip entirely under
+  // prefers-reduced-motion (Requirement 11.9) so no animated sequence runs.
   useEffect(() => {
     const hasLoaded = sessionStorage.getItem("blogspage-preloaded");
     if (hasLoaded) {
+      releasedRef.current = true;
       setLoading(false);
       return;
     }
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    if (prefersReducedMotion) {
+      release();
+      return;
+    }
+
     setLoading(true);
   }, []);
 
-  // Rapid counter from 0 → 100 over ~1.6s
+  // Rapid counter from 0 → 100 over COUNTER_DURATION_MS, plus a hard release
+  // timeout that fires independent of the rAF loop so a stalled/throttled
+  // loop (e.g. backgrounded tab) can never leave the overlay stuck.
   useEffect(() => {
     if (!loading) return;
 
     let frame: number;
     const start = performance.now();
-    const duration = 1600; // ms
 
     const tick = (now: number) => {
       const elapsed = now - start;
-      const progress = Math.min(elapsed / duration, 1);
+      const progress = Math.min(elapsed / COUNTER_DURATION_MS, 1);
       // Ease-out curve for the counter (fast start, slow finish)
       const eased = 1 - Math.pow(1 - progress, 3);
       setCounter(Math.floor(eased * 100));
@@ -45,15 +73,18 @@ export function Preloader() {
         frame = requestAnimationFrame(tick);
       } else {
         // Small delay at 100 before revealing
-        setTimeout(() => {
-          sessionStorage.setItem("blogspage-preloaded", "true");
-          setLoading(false);
-        }, 300);
+        setTimeout(release, HOLD_DURATION_MS);
       }
     };
 
     frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
+
+    const hardRelease = setTimeout(release, COUNTER_DURATION_MS + HOLD_DURATION_MS);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(hardRelease);
+    };
   }, [loading]);
 
   // Don't render anything until we know (avoids flash on revisit)
@@ -67,6 +98,7 @@ export function Preloader() {
           initial={{ y: "0%" }}
           exit={{ y: "-100%" }}
           transition={EXIT_SPRING}
+          aria-hidden="true"
           className="fixed inset-0 z-[99] flex flex-col items-center justify-center bg-[#050505]"
         >
           {/* Subtle background glow */}

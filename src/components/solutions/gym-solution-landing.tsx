@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 import {
@@ -18,6 +17,14 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  GymAdminPlaceholder,
+  GymMemberPlaceholder,
+  GymOwnerPlaceholder,
+  GymWebsitePlaceholder,
+} from "@/components/solutions/placeholders";
+import type { FaqPair } from "@/lib/structured-data";
+import type { LatestPost } from "@/sanity/lib/queries";
 
 /* -------------------------------------------------------------------------- */
 /*  Motion primitives — blueprint spring physics + cubic-bezier easing        */
@@ -70,7 +77,7 @@ type Pillar = {
   tagline: string;
   copy: string;
   features: { icon: typeof Globe; label: string }[];
-  image: string;
+  Preview: typeof GymWebsitePlaceholder;
   imageAlt: string;
   /** Optional preview chrome label shown in the browser window bar. */
   url: string;
@@ -89,7 +96,7 @@ const PILLARS: Pillar[] = [
       { icon: Bot, label: "Custom AI sales & front-desk agent" },
       { icon: Sparkles, label: "Automated lead capture & routing" },
     ],
-    image: "/gym-website-placeholder.svg",
+    Preview: GymWebsitePlaceholder,
     imageAlt: "Award-winning gym marketing website with embedded AI sales agent",
     url: "elitefitness.club",
   },
@@ -105,7 +112,7 @@ const PILLARS: Pillar[] = [
       { icon: Dumbbell, label: "BMI checks & specialized training upgrades" },
       { icon: ShoppingBag, label: "In-app supplement ordering & pickup" },
     ],
-    image: "/gym-member-placeholder.svg",
+    Preview: GymMemberPlaceholder,
     imageAlt: "Gym member portal dashboard on a dark interface",
     url: "app.elitefitness.club",
   },
@@ -121,7 +128,7 @@ const PILLARS: Pillar[] = [
       { icon: ShoppingBag, label: "Inventory & order fulfillment" },
       { icon: ShieldCheck, label: "Member billing & access control" },
     ],
-    image: "/gym-admin-placeholder.svg",
+    Preview: GymAdminPlaceholder,
     imageAlt: "Gym admin operations dashboard with inventory and billing panels",
     url: "admin.elitefitness.club",
   },
@@ -137,7 +144,7 @@ const PILLARS: Pillar[] = [
       { icon: ShieldCheck, label: "Daily / weekly / monthly audit logs" },
       { icon: LayoutDashboard, label: "Multi-location operational oversight" },
     ],
-    image: "/gym-owner-placeholder.svg",
+    Preview: GymOwnerPlaceholder,
     imageAlt: "Gym owner executive analytics dashboard with revenue charts",
     url: "owner.elitefitness.club",
   },
@@ -148,11 +155,11 @@ const PILLARS: Pillar[] = [
 /* -------------------------------------------------------------------------- */
 
 function BrowserMock({
-  src,
+  Preview,
   alt,
   url,
 }: {
-  src: string;
+  Preview: typeof GymWebsitePlaceholder;
   alt: string;
   url: string;
 }) {
@@ -173,12 +180,10 @@ function BrowserMock({
 
       {/* muted-reveal viewport */}
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-[linear-gradient(135deg,#141516,#010102)]">
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          sizes="(min-width: 1024px) 560px, 100vw"
-          className="object-cover opacity-80 brightness-[0.7] grayscale-[40%] transition-all duration-700 ease-out group-hover:scale-[1.02] group-hover:opacity-100 group-hover:brightness-100 group-hover:grayscale-0"
+        <Preview
+          role="img"
+          aria-label={alt}
+          className="size-full object-cover opacity-80 brightness-[0.7] grayscale-[40%] transition-all duration-700 ease-out group-hover:scale-[1.02] group-hover:opacity-100 group-hover:brightness-100 group-hover:grayscale-0"
         />
       </div>
     </div>
@@ -189,7 +194,28 @@ function BrowserMock({
 /*  Page                                                                      */
 /* -------------------------------------------------------------------------- */
 
-export function GymSolutionLanding({ cityLabel }: { cityLabel: string }) {
+type GymSolutionLandingProps = {
+  cityLabel: string;
+  /** At least three question-and-answer pairs (Requirement 9.6). */
+  faq?: FaqPair[];
+  /**
+   * Heading text -> `id`, precomputed by the parent page's single
+   * `createHeadingSlugger` instance. A function cannot cross the server ->
+   * client boundary as a prop (this component is `"use client"`), so the
+   * page derives every id this component needs up front and passes the
+   * lookup down as plain data (Requirement 9.5).
+   */
+  headingIds: Record<string, string>;
+  /** Fallback "related reading" posts (Requirement 7.8). */
+  relatedPosts?: LatestPost[];
+};
+
+export function GymSolutionLanding({
+  cityLabel,
+  faq = [],
+  headingIds,
+  relatedPosts = [],
+}: GymSolutionLandingProps) {
   const headline = [
     "The",
     "AI-Powered",
@@ -198,7 +224,9 @@ export function GymSolutionLanding({ cityLabel }: { cityLabel: string }) {
     "for",
     "Elite",
     "Fitness",
-    "Clubs.",
+    "Clubs",
+    "in",
+    `${cityLabel}.`,
   ];
 
   return (
@@ -301,7 +329,10 @@ export function GymSolutionLanding({ cityLabel }: { cityLabel: string }) {
             <p className="text-sm font-medium text-primary">
               The Four-Pillar Ecosystem
             </p>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-balance sm:text-5xl">
+            <h2
+              id={headingIds["One connected platform. Four systems working as one."]}
+              className="mt-4 text-3xl font-semibold tracking-tight text-balance sm:text-5xl"
+            >
               One connected platform. Four systems working as one.
             </h2>
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
@@ -346,7 +377,10 @@ export function GymSolutionLanding({ cityLabel }: { cityLabel: string }) {
                     </span>
                   </div>
 
-                  <h3 className="mt-6 text-3xl font-semibold tracking-tight sm:text-4xl">
+                  <h3
+                    id={headingIds[pillar.title]}
+                    className="mt-6 text-3xl font-semibold tracking-tight sm:text-4xl"
+                  >
                     {pillar.title}
                   </h3>
                   <p className="mt-3 text-lg font-medium text-foreground/80">
@@ -377,7 +411,7 @@ export function GymSolutionLanding({ cityLabel }: { cityLabel: string }) {
                   className={imageFirst ? "lg:order-1" : ""}
                 >
                   <BrowserMock
-                    src={pillar.image}
+                    Preview={pillar.Preview}
                     alt={pillar.imageAlt}
                     url={pillar.url}
                   />
@@ -403,7 +437,10 @@ export function GymSolutionLanding({ cityLabel }: { cityLabel: string }) {
             <div className="pointer-events-none absolute -right-32 -top-32 size-80 rounded-full bg-primary/20 blur-3xl" />
             <div className="pointer-events-none absolute -bottom-32 -left-32 size-80 rounded-full bg-fuchsia-500/10 blur-3xl" />
             <div className="relative mx-auto max-w-2xl">
-              <h2 className="text-3xl font-semibold tracking-tight text-balance sm:text-5xl">
+              <h2
+                id={headingIds["Build the operating system your club deserves."]}
+                className="text-3xl font-semibold tracking-tight text-balance sm:text-5xl"
+              >
                 Build the operating system your club deserves.
               </h2>
               <p className="mt-5 text-lg text-muted-foreground">
@@ -435,6 +472,79 @@ export function GymSolutionLanding({ cityLabel }: { cityLabel: string }) {
           </motion.div>
         </div>
       </section>
+
+      {/* Frequently asked questions (Requirements 9.6, 9.8, 9.9) */}
+      {faq.length ? (
+        <section className="border-t border-white/[0.06] py-24 lg:py-32">
+          <div className="mx-auto max-w-3xl px-6 lg:px-8">
+            <motion.div
+              variants={reveal}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+            >
+              <h2
+                id={headingIds["Frequently asked questions"]}
+                className="text-3xl font-semibold tracking-tight"
+              >
+                Frequently asked questions
+              </h2>
+              <dl className="mt-8 space-y-6">
+                {faq.map((item, index) => (
+                  <div key={index}>
+                    <dt className="font-medium text-foreground">
+                      {item.question}
+                    </dt>
+                    <dd className="mt-2 text-muted-foreground">
+                      {item.answer}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </motion.div>
+          </div>
+        </section>
+      ) : null}
+
+      {/* Related reading (Requirement 7.8) */}
+      {relatedPosts.length ? (
+        <section className="border-t border-white/[0.06] py-24 lg:py-32">
+          <div className="mx-auto max-w-6xl px-6 lg:px-8">
+            <motion.div
+              variants={reveal}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+            >
+              <h2
+                id={headingIds["Related reading"]}
+                className="text-3xl font-semibold tracking-tight"
+              >
+                Related reading
+              </h2>
+              <ul className="mt-8 grid gap-6 sm:grid-cols-3">
+                {relatedPosts.map((post) => (
+                  <li key={post._id}>
+                    <Link
+                      href={`/blogs/${post.slug}`}
+                      className="group flex h-full flex-col rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 transition-colors hover:border-white/[0.16]"
+                    >
+                      <h3 className="line-clamp-2 text-base font-medium tracking-tight transition-colors group-hover:text-primary">
+                        {post.title}
+                      </h3>
+                      {post.excerpt ? (
+                        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                          {post.excerpt}
+                        </p>
+                      ) : null}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

@@ -4,6 +4,8 @@ import { useRef } from "react";
 import Image from "next/image";
 import { motion, useScroll, useTransform, type Variants } from "framer-motion";
 
+import { projects, type ProjectMetric } from "@/lib/featured-work-data";
+
 /* ─────────────────────────────────────────────────────────────────────────────
    MOTION PRIMITIVES — design system §5
    ───────────────────────────────────────────────────────────────────────────── */
@@ -24,55 +26,9 @@ const mobileFadeUp: Variants = {
 const MUTED_REVEAL =
   "grayscale-[40%] brightness-[0.7] opacity-80 transition-all duration-[700ms] ease-out group-hover:grayscale-0 group-hover:brightness-100 group-hover:opacity-100";
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   PROJECT DATA — real portfolio assets
-   ───────────────────────────────────────────────────────────────────────────── */
-const projects = [
-  {
-    id: "phixl-ai",
-    image: "/phixlAI.jpg",
-    tag: "AI-Powered SaaS",
-    headline: "Phixl AI - Photo Restoration Platform",
-    description:
-      "A fully monetized generative AI platform that breathes new life into damaged photographs. Features a scalable user credit system with free-tier onboarding, seamless Razorpay checkout for credit top-ups, and instant, high-fidelity image processing.",
-    tech: ["Next.js", "Replicate AI", "Supabase", "TypeScript", "Tailwind", "Razorpay"],
-    accent: "99,102,241",
-    gradient: "from-indigo-500/20 via-violet-500/10 to-transparent",
-  },
-  {
-    id: "nextinn",
-    image: "/NextInn.jpg",
-    tag: "Hospitality Management",
-    headline: "NextInn Booking & Operations",
-    description:
-      "A secure, all-in-one hotel platform designed to drive direct reservations. Guests can seamlessly check real-time availability and book rooms, while hotel staff and ownership utilize dedicated admin dashboards to control daily operations, handle reviews, and oversee high-level business performance.",
-    tech: ["React", "Redux", "MongoDB", "Express", "Node", "Tailwind"],
-    accent: "56,189,248",
-    gradient: "from-sky-500/20 via-cyan-500/10 to-transparent",
-  },
-  {
-    id: "arogyadiet",
-    image: "/ArogyaDiet.jpg",
-    tag: "Health & Delivery Platform",
-    headline: "ArogyaDiet Ecosystem",
-    description:
-      "A complete end-to-end food delivery and subscription platform. Features interconnected portals for Customers to manage meal plans, a native Rider app for live delivery tracking, and powerful Master Admin & Franchise dashboards to seamlessly oversee all daily operations and logistics.",
-    tech: ["Next.js","Stripe", "TypeScript", "Tailwind", "Supabase"],
-    accent: "16,185,129",
-    gradient: "from-emerald-500/20 via-teal-500/10 to-transparent",
-  },
-  {
-    id: "best100movies",
-    image: "/movieDB.png",
-    tag: "SEO Content Platform",
-    headline: "Best100Movies - Dynamic Media Hub",
-    description:
-      "A high-performance entertainment portal engineered to capture organic search traffic through programmatic SEO. It automatically aggregates thousands of real-time movie records via external APIs, while empowering site owners with a seamless headless CMS to effortlessly curate featured content.",
-    tech: ["Next.js", "Sanity CMS", "TMDB API", "Tailwind", "Programmatic SEO"],
-    accent: "139,92,246",
-    gradient: "from-violet-500/20 via-purple-500/10 to-transparent",
-  },
-];
+/* Project data lives in `src/lib/featured-work-data.ts` (a plain, non-client
+   module) so `/about` can import the same array from a server component;
+   see that file for Requirement 8.6/8.7 details. */
 
 /* ─────────────────────────────────────────────────────────────────────────────
    TECH STACK PILLS
@@ -89,6 +45,27 @@ function TechPills({ stack }: { stack: string[] }) {
         </span>
       ))}
     </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   METRIC LINE — renders "<label>: <value> (<basis>)" so the numeric figure
+   and the literal word "measured"/"estimated" always share one visible block
+   (Requirement 8.7).
+   ───────────────────────────────────────────────────────────────────────────── */
+function MetricLine({ metrics }: { metrics: ProjectMetric[] }) {
+  return (
+    <ul className="flex flex-col gap-1">
+      {metrics.map((metric) => (
+        <li
+          key={metric.label}
+          className="text-xs font-medium text-white/70 md:text-sm"
+        >
+          {metric.label}: <span className="text-white">{metric.value}</span>{" "}
+          <span className="text-white/40">({metric.basis})</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -160,6 +137,7 @@ function DesktopCard({
         </p>
 
         <TechPills stack={project.tech} />
+        <MetricLine metrics={project.metrics} />
       </div>
 
       {/* ── RIGHT COLUMN (65%) — system mockup ── */}
@@ -316,6 +294,9 @@ function MobileVerticalStack() {
 
               <div className="mt-4">
                 <TechPills stack={project.tech} />
+              </div>
+              <div className="mt-3">
+                <MetricLine metrics={project.metrics} />
               </div>
             </div>
           </motion.article>

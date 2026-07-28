@@ -4,22 +4,27 @@ import { Button } from "@/components/ui/button";
 import { FadeUp } from "@/components/solutions/fade-up";
 import { SolutionHero } from "@/components/solutions/solution-hero";
 import type { Niche } from "@/lib/niches";
+import type { LatestPost } from "@/sanity/lib/queries";
 
 type SolutionTemplateProps = {
   niche: Niche;
   /** Raw city slug, e.g. "hyderabad". */
   city: string;
+  /** Human-readable city label, e.g. "Hyderabad" (Requirement 12.7). */
+  cityLabel: string;
+  /** Route-scoped heading slugger, created once by the parent page. */
+  slugger: (text: string) => string;
+  /** Fallback "related reading" posts (Requirement 7.8). */
+  relatedPosts?: LatestPost[];
 };
 
-const titleCase = (value: string) =>
-  value
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-
-export function SolutionTemplate({ niche, city }: SolutionTemplateProps) {
-  const cityLabel = titleCase(city);
-
+export function SolutionTemplate({
+  niche,
+  city,
+  cityLabel,
+  slugger,
+  relatedPosts = [],
+}: SolutionTemplateProps) {
   return (
     <div className="relative overflow-hidden">
       <SolutionHero niche={niche} city={city} cityLabel={cityLabel} />
@@ -29,7 +34,10 @@ export function SolutionTemplate({ niche, city }: SolutionTemplateProps) {
         <div className="mx-auto grid max-w-6xl gap-10 px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
           <FadeUp>
             <p className="text-sm font-medium text-primary">The Problem</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight">
+            <h2
+              id={slugger(niche.problem.heading)}
+              className="mt-3 text-3xl font-semibold tracking-tight"
+            >
               {niche.problem.heading}
             </h2>
             <p className="mt-4 text-muted-foreground">{niche.problem.lead}</p>
@@ -54,7 +62,10 @@ export function SolutionTemplate({ niche, city }: SolutionTemplateProps) {
             <div className="grid gap-10 rounded-2xl border border-white/[0.08] bg-card p-8 lg:grid-cols-[0.8fr_1.2fr] lg:p-10">
               <div>
                 <p className="text-sm font-medium text-primary">The Solution</p>
-                <h2 className="mt-3 text-3xl font-semibold tracking-tight">
+                <h2
+                  id={slugger(niche.solution.heading)}
+                  className="mt-3 text-3xl font-semibold tracking-tight"
+                >
                   {niche.solution.heading}
                 </h2>
               </div>
@@ -85,7 +96,10 @@ export function SolutionTemplate({ niche, city }: SolutionTemplateProps) {
           <FadeUp>
             <div className="max-w-2xl">
               <p className="text-sm font-medium text-primary">Dashboard Previews</p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight">
+              <h2
+                id={slugger("The interface your team actually operates.")}
+                className="mt-3 text-3xl font-semibold tracking-tight"
+              >
                 The interface your team actually operates.
               </h2>
             </div>
@@ -118,7 +132,7 @@ export function SolutionTemplate({ niche, city }: SolutionTemplateProps) {
                     </div>
                   </div>
                   <div className="p-6">
-                    <h3 className="text-lg font-medium">{dashboard.title}</h3>
+                    <h3 id={slugger(dashboard.title)} className="text-lg font-medium">{dashboard.title}</h3>
                     <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                       {dashboard.description}
                     </p>
@@ -143,7 +157,10 @@ export function SolutionTemplate({ niche, city }: SolutionTemplateProps) {
                       <Sparkles className="size-4" />
                       Case Study
                     </p>
-                    <h2 className="mt-3 text-3xl font-semibold tracking-tight">
+                    <h2
+                      id={slugger(niche.caseStudy.title)}
+                      className="mt-3 text-3xl font-semibold tracking-tight"
+                    >
                       {niche.caseStudy.title}
                     </h2>
                     <p className="mt-4 text-base leading-relaxed text-muted-foreground">
@@ -207,7 +224,12 @@ export function SolutionTemplate({ niche, city }: SolutionTemplateProps) {
           <FadeUp>
             <div className="max-w-2xl">
               <p className="text-sm font-medium text-primary">Launch Schedule</p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight">
+              <h2
+                id={slugger(
+                  `From kickoff to live in ${niche.launchSchedule.length >= 5 ? "under three weeks" : "two weeks"}.`,
+                )}
+                className="mt-3 text-3xl font-semibold tracking-tight"
+              >
                 From kickoff to live in {niche.launchSchedule.length >= 5 ? "under three weeks" : "two weeks"}.
               </h2>
             </div>
@@ -222,7 +244,10 @@ export function SolutionTemplate({ niche, city }: SolutionTemplateProps) {
                     <p className="text-xs font-medium uppercase tracking-[0.18em] text-primary">
                       {phase.window}
                     </p>
-                    <h3 className="mt-1 text-lg font-medium tracking-tight">
+                    <h3
+                      id={slugger(phase.title)}
+                      className="mt-1 text-lg font-medium tracking-tight"
+                    >
                       {phase.title}
                     </h3>
                     <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
@@ -243,7 +268,12 @@ export function SolutionTemplate({ niche, city }: SolutionTemplateProps) {
             <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-card p-10 text-center lg:p-14">
               <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-primary/20 blur-3xl" />
               <div className="relative mx-auto max-w-2xl">
-                <h2 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+                <h2
+                  id={slugger(
+                    `Build your ${niche.title.toLowerCase()} platform in ${cityLabel}.`,
+                  )}
+                  className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
+                >
                   Build your {niche.title.toLowerCase()} platform in {cityLabel}.
                 </h2>
                 <p className="mt-4 text-muted-foreground">
@@ -275,6 +305,69 @@ export function SolutionTemplate({ niche, city }: SolutionTemplateProps) {
           </FadeUp>
         </div>
       </section>
+
+      {/* Frequently asked questions (Requirements 9.6, 9.8, 9.9) */}
+      {niche.faq?.length ? (
+        <section className="border-t border-white/[0.06] py-20 lg:py-24">
+          <div className="mx-auto max-w-3xl px-6 lg:px-8">
+            <FadeUp>
+              <h2
+                id={slugger("Frequently asked questions")}
+                className="text-3xl font-semibold tracking-tight"
+              >
+                Frequently asked questions
+              </h2>
+              <dl className="mt-8 space-y-6">
+                {niche.faq.map((item, index) => (
+                  <div key={index}>
+                    <dt className="font-medium text-foreground">
+                      {item.question}
+                    </dt>
+                    <dd className="mt-2 text-muted-foreground">
+                      {item.answer}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </FadeUp>
+          </div>
+        </section>
+      ) : null}
+
+      {/* Related reading (Requirement 7.8) */}
+      {relatedPosts.length ? (
+        <section className="border-t border-white/[0.06] py-20 lg:py-24">
+          <div className="mx-auto max-w-6xl px-6 lg:px-8">
+            <FadeUp>
+              <h2
+                id={slugger("Related reading")}
+                className="text-3xl font-semibold tracking-tight"
+              >
+                Related reading
+              </h2>
+              <ul className="mt-8 grid gap-6 sm:grid-cols-3">
+                {relatedPosts.map((post) => (
+                  <li key={post._id}>
+                    <Link
+                      href={`/blogs/${post.slug}`}
+                      className="group flex h-full flex-col rounded-xl border border-white/[0.08] bg-card p-5 transition-colors hover:border-white/[0.16]"
+                    >
+                      <h3 className="line-clamp-2 text-base font-medium tracking-tight transition-colors group-hover:text-primary">
+                        {post.title}
+                      </h3>
+                      {post.excerpt ? (
+                        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                          {post.excerpt}
+                        </p>
+                      ) : null}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </FadeUp>
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

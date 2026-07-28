@@ -30,6 +30,9 @@ export function SolutionHero({ niche, city, cityLabel }: SolutionHeroProps) {
           <FadeUp delay={0.06}>
             <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">
               {niche.hero.headline}
+              <span className="mt-2 block text-2xl font-medium text-muted-foreground sm:text-3xl">
+                Serving {cityLabel} businesses.
+              </span>
             </h1>
           </FadeUp>
 
@@ -57,7 +60,7 @@ export function SolutionHero({ niche, city, cityLabel }: SolutionHeroProps) {
                 className="h-11 border-white/10 bg-transparent px-6 hover:bg-white/[0.04]"
                 asChild
               >
-                <Link href="/#solutions">View all solutions</Link>
+                <Link href="/solutions">View all solutions</Link>
               </Button>
             </div>
           </FadeUp>
