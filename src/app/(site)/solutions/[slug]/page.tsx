@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 
 import { GymSolutionLanding } from "@/components/solutions/gym-solution-landing";
 import { GYM_LANDING_HEADINGS } from "@/components/solutions/gym-landing-headings";
+import { DentalSolutionLanding } from "@/components/solutions/dental-solution-landing";
+import { DENTAL_LANDING_HEADINGS } from "@/components/solutions/dental-landing-headings";
 import { SolutionTemplate } from "@/components/solutions/solution-template";
 import { allNicheParams, getNicheBySlug } from "@/lib/niches";
 import { buildMetadata, clampDescription } from "@/lib/seo";
@@ -29,6 +31,20 @@ function gymHeadingIds(
 ): Record<string, string> {
   const ids: Record<string, string> = {};
   for (const heading of GYM_LANDING_HEADINGS) {
+    ids[heading] = slugger(heading);
+  }
+  return ids;
+}
+
+/**
+ * Same pattern as `gymHeadingIds` — derive heading `id`s for the dental
+ * landing through the page's shared slugger (Requirement 9.5).
+ */
+function dentalHeadingIds(
+  slugger: (text: string) => string,
+): Record<string, string> {
+  const ids: Record<string, string> = {};
+  for (const heading of DENTAL_LANDING_HEADINGS) {
     ids[heading] = slugger(heading);
   }
   return ids;
@@ -144,6 +160,13 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
           cityLabel={city.displayName}
           faq={niche.faq}
           headingIds={gymHeadingIds(slugger)}
+          relatedPosts={relatedPosts}
+        />
+      ) : niche.id === "dental-medical" ? (
+        <DentalSolutionLanding
+          cityLabel={city.displayName}
+          faq={niche.faq}
+          headingIds={dentalHeadingIds(slugger)}
           relatedPosts={relatedPosts}
         />
       ) : (
