@@ -95,6 +95,10 @@ export const STATIC_ROUTES: readonly RouteDescriptor[] = (
     { path: "/about", label: "About" },
     { path: "/blogs", label: "Blog" },
     { path: "/solutions", label: "Solutions" },
+    {
+      path: "/solutions/dental-clinic-website-packages",
+      label: "Dental Website Packages",
+    },
     { path: "/contact", label: "Contact" },
     { path: "/privacy", label: "Privacy Policy" },
     { path: "/terms", label: "Terms of Service" },

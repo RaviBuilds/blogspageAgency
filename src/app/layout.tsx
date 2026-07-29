@@ -21,7 +21,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   ...buildMetadata({
     path: "/",
-    title: "Blogspage | AI Automation & SaaS Agency",
+    // The assigned phrase is carried verbatim, in the map's own lowercase, the
+    // way every other route's title carries its phrase (Requirement 12.5).
+    // `titleAbsolute` means no template suffix is appended, so these 45
+    // characters are the whole rendered title (Requirement 4.4).
+    title: "Blogspage: ai automation agency & SaaS studio",
     description:
       "Blogspage builds production-grade SaaS, digital systems, and AI workflows for ambitious founders. We turn product ideas into scalable, revenue-ready platforms.",
     type: "website",

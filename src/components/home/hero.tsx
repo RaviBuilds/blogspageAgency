@@ -58,16 +58,24 @@ export function Hero() {
       <HeroGradients />
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgba(9,9,11,0.15),#09090b_78%)]" />
 
-      {/* Decorative hero visual — abstract AI-system render, bleeds off the
-          right edge behind the copy. Drop /public/hero-visual.png to activate. */}
-      <div className="pointer-events-none absolute -right-24 top-0 -z-10 hidden h-[52rem] w-[52rem] opacity-70 mix-blend-lighten lg:block xl:-right-10">
+      {/* Decorative hero visual — abstract AI-system render, anchored to the
+          right rail beside the headline with a slight bleed off the edge.
+          The asset is pre-trimmed to its artwork bounds (769x558) by
+          `scripts/trim-hero-visual.mjs`, so the container mirrors that aspect
+          ratio and the render fills its box exactly instead of floating inside
+          a letterboxed square. The radial mask feathers every edge so it reads
+          as ambient light rather than a pasted rectangle. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-8 top-14 -z-10 hidden aspect-[769/558] w-[34rem] opacity-60 mix-blend-lighten [mask-image:radial-gradient(ellipse_at_center,black_52%,transparent_82%)] lg:block xl:top-16 xl:w-[44rem] 2xl:w-[52rem]"
+      >
         <Image
           src="/hero-visual.png"
           alt=""
           fill
           priority
-          sizes="52rem"
-          className="object-contain object-right-top"
+          sizes="(min-width: 1536px) 832px, (min-width: 1280px) 704px, 544px"
+          className="object-contain"
         />
       </div>
 

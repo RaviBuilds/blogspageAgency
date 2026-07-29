@@ -37,7 +37,13 @@ const DESCRIPTION =
  * it out rather than allow-listing the other six by path, so an added Route
  * still requires an explicit decision here instead of silently appearing.
  */
-const EXCLUDED_PATHS = new Set<string>(["/about"]);
+const EXCLUDED_PATHS = new Set<string>([
+  "/about",
+  // The dental pricing route: a niche-specific page beneath the `/solutions`
+  // hub this file already states, not one of the six Routes Requirement 9.2
+  // names.
+  "/solutions/dental-clinic-website-packages",
+]);
 
 /** Requirement 9.1: total body length bounds, inclusive. */
 const MIN_BODY_CHARS = 200;

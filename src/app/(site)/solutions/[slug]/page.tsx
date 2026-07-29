@@ -7,7 +7,12 @@ import { DentalSolutionLanding } from "@/components/solutions/dental-solution-la
 import { DENTAL_LANDING_HEADINGS } from "@/components/solutions/dental-landing-headings";
 import { SolutionTemplate } from "@/components/solutions/solution-template";
 import { allNicheParams, getNicheBySlug } from "@/lib/niches";
-import { buildMetadata, clampDescription } from "@/lib/seo";
+import {
+  buildMetadata,
+  clampDescription,
+  TITLE_MAX,
+  TITLE_TEMPLATE_SUFFIX,
+} from "@/lib/seo";
 import { findKeywordPhrase } from "@/lib/keyword-map";
 import { faqNode, MIN_SOLUTION_FAQ_PAIRS, serviceNode } from "@/lib/structured-data";
 import { createHeadingSlugger } from "@/lib/heading-slug";
@@ -58,6 +63,50 @@ export function generateStaticParams() {
   return allNicheParams();
 }
 
+/**
+ * Characters available to a pre-template title before the root template's
+ * `" | Blogspage"` suffix pushes the rendered `<title>` past Requirement 4.4's
+ * upper bound.
+ */
+const TITLE_BUDGET = TITLE_MAX - TITLE_TEMPLATE_SUFFIX.length;
+
+/**
+ * The pre-template title for a solution route, kept inside Requirement 4.4's
+ * bounds for every niche-by-city pair.
+ *
+ * The mapped phrase is the whole title; a capitalised niche label is prefixed
+ * only when it earns its characters. It is dropped in two cases:
+ *
+ * - The phrase already carries the label ("Online Delivery" in front of
+ *   "online delivery app development hyderabad"), where the prefix is pure
+ *   repetition and also pushed the rendered title to exactly the 70-character
+ *   ceiling.
+ * - The combined form overflows the budget, as it does for `dental-medical`
+ *   (a 16-character label plus a 43-character phrase runs to 61 against a
+ *   budget of 58). The label yields rather than the phrase, which has to
+ *   survive verbatim for Requirement 12.5.
+ *
+ * Every mapped phrase already ends in its city, so the city never appears
+ * twice. The shortest phrase is 33 characters, so the 30-character lower bound
+ * holds once the suffix is added even when the label is dropped.
+ */
+function solutionTitle(
+  nicheTitle: string,
+  cityName: string,
+  keywordPhrase: string | undefined,
+): string {
+  if (!keywordPhrase) {
+    return `${nicheTitle} Business Solution Website in ${cityName}`;
+  }
+
+  if (keywordPhrase.toLowerCase().includes(nicheTitle.toLowerCase())) {
+    return keywordPhrase;
+  }
+
+  const labelled = `${nicheTitle}: ${keywordPhrase}`;
+  return labelled.length <= TITLE_BUDGET ? labelled : keywordPhrase;
+}
+
 export async function generateMetadata({
   params,
 }: SolutionPageProps): Promise<Metadata> {
@@ -73,9 +122,7 @@ export async function generateMetadata({
 
   const { niche, city } = resolved;
   const keywordPhrase = findKeywordPhrase(`/solutions/${slug}`) ?? undefined;
-  const title = keywordPhrase
-    ? `${niche.title} in ${city.displayName}: ${keywordPhrase}`
-    : `${niche.title} Business Solution Website in ${city.displayName}`;
+  const title = solutionTitle(niche.title, city.displayName, keywordPhrase);
   // The city mention is placed first so it survives `clampDescription`'s
   // 160-character window regardless of how long the niche copy runs
   // (Requirement 12.7).

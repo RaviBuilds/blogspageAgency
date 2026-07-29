@@ -16,6 +16,7 @@ export const DENTAL_LANDING_HEADINGS = [
   "The interface your patients and team actually use.",
   "How a 4-chair clinic in Jubilee Hills went from 12 to 45 enquiries per week",
   "One new patient per week pays for everything.",
+  "Packages that fit your clinic and your budget.",
   "Live in 14 days. Hands-off for you.",
   "Questions dental clinics ask before starting.",
   "Ready to become the most visible dental clinic in Hyderabad?",

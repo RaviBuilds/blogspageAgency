@@ -22,6 +22,7 @@ import {
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
+import { BookingCta } from "@/components/booking/booking-cta";
 import { FadeUp } from "@/components/solutions/fade-up";
 import type { FaqPair } from "@/lib/structured-data";
 import type { LatestPost } from "@/sanity/lib/queries";
@@ -60,6 +61,39 @@ const staggerChild: Variants = {
 /* -------------------------------------------------------------------------- */
 /*  Static data                                                               */
 /* -------------------------------------------------------------------------- */
+
+/** The dedicated pricing route (`src/app/(site)/solutions/dental-clinic-website-packages`). */
+const PACKAGES_HREF = "/solutions/dental-clinic-website-packages";
+
+/**
+ * The three headline tiers, teased here and detailed in full on
+ * {@link PACKAGES_HREF}. Kept to price, delivery, and a one-line summary so
+ * there is a single owner of the full scope: the packages page itself.
+ */
+const PACKAGE_TEASERS = [
+  {
+    name: "Launch Story Website",
+    price: "₹14,900",
+    delivery: "3–5 working days",
+    pages: "1 premium storytelling page",
+    summary: "A single-page clinic website built to earn trust and generate enquiries.",
+  },
+  {
+    name: "Premium Practice",
+    price: "₹29,900",
+    delivery: "7–10 working days",
+    pages: "Up to 5 premium pages",
+    summary: "Premium storytelling design, before & after gallery, and 24/7 online appointment booking.",
+    popular: true,
+  },
+  {
+    name: "Signature AI Practice",
+    price: "From ₹1,25,000",
+    delivery: "3–6 weeks",
+    pages: "Unlimited / custom pages",
+    summary: "AI receptionist that books, reschedules, and follows up on appointments automatically.",
+  },
+];
 
 const METRICS = [
   { value: "3x", label: "More patient enquiries" },
@@ -194,7 +228,7 @@ export function DentalSolutionLanding({ cityLabel, faq = [], headingIds, related
                 <Link href="/#contact?niche=dental-medical&city=hyderabad">Book a Free Clinic Audit<ArrowRight className="size-4" /></Link>
               </Button>
               <Button size="lg" variant="outline" className="h-11 border-white/10 bg-transparent px-6 hover:bg-white/[0.04]" asChild>
-                <Link href="#packages">View Packages</Link>
+                <Link href={PACKAGES_HREF}>View Packages<ArrowRight className="size-4" /></Link>
               </Button>
             </motion.div>
           </div>
@@ -349,6 +383,37 @@ export function DentalSolutionLanding({ cityLabel, faq = [], headingIds, related
         </div>
       </section>
 
+      {/* SECTION 8b: PACKAGES TEASER → dedicated pricing page */}
+      <section className="border-t border-white/[0.06] py-20 lg:py-24">
+        <div className="mx-auto max-w-6xl px-6 lg:px-8">
+          <FadeUp>
+            <p className="text-sm font-medium text-primary">Pricing &amp; Packages</p>
+            <h2 id={headingIds["Packages that fit your clinic and your budget."]} className="mt-3 text-3xl font-semibold tracking-tight">Packages that fit your clinic and your budget.</h2>
+            <p className="mt-4 max-w-2xl text-muted-foreground">Five plans, from a premium storytelling landing page to a fully automated AI practice. Here are the three most clinics choose.</p>
+          </FadeUp>
+          <motion.div variants={staggerParent} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} className="mt-12 grid items-start gap-4 lg:grid-cols-3">
+            {PACKAGE_TEASERS.map((pkg) => (
+              <motion.div key={pkg.name} variants={staggerChild} className={`flex h-full flex-col rounded-xl border p-6 transition-colors ${pkg.popular ? "border-primary/40 bg-primary/[0.04]" : "border-white/[0.08] bg-white/[0.02] hover:border-white/[0.16]"}`}>
+                {pkg.popular && (<span className="mb-3 inline-flex w-fit items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary"><Sparkles className="size-3" />Most popular</span>)}
+                <h3 className="text-lg font-medium tracking-tight">{pkg.name}</h3>
+                <p className="mt-3 text-3xl font-semibold tracking-tight">{pkg.price}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{pkg.pages} · {pkg.delivery}</p>
+                <p className="mt-4 flex-1 text-sm leading-relaxed text-muted-foreground">{pkg.summary}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+          <FadeUp delay={0.12}>
+            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Button size="lg" className="glow-border h-11 bg-primary px-6 text-primary-foreground transition-transform hover:bg-primary/90 active:scale-[0.98]" asChild>
+                <Link href={PACKAGES_HREF}>View All Packages &amp; Pricing<ArrowRight className="size-4" /></Link>
+              </Button>
+              <BookingCta fallbackHref="/#contact?niche=dental-medical&city=hyderabad" size="lg" variant="outline" className="h-11 border-white/10 bg-transparent px-6 hover:bg-white/[0.04]" frameTitle="Schedule a consultation">Schedule Consultation</BookingCta>
+            </div>
+            <p className="mt-4 text-center text-xs text-muted-foreground/60">Add-ons, AI chatbot and AI receptionist pricing, and payment terms are all on the packages page.</p>
+          </FadeUp>
+        </div>
+      </section>
+
       {/* SECTION 9: TIMELINE */}
       <section className="border-t border-white/[0.06] py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
@@ -393,10 +458,10 @@ export function DentalSolutionLanding({ cityLabel, faq = [], headingIds, related
               <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-primary/20 blur-3xl" />
               <div className="relative mx-auto max-w-2xl">
                 <h2 id={headingIds["Ready to become the most visible dental clinic in Hyderabad?"]} className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">Ready to become the most visible dental clinic in {cityLabel}?</h2>
-                <p className="mt-4 text-muted-foreground">A 15-minute call to understand your clinic, your goals, and whether we&apos;re the right fit. No pitch decks. No pressure. Just clarity.</p>
+                <p className="mt-4 text-muted-foreground">Your future patients should be able to book an appointment in under one minute. A 15-minute call to understand your clinic, your goals, and whether we&apos;re the right fit. No pitch decks. No pressure. Just clarity.</p>
                 <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-                  <Button size="lg" className="glow-border h-11 bg-primary px-6 text-primary-foreground transition-transform hover:bg-primary/90 active:scale-[0.98]" asChild><Link href="/#contact?niche=dental-medical&city=hyderabad">Schedule a 15-Minute Call<ArrowRight className="size-4" /></Link></Button>
-                  <Button size="lg" variant="outline" className="h-11 border-white/10 bg-transparent px-6 hover:bg-white/[0.04]" asChild><Link href="/#process">See our process</Link></Button>
+                  <BookingCta fallbackHref="/#contact?niche=dental-medical&city=hyderabad" size="lg" className="glow-border h-11 bg-primary px-6 text-primary-foreground transition-transform hover:bg-primary/90 active:scale-[0.98]" frameTitle="Book a free clinic audit">Book a Free Clinic Audit<ArrowRight className="size-4" /></BookingCta>
+                  <Button size="lg" variant="outline" className="h-11 border-white/10 bg-transparent px-6 hover:bg-white/[0.04]" asChild><Link href={PACKAGES_HREF}>View Website Packages</Link></Button>
                 </div>
                 <p className="mt-6 text-xs text-muted-foreground/60">Free consultation · 14-day delivery · Full ownership · No lock-in</p>
               </div>
