@@ -1,250 +1,439 @@
 /**
- * Site-wide SEO primitives: canonical constants, entity/org data, and
- * schema.org JSON-LD builders shared across every route (homepage, contact,
- * solutions, blog). Blog-specific builders (BlogPosting, blog Breadcrumb,
- * blog FAQ) live in `@/lib/blog` and re-export the constants below to avoid
- * duplication.
+ * The metadata factory: the only place a Next.js `Metadata` object is
+ * assembled.
+ *
+ * Requirements 3.1, 3.2, 4.3, 4.4, 4.5, 4.6, 4.8, and 12.5 are all "every
+ * Indexable_Route emits X" claims. They hold by construction only if no route
+ * module hand-rolls its own `Metadata` literal, so every route is converted to
+ * call `buildMetadata` (tasks 6.3 through 6.7).
+ *
+ * `canonicalUrl`, `clampDescription`, and `ogImageUrl` are pure and total:
+ * string in, string out, no I/O, no throw. `buildMetadata` is pure apart from
+ * a development-only `console.error` when a length or keyword bound is
+ * violated.
  */
 
-export const SITE_URL = "https://blogspage.com";
-export const SITE_NAME = "Blogspage";
-export const SITE_LEGAL_NAME = "Blogspage";
-export const ORGANIZATION_DESCRIPTION =
-  "Blogspage is a senior product-engineering agency building production-grade SaaS platforms, AI automation, and custom digital systems for founders and local businesses across Hyderabad, Telangana, and India.";
+import type { Metadata } from "next";
 
-export const CONTACT = {
-  email: "ravi@blogspage.com",
-  telephone: "+91-80194-43314",
-  streetAddress: "Ayodhya Nagar Colony, Mehdipatnam",
-  addressLocality: "Hyderabad",
-  addressRegion: "Telangana",
-  postalCode: "500028",
-  addressCountry: "IN",
-} as const;
+// Import order is load-bearing. `src/lib/keyword-map.ts` calls `canonicalUrl`
+// during its own module evaluation, and `canonicalUrl` reads `SITE_URL`, so
+// `@/lib/site` must be evaluated before the keyword map. Both ES modules and
+// Vite's SSR transform evaluate a module's dependencies in import order, so
+// listing site first is what keeps this cycle safe when either module is the
+// one entered first.
+import { LOCALE, SITE_NAME, SITE_URL } from "@/lib/site";
+import { KEYWORD_MAP } from "@/lib/keyword-map";
 
-/** Public, verifiable profile links — schema.org sameAs. */
-export const SAME_AS = [
-  "https://x.com/ravindra5k",
-  "https://github.com/RaviBuilds",
-  "https://www.linkedin.com/in/ravindra-kamble-97094220a/",
-];
+/* -------------------------------------------------------------------------- */
+/* Canonical URLs (Requirements 3.1, 3.2)                                      */
+/* -------------------------------------------------------------------------- */
 
-/** Areas the agency actively serves — strengthens local + national relevance signals. */
-export const SERVICE_AREAS = ["Hyderabad", "Telangana", "India"];
+/**
+ * Suffix the root title template (`"%s | Blogspage"`) appends to every
+ * non-absolute route title. Requirement 4.4 bounds the *rendered* `<title>`,
+ * measured after the template is applied, so the dev-time check has to add
+ * this back to the pre-template string it is handed.
+ */
+export const TITLE_TEMPLATE_SUFFIX = ` | ${SITE_NAME}`;
 
-export type BreadcrumbEntry = { name: string; item: string };
+/** Requirement 4.4: rendered `<title>` length bounds, inclusive. */
+export const TITLE_MIN = 30;
+export const TITLE_MAX = 70;
 
-/** Generic schema.org BreadcrumbList builder, reusable across all route types. */
-export function buildBreadcrumbJsonLd(
-  items: BreadcrumbEntry[],
-): Record<string, unknown> {
-  return {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: items.map((entry, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: entry.name,
-      item: entry.item,
-    })),
-  };
+/** Requirements 4.5 and 4.11: meta description length bounds, inclusive. */
+export const DESCRIPTION_MIN = 120;
+export const DESCRIPTION_MAX = 160;
+
+/** Requirement 4.2: every Social_Preview_Image is 1200x630. */
+export const OG_IMAGE_WIDTH = 1200;
+export const OG_IMAGE_HEIGHT = 630;
+
+/**
+ * Strip query and fragment, drop any scheme and authority, and normalise the
+ * remainder. Only used when the WHATWG parser rejects the input outright
+ * (`"http://"` and similar), which `new URL(path, SITE_URL)` handles for every
+ * other shape.
+ */
+function fallbackPath(raw: string): string {
+  let rest = raw.split("#")[0].split("?")[0];
+
+  const scheme = /^[a-z][a-z0-9+.-]*:\/\//i.exec(rest);
+  if (scheme) {
+    rest = rest.slice(scheme[0].length);
+    const firstSlash = rest.indexOf("/");
+    rest = firstSlash === -1 ? "" : rest.slice(firstSlash);
+  }
+
+  return rest;
+}
+
+/** Lowercase, single-slashed, leading-slashed, no trailing slash. */
+function normalisePath(raw: string): string {
+  const path = raw
+    .toLowerCase()
+    .replace(/\/{2,}/g, "/")
+    .replace(/\/+$/, "");
+
+  if (path === "") return "";
+  return path.startsWith("/") ? path : `/${path}`;
 }
 
 /**
- * The core Organization entity. Referenced (by @id) from WebSite,
- * ProfessionalService, and LocalBusiness so every page points at a single,
- * de-duplicated entity — the pattern search engines and LLM crawlers use to
- * resolve "who is behind this site."
+ * The canonical absolute URL for a route path.
+ *
+ * Total over any string. Always returns `https` + `blogspage.com` + a
+ * lowercase path with no query, no fragment, and no trailing slash, and the
+ * bare `https://blogspage.com` for the root (Requirement 3.2).
+ *
+ * Idempotent: the function accepts its own output, because the parse below
+ * reads only the *pathname* of the input and discards scheme, host, query, and
+ * fragment. Discarding the host is also the security-relevant part — a
+ * protocol-relative or absolute foreign input (`"//evil.com/x"`,
+ * `"http://evil.com/x"`) canonicalises to a `blogspage.com` URL rather than
+ * emitting a cross-origin canonical.
+ *
+ * Declared as a hoisted `function` on purpose: `src/lib/keyword-map.ts`
+ * imports it while this module reads `KEYWORD_MAP` back (see
+ * {@link lookupKeywordPhrase}), and hoisting is what makes that cycle safe in
+ * either module-evaluation order.
  */
-export function buildOrganizationJsonLd(): Record<string, unknown> {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "@id": `${SITE_URL}/#organization`,
-    name: SITE_NAME,
-    legalName: SITE_LEGAL_NAME,
-    url: SITE_URL,
-    logo: {
-      "@type": "ImageObject",
-      url: `${SITE_URL}/blogspage-logo.png`,
-      width: 2156,
-      height: 647,
-    },
-    image: `${SITE_URL}/blogspage-logo.png`,
-    description: ORGANIZATION_DESCRIPTION,
-    email: CONTACT.email,
-    telephone: CONTACT.telephone,
-    foundingLocation: {
-      "@type": "Place",
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: CONTACT.addressLocality,
-        addressRegion: CONTACT.addressRegion,
-        addressCountry: CONTACT.addressCountry,
-      },
-    },
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: CONTACT.streetAddress,
-      addressLocality: CONTACT.addressLocality,
-      addressRegion: CONTACT.addressRegion,
-      postalCode: CONTACT.postalCode,
-      addressCountry: CONTACT.addressCountry,
-    },
-    sameAs: SAME_AS,
-    founder: {
-      "@type": "Person",
-      name: "Ravi",
-    },
-  };
+export function canonicalUrl(path: string): string {
+  const raw = path.trim();
+
+  let pathname: string;
+  try {
+    // A base is always supplied, so relative input ("blogs/x"), rooted input
+    // ("/blogs/x"), and absolute input ("https://blogspage.com/blogs/x") all
+    // parse. Dot segments, tabs, newlines, and backslashes are normalised by
+    // the parser; only `pathname` survives.
+    pathname = new URL(raw, SITE_URL).pathname;
+  } catch {
+    pathname = fallbackPath(raw);
+  }
+
+  const firstPass = normalisePath(pathname);
+  if (firstPass === "") return SITE_URL;
+
+  // Second parse, and the reason idempotence is not free: the parser only
+  // percent-encodes path characters for *special* schemes. Input carrying its
+  // own non-special scheme (`a:"`) yields a raw `"` in `pathname`, which the
+  // https parser would then encode on the next call, so one pass would not be
+  // a fixed point. Re-parsing the extracted path against the https base
+  // applies that encoding now. `firstPass` always starts with a single slash,
+  // so this cannot pick up a foreign host.
+  let encoded: string;
+  try {
+    encoded = new URL(firstPass, SITE_URL).pathname;
+  } catch {
+    encoded = firstPass;
+  }
+
+  const finalPath = normalisePath(encoded);
+  return finalPath === "" ? SITE_URL : `${SITE_URL}${finalPath}`;
 }
 
-/** schema.org WebSite entity, including the SearchAction that unlocks the Google sitelinks search box. */
-export function buildWebSiteJsonLd(): Record<string, unknown> {
-  return {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "@id": `${SITE_URL}/#website`,
-    url: SITE_URL,
-    name: SITE_NAME,
-    description: ORGANIZATION_DESCRIPTION,
-    publisher: { "@id": `${SITE_URL}/#organization` },
-    inLanguage: "en-US",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${SITE_URL}/blogs?q={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
-    },
-  };
+/* -------------------------------------------------------------------------- */
+/* Social preview image URLs (Requirements 4.1, 4.7)                           */
+/* -------------------------------------------------------------------------- */
+
+export type OgImageInput = {
+  /** The route's title text, rendered into the generated image. */
+  title: string;
+  /** Optional kicker rendered above the title. */
+  eyebrow?: string;
+};
+
+/**
+ * The absolute URL of the generated Social_Preview_Image for a route.
+ *
+ * Absolute because Requirement 4.1 applies to every consumer of the URL, not
+ * only to consumers that happen to resolve it against `metadataBase`. The
+ * route itself (`src/app/og/route.tsx`, task 6.2) owns generation, the 1800 ms
+ * timeout, and the fallback redirect to `/og-default.png`; this function only
+ * builds the query.
+ */
+export function ogImageUrl({ title, eyebrow }: OgImageInput): string {
+  const params = new URLSearchParams();
+  const cleanTitle = collapseWhitespace(title);
+  const cleanEyebrow = collapseWhitespace(eyebrow ?? "");
+
+  if (cleanTitle !== "") params.set("title", cleanTitle);
+  if (cleanEyebrow !== "") params.set("eyebrow", cleanEyebrow);
+
+  const query = params.toString();
+  return query === "" ? `${SITE_URL}/og` : `${SITE_URL}/og?${query}`;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Description clamping (Requirements 4.5, 4.11)                               */
+/* -------------------------------------------------------------------------- */
+
+/** Collapse whitespace runs to single spaces and trim the edges. */
+function collapseWhitespace(text: string): string {
+  return text.replace(/\s+/g, " ").trim();
 }
 
 /**
- * ProfessionalService + LocalBusiness signals combined. Blogspage is a
- * service-area business (remote-capable, based in Hyderabad) rather than a
- * storefront, so `areaServed` carries the local-SEO weight instead of a
- * public visiting address for walk-ins.
+ * Clamp description text into the 120-160 character window.
+ *
+ * Behaviour, in the order the branches are taken:
+ *
+ * 1. Whitespace is collapsed first, so "extractable text" means the same thing
+ *    to this function as it does to a crawler reading the rendered attribute.
+ * 2. Text already at or under 160 characters is returned unchanged. **Input
+ *    shorter than 120 characters is therefore returned short.** Padding it
+ *    here would mean inventing copy; the design puts the extension at the call
+ *    site instead (`resolveDescription` in `src/lib/blog.ts` extends from post
+ *    body text, task 6.5), which is the only place that has more real text to
+ *    draw on. Callers that cannot extend should treat a short return value as
+ *    a content gap, not as a passing description.
+ * 3. Longer text is cut at the last space at an index in `[120, 160]`, so the
+ *    result is 120-160 characters and ends at a word boundary.
+ * 4. If no space falls in that window — a single token spanning the whole
+ *    window, which real prose does not produce — the window wins and the text
+ *    is cut at 160. Requirement 4.5 is the acceptance criterion; ending at a
+ *    word boundary is the quality rule layered on top of it, and one of the
+ *    two has to yield. The cut backs off one code unit rather than splitting a
+ *    surrogate pair.
+ *
+ * Deterministic: no clock, no randomness, no locale-sensitive operations.
  */
-export function buildProfessionalServiceJsonLd(): Record<string, unknown> {
-  return {
-    "@context": "https://schema.org",
-    "@type": ["ProfessionalService", "LocalBusiness"],
-    "@id": `${SITE_URL}/#business`,
-    name: SITE_NAME,
-    url: SITE_URL,
-    image: `${SITE_URL}/blogspage-logo.png`,
-    description: ORGANIZATION_DESCRIPTION,
-    email: CONTACT.email,
-    telephone: CONTACT.telephone,
-    priceRange: "$$",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: CONTACT.streetAddress,
-      addressLocality: CONTACT.addressLocality,
-      addressRegion: CONTACT.addressRegion,
-      postalCode: CONTACT.postalCode,
-      addressCountry: CONTACT.addressCountry,
-    },
-    areaServed: SERVICE_AREAS.map((name) => ({
-      "@type": "AdministrativeArea",
-      name,
-    })),
-    openingHoursSpecification: {
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ],
-      opens: "10:00",
-      closes: "19:00",
-    },
-    sameAs: SAME_AS,
-    parentOrganization: { "@id": `${SITE_URL}/#organization` },
-  };
+export function clampDescription(text: string): string {
+  const normalised = collapseWhitespace(text);
+
+  if (normalised.length <= DESCRIPTION_MAX) return normalised;
+
+  for (let i = DESCRIPTION_MAX; i >= DESCRIPTION_MIN; i--) {
+    if (normalised[i] === " ") {
+      return normalised.slice(0, i);
+    }
+  }
+
+  const highSurrogate = /[\uD800-\uDBFF]/;
+  const end = highSurrogate.test(normalised[DESCRIPTION_MAX - 1])
+    ? DESCRIPTION_MAX - 1
+    : DESCRIPTION_MAX;
+
+  return normalised.slice(0, end);
 }
 
-/** schema.org ContactPage — for the /contact route. */
-export function buildContactPageJsonLd(): Record<string, unknown> {
-  return {
-    "@context": "https://schema.org",
-    "@type": "ContactPage",
-    "@id": `${SITE_URL}/contact#contactpage`,
-    url: `${SITE_URL}/contact`,
-    name: "Contact Blogspage",
-    description:
-      "Get in touch with Blogspage for AI automation, SaaS development, and product engineering in Hyderabad, India.",
-    isPartOf: { "@id": `${SITE_URL}/#website` },
-    about: { "@id": `${SITE_URL}/#organization` },
-    mainEntity: { "@id": `${SITE_URL}/#business` },
-  };
+/* -------------------------------------------------------------------------- */
+/* Keyword phrase lookup (Requirement 12.5)                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Route canonical URL -> assigned phrase, built on first lookup.
+ *
+ * Built lazily rather than at module scope because `src/lib/keyword-map.ts`
+ * imports `canonicalUrl` from this module: reading `KEYWORD_MAP` during this
+ * module's evaluation would hit its temporal dead zone whenever the keyword map
+ * is the module entered first. By call time both modules have evaluated.
+ */
+let keywordPhraseIndex: Map<string, string> | null = null;
+
+/**
+ * The primary keyword phrase assigned to a route path in the keyword map, or
+ * `null` for a route the map does not cover.
+ *
+ * Unmapped routes are expected, not exceptional: post routes and taxonomy
+ * archives carry content-derived phrases (audit Finding F-07), so they skip the
+ * dev-time verbatim check. The check suite (task 15.3, Property 31) is the
+ * authority on keyword integrity regardless.
+ */
+function lookupKeywordPhrase(path: string): string | null {
+  keywordPhraseIndex ??= new Map(
+    KEYWORD_MAP.map((entry) => [entry.absoluteUrl, entry.phrase]),
+  );
+  return keywordPhraseIndex.get(canonicalUrl(path)) ?? null;
 }
 
-/** schema.org Person — for author bylines and dedicated author pages. */
-export function buildPersonJsonLd(person: {
-  name: string;
-  slug?: string;
-  jobTitle?: string;
-  imageUrl?: string;
-  sameAs?: string[];
-  description?: string;
-}): Record<string, unknown> {
-  const url = person.slug
-    ? `${SITE_URL}/blogs/author/${person.slug}`
-    : undefined;
-  return {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    name: person.name,
-    ...(url && { "@id": `${url}#person`, url }),
-    ...(person.jobTitle && { jobTitle: person.jobTitle }),
-    ...(person.imageUrl && { image: person.imageUrl }),
-    ...(person.description && { description: person.description }),
-    ...(person.sameAs?.length && { sameAs: person.sameAs }),
-    worksFor: { "@id": `${SITE_URL}/#organization` },
-  };
-}
+/* -------------------------------------------------------------------------- */
+/* buildMetadata (Requirements 4.3, 4.4, 4.5, 4.6, 4.8, 12.5)                  */
+/* -------------------------------------------------------------------------- */
 
-/** schema.org Service — for the /solutions/[slug] vertical landing pages. */
-export function buildServiceJsonLd(input: {
-  name: string;
+export type BuildMetadataInput = {
+  /** Route path: `"/"`, `"/blogs"`, `"/solutions/<slug>"`. */
+  path: string;
+  /**
+   * Pre-template title. Must contain the route's assigned keyword phrase
+   * verbatim (Requirement 12.5) and land inside Requirement 4.4's bounds once
+   * the root template's `" | Blogspage"` suffix is applied.
+   */
+  title: string;
+  /** 120-160 characters (Requirement 4.5). Run body-derived text through {@link clampDescription} first. */
   description: string;
-  url: string;
-  areaServed: string;
-  serviceType: string;
-}): Record<string, unknown> {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    name: input.name,
-    description: input.description,
-    url: input.url,
-    serviceType: input.serviceType,
-    areaServed: { "@type": "City", name: input.areaServed },
-    provider: { "@id": `${SITE_URL}/#organization` },
-  };
+  /**
+   * Author-supplied Social_Preview_Image. Omit to fall back to the generated
+   * `/og` URL. `alt` must be non-empty (Requirement 4.3); an empty value is
+   * replaced by a title-derived alt rather than emitted.
+   */
+  image?: { url: string; alt: string };
+  /** Open Graph object type. Defaults to `"website"`. */
+  type?: "website" | "article";
+  /** `false` emits `noindex, nofollow`. Defaults to `true`. */
+  index?: boolean;
+  /**
+   * Emit the title as `title.absolute`, bypassing the root template. Set on
+   * the root layout's own metadata, where the default title already carries
+   * the brand.
+   */
+  titleAbsolute?: boolean;
+  /** Kicker passed to the generated preview image. */
+  eyebrow?: string;
+  /**
+   * The route's assigned keyword phrase, when the caller already has it.
+   * Falls back to the keyword-map lookup. Used only for the dev-time verbatim
+   * check; it never alters the emitted metadata.
+   */
+  keywordPhrase?: string;
+  /**
+   * Per-route additions merged over the generated object: `authors`,
+   * `openGraph.publishedTime`, `alternates.types` for the feed, and so on.
+   * Merging is one level deep for `alternates`, `openGraph`, and `twitter`, so
+   * an addition to one of those blocks does not drop the generated fields.
+   */
+  extra?: Metadata;
+};
+
+/** Keys whose values are merged one level deep rather than replaced. */
+const DEEP_MERGE_KEYS = ["alternates", "openGraph", "twitter"] as const;
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Object.getPrototypeOf(value) === Object.prototype
+  );
 }
 
-/** schema.org FAQPage — generic, reusable outside the blog context too. */
-export function buildFaqPageJsonLd(
-  faq: { question: string; answer: string }[],
-): Record<string, unknown> | null {
-  if (!faq.length) return null;
-  return {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: faq.map((item) => ({
-      "@type": "Question",
-      name: item.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: item.answer,
-      },
-    })),
+function mergeMetadata(base: Metadata, extra: Metadata): Metadata {
+  const merged: Record<string, unknown> = { ...base };
+
+  for (const [key, value] of Object.entries(extra)) {
+    const current = merged[key];
+    const deep = (DEEP_MERGE_KEYS as readonly string[]).includes(key);
+
+    merged[key] =
+      deep && isPlainObject(current) && isPlainObject(value)
+        ? { ...current, ...value }
+        : value;
+  }
+
+  return merged as Metadata;
+}
+
+/**
+ * Development-only bound reporting. Silent in production builds, so a
+ * borderline description never writes to a production log; the check suite
+ * (tasks 15.2, 15.3) is what fails a build.
+ */
+function reportBounds(
+  input: BuildMetadataInput,
+  renderedTitle: string,
+  keywordPhrase: string | null,
+): void {
+  if (process.env.NODE_ENV === "production") return;
+
+  const problems: string[] = [];
+
+  if (
+    renderedTitle.length < TITLE_MIN ||
+    renderedTitle.length > TITLE_MAX
+  ) {
+    problems.push(
+      `rendered title is ${renderedTitle.length} characters, outside ${TITLE_MIN}-${TITLE_MAX} (Requirement 4.4): "${renderedTitle}"`,
+    );
+  }
+
+  if (
+    input.description.length < DESCRIPTION_MIN ||
+    input.description.length > DESCRIPTION_MAX
+  ) {
+    problems.push(
+      `description is ${input.description.length} characters, outside ${DESCRIPTION_MIN}-${DESCRIPTION_MAX} (Requirement 4.5)`,
+    );
+  }
+
+  if (keywordPhrase !== null && !input.title.includes(keywordPhrase)) {
+    problems.push(
+      `title does not contain the assigned keyword phrase "${keywordPhrase}" verbatim (Requirement 12.5)`,
+    );
+  }
+
+  for (const problem of problems) {
+    console.error(`[seo] ${input.path}: ${problem}`);
+  }
+}
+
+/**
+ * Assemble the `Metadata` object for a route.
+ *
+ * Emits `alternates.canonical`, the full `openGraph` block with
+ * `locale: "en_IN"`, `url`, and an image carrying non-empty `alt`, and the
+ * `twitter` block with `card: "summary_large_image"` (Requirements 4.3, 4.6).
+ * Exactly one canonical and one title per route follows from every route
+ * calling this once (Requirement 4.8).
+ */
+export function buildMetadata(input: BuildMetadataInput): Metadata {
+  const {
+    path,
+    title,
+    description,
+    image,
+    type = "website",
+    index = true,
+    titleAbsolute = false,
+    eyebrow,
+    extra,
+  } = input;
+
+  const canonical = canonicalUrl(path);
+  const renderedTitle = titleAbsolute
+    ? title
+    : `${title}${TITLE_TEMPLATE_SUFFIX}`;
+
+  const keywordPhrase = input.keywordPhrase ?? lookupKeywordPhrase(path);
+  reportBounds(input, renderedTitle, keywordPhrase);
+
+  // Requirement 4.3: `alt` must be non-empty. A supplied image with blank alt
+  // text is a content bug, but emitting the blank value is the worse failure,
+  // so it falls back to the same derived alt the generated image uses.
+  const previewUrl = image?.url ?? ogImageUrl({ title, eyebrow });
+  const previewAlt =
+    collapseWhitespace(image?.alt ?? "") ||
+    `${collapseWhitespace(title)} - ${SITE_NAME}`;
+
+  const base: Metadata = {
+    title: titleAbsolute ? { absolute: title } : title,
+    description,
+    alternates: { canonical },
+    robots: index
+      ? { index: true, follow: true }
+      : { index: false, follow: false },
+    openGraph: {
+      type,
+      url: canonical,
+      siteName: SITE_NAME,
+      locale: LOCALE.openGraph,
+      title: renderedTitle,
+      description,
+      images: [
+        {
+          url: previewUrl,
+          width: OG_IMAGE_WIDTH,
+          height: OG_IMAGE_HEIGHT,
+          alt: previewAlt,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: renderedTitle,
+      description,
+      images: [previewUrl],
+    },
   };
+
+  return extra ? mergeMetadata(base, extra) : base;
 }

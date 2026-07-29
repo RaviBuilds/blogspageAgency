@@ -3,7 +3,7 @@ import { Footer } from "@/components/layout/footer";
 import { SkipLink } from "@/components/layout/skip-link";
 import { Preloader } from "@/components/ui/preloader";
 import { ClientEnhancements } from "@/components/providers/client-enhancements";
-import { JsonLd } from "@/components/s@/components/providers/smooth-scroll
+import { JsonLd } from "@/components/seo/json-ld";
 import { organizationNode } from "@/lib/structured-data";
 
 export default function SiteLayout({
