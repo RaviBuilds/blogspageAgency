@@ -1,20 +1,19 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef } from "react";
 import Lenis from "lenis";
 
-type SmoothScrollProviderProps = {
-  children: ReactNode;
-};
-
 /**
- * Global smooth-scroll wrapper (design system §2).
+ * Global smooth-scroll side effect (design system §2).
  *
  * Boots a single Lenis instance for the App Router, drives it from a
  * requestAnimationFrame loop, and tears everything down on unmount so we never
  * leak a RAF loop or a second Lenis instance across client navigations.
+ *
+ * Lenis drives document scroll and does not need to wrap any DOM children, so
+ * this renders nothing — it's a sibling side-effect component.
  */
-export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
+export function SmoothScroll() {
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -43,7 +42,7 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
     };
   }, []);
 
-  return <>{children}</>;
+  return null;
 }
 
-export default SmoothScrollProvider;
+export default SmoothScroll;

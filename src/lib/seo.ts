@@ -35,7 +35,9 @@ export const SERVICE_AREAS = ["Hyderabad", "Telangana", "India"];
 export type BreadcrumbEntry = { name: string; item: string };
 
 /** Generic schema.org BreadcrumbList builder, reusable across all route types. */
-export function buildBreadcrumbJsonLd(items: BreadcrumbEntry[]): Record<string, unknown> {
+export function buildBreadcrumbJsonLd(
+  items: BreadcrumbEntry[],
+): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -145,7 +147,10 @@ export function buildProfessionalServiceJsonLd(): Record<string, unknown> {
       postalCode: CONTACT.postalCode,
       addressCountry: CONTACT.addressCountry,
     },
-    areaServed: SERVICE_AREAS.map((name) => ({ "@type": "AdministrativeArea", name })),
+    areaServed: SERVICE_AREAS.map((name) => ({
+      "@type": "AdministrativeArea",
+      name,
+    })),
     openingHoursSpecification: {
       "@type": "OpeningHoursSpecification",
       dayOfWeek: [
@@ -189,7 +194,9 @@ export function buildPersonJsonLd(person: {
   sameAs?: string[];
   description?: string;
 }): Record<string, unknown> {
-  const url = person.slug ? `${SITE_URL}/blogs/author/${person.slug}` : undefined;
+  const url = person.slug
+    ? `${SITE_URL}/blogs/author/${person.slug}`
+    : undefined;
   return {
     "@context": "https://schema.org",
     "@type": "Person",

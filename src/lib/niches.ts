@@ -12,6 +12,13 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import {
+  APPROVED_CITIES,
+  findApprovedCity,
+  type ApprovedCity,
+} from "@/lib/cities";
+import type { FaqPair } from "@/lib/structured-data";
+
 /**
  * Default geographic target for the local-SEO routing engine.
  * The blueprint defines the slug pattern as:
@@ -93,6 +100,12 @@ export type Niche = {
   /** Optional real-world case study narrative. */
   caseStudy?: CaseStudy;
   /**
+   * At least three question-and-answer pairs rendered on the solution route
+   * (Requirement 9.6). City-agnostic by design: the copy stays correct for
+   * any future Approved_City_List addition without per-city templating.
+   */
+  faq: FaqPair[];
+  /**
    * Builds the canonical, SEO-optimized solution route.
    * Lowercased, hyphenated, special chars stripped (per SEO rules).
    */
@@ -166,6 +179,23 @@ const NICHE_SEEDS: NicheSeed[] = [
           "See aggregate lifetime savings versus commercial aggregators at a glance.",
       },
     ],
+    faq: [
+      {
+        question: "How much commission does a white-label delivery platform save?",
+        answer:
+          "Most aggregators take 25-30% of every order, a cut that disappears entirely once orders route through your own branded app. Owners typically recover that margin within the first month of live orders, since the platform, dispatch, and payments all run on infrastructure you own rather than a marketplace you rent from.",
+      },
+      {
+        question: "Can we keep using aggregators alongside our own delivery app?",
+        answer:
+          "Yes. Most operators run both during a transition period, steering repeat customers toward the owned app while aggregators still bring in new discovery traffic. The dispatch map and order pipeline handle both channels without extra staff, so the switch happens gradually instead of as a risky cutover.",
+      },
+      {
+        question: "How does real-time driver tracking work without extra hardware?",
+        answer:
+          "Drivers use the same phone they already carry, running a lightweight app that streams location over secure server-sent events into the live dispatch map. No dedicated GPS units or extra hardware purchases are needed, and the tracking view updates for customers and staff at the same time.",
+      },
+    ],
   },
   {
     id: "hotel-booking",
@@ -212,6 +242,23 @@ const NICHE_SEEDS: NicheSeed[] = [
         title: "Multi-role operations",
         description:
           "Permission-aware views for global admin, property manager, front desk, and guests.",
+      },
+    ],
+    faq: [
+      {
+        question: "How does a direct booking engine reduce OTA commission costs?",
+        answer:
+          "A direct booking engine lets guests reserve rooms straight through your own site, so the reservation never touches an OTA and its commission never gets deducted. The room matrix stays synchronized across every channel in real time, so direct bookings and OTA bookings draw from the same inventory without double-booking risk.",
+      },
+      {
+        question: "What stops two channels from booking the same room at once?",
+        answer:
+          "Atomic room allocation locks a room the instant a booking is confirmed on any channel, so a second request for that same room and date range is rejected before it can create a conflict. This removes the sync race conditions that cause double-bookings when inventory is managed across disconnected systems.",
+      },
+      {
+        question: "Can front-desk staff and property managers see different data?",
+        answer:
+          "Yes. The platform ships four permission tiers, Global Admin, Property Manager, Front-desk Staff, and Verified Guest, each seeing only the views and actions relevant to their role. A front-desk user can check guests in and out without touching billing configuration or cross-property reporting reserved for managers and admins.",
       },
     ],
   },
@@ -262,6 +309,26 @@ const NICHE_SEEDS: NicheSeed[] = [
           "A single record of every booking, visit, and service across the business.",
       },
     ],
+    faq: [
+      {
+        question:
+          "How does a unified reservation wizard handle both medical and lifestyle bookings for the same pet?",
+        answer:
+          "The wizard walks an owner through one guided flow that reads from a single shared pet profile, so a vaccination appointment and a grooming slot both draw from the same record instead of two disconnected calendars. Staff see every upcoming booking for a pet in one view, which removes the double-entry and scheduling conflicts that come from running medical and lifestyle services on separate systems.",
+      },
+      {
+        question:
+          "Can pet owners see their pet's full service history in one place?",
+        answer:
+          "Yes. Every visit, whether medical, grooming, or boarding, is logged against a single unified pet profile that owners and staff can both reference. That gives a vet or groomer instant context on past treatments and preferences without calling around to other providers, and it gives owners one place to check what their pet has already had done.",
+      },
+      {
+        question:
+          "How does automated scheduling cut down on no-shows for pet services?",
+        answer:
+          "The system sends automated reminders ahead of every booked slot, whether it is a grooming appointment, a boarding check-in, or a medical visit, so owners are nudged before they forget. Combined with smart scheduling that avoids overlapping or conflicting slots, this keeps the calendar reliable and reduces the gaps and lost revenue that come from unconfirmed appointments.",
+      },
+    ],
   },
   {
     id: "consulting",
@@ -308,6 +375,26 @@ const NICHE_SEEDS: NicheSeed[] = [
         title: "Inbound lead pipeline",
         description:
           "A clean view of qualified inbound leads and their projected engagement value.",
+      },
+    ],
+    faq: [
+      {
+        question:
+          "How does an embedded ROI calculator help convert consulting website visitors?",
+        answer:
+          "An embedded ROI calculator lets a visitor plug in their own numbers and see a quantified projection of what your engagement could be worth to their business, rather than reading generic claims about expertise. That self-generated figure is a stronger reason to book a call than any testimonial, because the prospect arrives already convinced by a number they calculated themselves.",
+      },
+      {
+        question:
+          "Does the ROI calculator replace a discovery call, or lead into one?",
+        answer:
+          "It leads into one. The calculator is designed to qualify and warm up a visitor, producing a shareable, quantified output that anchors the conversation, but the discovery call is still where scope, fit, and pricing get finalized. Lead capture is wired directly into the calculator so a completed calculation routes straight into your booking pipeline.",
+      },
+      {
+        question:
+          "Can the calculator be tuned to different consulting engagement models?",
+        answer:
+          "Yes. The inputs and output formulas are configured around your specific engagement model, whether that is retainer-based, project-based, or outcome-based pricing, so the projected ROI reflects how you actually bill. This keeps the number credible to prospects instead of feeling like a generic, one-size-fits-all sales gimmick.",
       },
     ],
   },
@@ -358,6 +445,26 @@ const NICHE_SEEDS: NicheSeed[] = [
           "Monitor engagement and completion, with early signals for at-risk learners.",
       },
     ],
+    faq: [
+      {
+        question:
+          "How does a progressive player improve course completion rates?",
+        answer:
+          "A progressive player paces content based on how a learner is actually moving through the material, rather than dumping an entire syllabus on them at once. That structure keeps momentum high by unlocking the next lesson at the right moment, which is what drives completion up compared to a flat list of static videos or PDFs learners have to self-pace through alone.",
+      },
+      {
+        question:
+          "What does the interactive syllabus builder let instructors do?",
+        answer:
+          "The syllabus builder lets an instructor assemble a course from modular lessons in a visual interface, reordering, grouping, and gating content without touching code. New courses go from outline to a published, interactive structure quickly, and existing courses can be restructured as an instructor learns what pacing actually works for their learners.",
+      },
+      {
+        question:
+          "How are at-risk learners identified before they drop off?",
+        answer:
+          "Progress tracking surfaces engagement signals, like stalled lessons or missed milestones, early enough that an instructor or support team can reach out before a learner disengages entirely. This turns retention from a lagging metric you discover after the fact into something you can act on while the learner is still reachable.",
+      },
+    ],
   },
   {
     id: "gym-fitness",
@@ -406,6 +513,26 @@ const NICHE_SEEDS: NicheSeed[] = [
           "Live attendance, conversion uplift, and lead-capture widgets in one view.",
       },
     ],
+    faq: [
+      {
+        question:
+          "How does a pause-credit engine stop members from cancelling instead of pausing?",
+        answer:
+          "The pause-credit engine recalculates a membership's contract expiry in real time as a member freezes and resumes their plan, so a seasonal break extends the contract fairly instead of forcing a full cancellation. Each active pause day writes an extension record into the ledger, giving members an easy, transparent option that protects your recurring revenue instead of losing it outright.",
+      },
+      {
+        question:
+          "Can members check in and get alerts without extra hardware at the front desk?",
+        answer:
+          "Yes. A native mobile bridge handles QR check-ins on the member's own phone and pushes re-engagement alerts directly to them, so front-desk staff are not manually scanning cards or chasing down members who have gone quiet. This keeps check-in fast during busy hours and keeps at-risk members engaged before they lapse.",
+      },
+      {
+        question:
+          "What do gym owners see on their dashboard day to day?",
+        answer:
+          "Owners get a live view of floor occupancy, conversion uplift from lead-capture widgets, and the pause-credit ledger, all in one dashboard rather than scattered across separate tools. That gives a clear read on attendance patterns and revenue health without needing to cross-reference spreadsheets or ask staff for manual updates.",
+      },
+    ],
   },
   {
     id: "dental-medical",
@@ -416,42 +543,89 @@ const NICHE_SEEDS: NicheSeed[] = [
     icon: Stethoscope,
     slugTemplate: "dental-hospital-business-solution-website-at-[city]",
     seoLabel:
-      "HIPAA-aligned dental and medical booking platforms with calendar orchestration.",
+      "Premium dental clinic websites with online booking, local SEO, and AI-powered patient growth.",
     className: "md:col-span-1",
     hero: {
-      headline: "A frictionless, compliant patient booking pipeline.",
+      headline: "Get more patients walking through your door.",
       subhead:
-        "A HIPAA-aligned calendar orchestration view that turns scattered scheduling into one clear pipeline.",
+        "A premium digital presence that builds trust, ranks on Google, and books appointments around the clock for dental clinics in Hyderabad.",
     },
     problem: {
-      heading: "Patient scheduling is fragmented and compliance-sensitive.",
-      lead: "Manual booking introduces friction, errors, and avoidable compliance risk.",
+      heading: "Your clinic is invisible to the patients searching for you.",
+      lead: "Every day, patients within 5 kilometres of your clinic search for a dentist. They find whoever shows up first — and right now, that isn't you.",
       points: [
-        "Friction in the patient booking pipeline drives drop-off.",
-        "Scheduling spread across phone, paper, and disconnected tools.",
-        "Compliance-sensitive data handled without a structured system.",
+        "Patients search 'dentist near me' — your clinic doesn't appear in the top results.",
+        "Your website looks outdated compared to newer clinics in the area.",
+        "Phone-only booking means you lose every after-hours patient.",
+        "No Google reviews visible means zero social proof for new patients.",
+        "You have no idea which marketing channel actually brings patients through the door.",
       ],
     },
     solution: {
-      heading: "A HIPAA-aligned calendar orchestration view.",
-      lead: "One orchestrated calendar that coordinates practitioners, rooms, and patients with compliance built in.",
+      heading: "Everything a premium dental clinic needs online.",
+      lead: "A complete digital presence built for one purpose: turning local searchers into booked appointments.",
       capabilities: [
-        "HIPAA-aligned calendar orchestration across practitioners and rooms.",
-        "Frictionless self-service patient booking.",
-        "Automated reminders that reduce no-shows.",
-        "Structured, compliance-aware patient data handling.",
+        "Premium website that positions your clinic as the trusted, modern choice.",
+        "Online booking that fills your calendar while you sleep.",
+        "Google-optimized pages that rank for 'dentist in your area'.",
+        "Automated WhatsApp and SMS reminders that cut no-shows by up to 40%.",
+        "Patient review system that builds your Google reputation.",
+        "Analytics dashboard showing exactly where patients come from.",
+        "AI chatbot answering common patient questions instantly.",
       ],
     },
     dashboards: [
       {
-        title: "Calendar orchestration",
+        title: "Patient booking flow",
         description:
-          "A unified, compliance-aware schedule across practitioners, rooms, and patients.",
+          "What your patients see: a clean, fast, trustworthy booking experience that works on any device.",
       },
       {
-        title: "Patient pipeline",
+        title: "Clinic command centre",
         description:
-          "Track bookings from request to visit with automated reminders.",
+          "Your team's view: appointments, patient sources, review alerts, and revenue tracking in one place.",
+      },
+    ],
+    faq: [
+      {
+        question: "How much does a dental clinic website cost?",
+        answer:
+          "Every clinic is different — a 2-chair practice has different needs than a multi-specialty clinic. Typical dental projects fall between ₹1.5L and ₹3.5L depending on scope, integrations, and the number of practitioners. We scope everything on a discovery call before quoting. The ROI math is simple: if your site generates even 2–3 extra patients per week, the investment pays for itself in the first month.",
+      },
+      {
+        question: "I already have a website. Why do I need a new one?",
+        answer:
+          "Load your current site on your phone and time how long it takes. Then search 'dentist in your area' on Google and see where you appear. If your site takes more than 3 seconds to load or you are not in the top 5 results, your current website is actively losing you patients — driving them to competitors who invested in speed and visibility.",
+      },
+      {
+        question: "How long until I see results?",
+        answer:
+          "Your site launches in 14 days. Online booking starts generating appointments immediately from day one. SEO results build over 30–90 days as Google indexes and ranks your pages. Our case study clinic saw enquiries triple within 60 days. This is not a 6-month wait — it compounds from week one.",
+      },
+      {
+        question: "I don't have time to manage a website project.",
+        answer:
+          "You will not need to. Our process requires one 45-minute discovery call and one review session. We handle design, content, development, SEO setup, and launch. Your team gets a 30-minute training at handover. Total time investment from you: about 2 hours across 14 days.",
+      },
+      {
+        question: "Do I own the website? What if I want to leave?",
+        answer:
+          "You own everything — code, design, content, domain, hosting account. There are no monthly platform fees, no lock-in contracts, no proprietary CMS you cannot leave. If you ever want to move away, you take everything with you. We build on open standards specifically so you are never dependent on us.",
+      },
+      {
+        question: "How is this different from a ₹15,000 WordPress site?",
+        answer:
+          "A template WordPress site loads in 4–6 seconds, looks like every other dental site, has zero SEO engineering, and breaks every time a plugin updates. What we build loads in under 1.2 seconds, is custom-designed for your brand, is engineered for Google rankings from the architecture up, and requires zero plugin maintenance.",
+      },
+      {
+        question: "What if it doesn't work? What's my risk?",
+        answer:
+          "Your risk is minimal. You see the design before we build. You approve before we launch. The 14-day timeline means you are not locked into a 6-month commitment with uncertain outcomes. And because you own everything, even in the unlikely event you are unsatisfied, you still have a production-grade website you can hand to any developer.",
+      },
+      {
+        question: "Can you help with Google Ads too, or just organic?",
+        answer:
+          "We lead with organic search and Google Maps because those channels compound — every month gets stronger without increasing spend. Google Ads can layer on top once your conversion infrastructure is solid. Running ads to a slow, unconvincing website wastes money. We build the foundation first, then paid channels become significantly more effective.",
       },
     ],
   },
@@ -502,6 +676,26 @@ const NICHE_SEEDS: NicheSeed[] = [
           "A single view of payments, orders, and fulfillment status.",
       },
     ],
+    faq: [
+      {
+        question:
+          "How much does an optimized multi-step checkout actually improve conversion?",
+        answer:
+          "Every added checkout step is a point where a ready buyer can abandon the cart, so an optimized flow minimizes steps and removes friction like unnecessary account creation or unclear shipping costs. The checkout is also tuned for speed and Core Web Vitals, since a slow or janky checkout loses buyers just as reliably as a confusing one.",
+      },
+      {
+        question:
+          "Does a fast, image-optimized storefront affect search rankings too?",
+        answer:
+          "Yes. A storefront tuned for Core Web Vitals loads faster and feels more stable while scrolling, which is both a ranking factor and a direct driver of conversion, since slow pages lose buyers before they even see the product. Image optimization keeps product photos sharp without dragging down load times across the catalog.",
+      },
+      {
+        question:
+          "Can the same e-commerce codebase power a native mobile app too?",
+        answer:
+          "Yes. The storefront can be wrapped into native iOS and Android apps from the same codebase using Capacitor, so product data, checkout logic, and fulfillment stay in sync across web and app without maintaining two separate systems. That keeps mobile shoppers in a native-feeling experience without doubling the engineering workload.",
+      },
+    ],
   },
   {
     id: "saas-platform",
@@ -550,6 +744,26 @@ const NICHE_SEEDS: NicheSeed[] = [
           "MRR, churn, and usage trends across your subscriber base.",
       },
     ],
+    faq: [
+      {
+        question:
+          "How do tiered pricing toggles help a new SaaS product monetize different segments?",
+        answer:
+          "Tiered pricing toggles let prospects compare monthly and annual plans side by side and see exactly what each tier unlocks, which makes the pricing page itself a conversion tool instead of a static list. Different customer segments naturally sort themselves into the tier that fits their usage, which is harder to achieve with a single flat price.",
+      },
+      {
+        question:
+          "What does a metered-usage simulator actually show customers?",
+        answer:
+          "The simulator lets a prospective customer estimate their usage and see a transparent preview of what that usage would cost before they commit, removing the surprise-invoice concern that makes usage-based pricing feel risky. That transparency builds trust during the sales process and reduces billing disputes after signup.",
+      },
+      {
+        question:
+          "Is subscription billing and access control secure by default?",
+        answer:
+          "Yes. The subscription lifecycle runs on Supabase with row-level security enforced at the database layer, so a customer's data and billing state stay isolated from every other tenant without relying solely on application-level checks. Billing queries are also optimized with relational indexing, so performance holds up as the subscriber base grows.",
+      },
+    ],
   },
   {
     id: "seo-blogs",
@@ -596,6 +810,26 @@ const NICHE_SEEDS: NicheSeed[] = [
         title: "Web Vitals monitor",
         description:
           "Track LCP, INP, and CLS against the blueprint's performance targets.",
+      },
+    ],
+    faq: [
+      {
+        question:
+          "Why does edge delivery matter more for a blog than for other website types?",
+        answer:
+          "A blog lives or dies on organic search traffic, and search rankings increasingly factor in Core Web Vitals like load speed and layout stability. Edge-delivered content reaches readers from a server close to them instead of a single distant origin, which keeps load times low even during a traffic spike from a post that suddenly ranks well.",
+      },
+      {
+        question:
+          "How does an MDX-based reading canvas avoid layout shift while loading images?",
+        answer:
+          "Every image ships with explicit width and height dimensions and uses the AVIF format, so the browser reserves the correct space before the image finishes loading instead of shifting text around it. That explicit dimensioning is what keeps cumulative layout shift near zero, which both readers and search rankings reward.",
+      },
+      {
+        question:
+          "Can a heavy CMS be replaced without losing content editing convenience?",
+        answer:
+          "Yes. The reading canvas is built to preserve Core Web Vitals as a first-class constraint while still giving editors a clean MDX-based authoring flow, so publishing does not require choosing between a good writer experience and a fast, rankable page. Performance discipline is enforced by the platform rather than left to each author's habits.",
       },
     ],
   },
@@ -701,16 +935,17 @@ const NICHE_ENRICHMENT: Record<
   },
   "dental-medical": {
     metrics: [
-      { value: "HIPAA", label: "Aligned data handling" },
-      { value: "↓", label: "No-shows via reminders" },
-      { value: "1", label: "Orchestrated calendar" },
+      { value: "3x", label: "More patient enquiries" },
+      { value: "40%", label: "Fewer no-shows" },
+      { value: "24/7", label: "Online booking" },
+      { value: "14", label: "Days to launch" },
     ],
     launchSchedule: [
-      { window: "Days 1-2", title: "Practice & compliance modelling", detail: "Practitioners, rooms, and compliance rules." },
-      { window: "Days 3-6", title: "Booking pipeline", detail: "Frictionless self-service patient booking." },
-      { window: "Days 7-9", title: "Calendar orchestration", detail: "Unified, compliance-aware scheduling view." },
-      { window: "Days 10-12", title: "Reminders & records", detail: "Automated reminders and structured data handling." },
-      { window: "Days 13-14", title: "Launch", detail: "QA and go-live." },
+      { window: "Days 1-2", title: "Discovery & clinic audit", detail: "A 45-minute call to learn your clinic, services, target patients, and competitive landscape." },
+      { window: "Days 3-5", title: "Design & brand", detail: "Website look, feel, and content architecture. You review once and approve." },
+      { window: "Days 6-9", title: "Build & integrate", detail: "Custom development: website, online booking, review integration, analytics, and SEO foundations." },
+      { window: "Days 10-12", title: "Content, SEO & testing", detail: "Service pages written, Google Business optimized, reminders configured, full device testing." },
+      { window: "Days 13-14", title: "Launch & handover", detail: "Go live. Team walkthrough, receptionist training, and complete ownership transfer." },
     ],
   },
   ecommerce: {
@@ -762,6 +997,18 @@ const NICHE_ENRICHMENT: Record<
  * one; the rest render without a case-study section.
  */
 const NICHE_CASE_STUDIES: Record<string, CaseStudy> = {
+  "dental-medical": {
+    title: "How a 4-chair clinic in Jubilee Hills went from 12 to 45 enquiries per week",
+    stack: ["Next.js", "Vercel", "Supabase", "WhatsApp Business API"],
+    narrative:
+      "A multi-specialty dental clinic in Jubilee Hills had been open for three years with excellent care but a 5-year-old WordPress template invisible on Google and phone-only booking. Within 60 days of launching their new platform, organic search enquiries tripled and no-shows dropped by 38% through automated WhatsApp reminders.",
+    outcomes: [
+      "3.7x increase in weekly patient enquiries (12 → 45).",
+      "Page 1 Google ranking for 5 target keywords within 60 days.",
+      "38% reduction in no-shows via automated reminders.",
+      "24/7 online booking generating 30% of new appointments.",
+    ],
+  },
   "hotel-booking": {
     title: "Commission-free multi-property booking platform",
     stack: ["MongoDB", "Express", "React", "Node.js", "JWT"],
@@ -804,28 +1051,73 @@ export const NICHES: Niche[] = NICHE_SEEDS.map((seed) => ({
   href: (city: string = DEFAULT_CITY) => `/solutions/${nicheSlug(seed as Niche, city)}`,
 }));
 
+/** A successful `/solutions/<slug>` resolution: a catalog entry plus an approved city. */
+export type SolutionMatch = { niche: Niche; city: ApprovedCity };
+
+/** Escape regex metacharacters in a literal slug fragment. */
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 /**
- * Resolve a niche + city from a full canonical slug.
- * Returns null when no niche template matches (route should 404).
+ * Per-niche matcher built once from the slug template. The template is split on
+ * the raw `[city]` token *before* slugification, so the placeholder can never
+ * be confused with literal template text, and both surrounding fragments are
+ * escaped. Fully anchored, with the city segment narrowed to `[a-z0-9-]+`.
  */
-export function getNicheBySlug(
-  slug: string,
-): { niche: Niche; city: string } | null {
-  for (const niche of NICHES) {
-    // Build a matcher from the slug template, capturing the city segment.
-    const pattern = slugify(niche.slugTemplate).replace(
-      "city",
-      "(?<city>[a-z0-9-]+)",
-    );
-    const match = slug.match(new RegExp(`^${pattern}$`));
-    if (match?.groups?.city) {
-      return { niche, city: match.groups.city };
-    }
+const NICHE_SLUG_MATCHERS: ReadonlyArray<{ niche: Niche; pattern: RegExp }> =
+  NICHES.map((niche) => {
+    const [rawPrefix, rawSuffix = ""] = niche.slugTemplate.split("[city]");
+    const prefix = escapeRegExp(slugify(rawPrefix));
+    const suffix = escapeRegExp(slugify(rawSuffix));
+    return { niche, pattern: new RegExp(`^${prefix}([a-z0-9-]+)${suffix}$`) };
+  });
+
+/**
+ * Resolve a `/solutions/<slug>` path segment to a Service_Catalog entry and an
+ * Approved_City_List member.
+ *
+ * Pure and total: string in, `SolutionMatch` or `null` out. No I/O, no throw.
+ *
+ * Returns `null` when the slug matches no niche template and — the point of
+ * this function — also when the captured city token is not approved. The
+ * audited resolver captured the city as `[a-z0-9-]+` and returned it
+ * unchecked, so every arbitrary token rendered a live, self-canonicalising,
+ * indexable page (audit Finding F-01). Requirements 3.4 through 3.6 bound that
+ * space to the catalog-by-approved-city cross product.
+ */
+export function resolveSolutionSlug(slug: string): SolutionMatch | null {
+  // Requirement 3.4 matches the city token "after lowercasing", and the
+  // templates are lowercase throughout, so normalise the whole segment once
+  // rather than widening the pattern to accept mixed case.
+  const normalised = slug.trim().toLowerCase();
+  for (const { niche, pattern } of NICHE_SLUG_MATCHERS) {
+    const captured = normalised.match(pattern)?.[1];
+    if (!captured) continue;
+    const city = findApprovedCity(captured);
+    // A template match carrying an unapproved city is a 404, not a
+    // fall-through: the literal fragments of the ten templates differ, so no
+    // two of them can claim the same slug and there is nothing left to try.
+    return city ? { niche, city } : null;
   }
   return null;
 }
 
-/** All static params for the default city (used by generateStaticParams). */
-export function allNicheParams(city: string = DEFAULT_CITY) {
-  return NICHES.map((niche) => ({ slug: nicheSlug(niche, city) }));
+/**
+ * Back-compatible alias of {@link resolveSolutionSlug}.
+ *
+ * The result shape changed with the bound resolver: `city` is now an
+ * `ApprovedCity` record rather than the raw captured string, so callers read
+ * `city.token` for the slug fragment and `city.displayName` for rendered copy.
+ */
+export const getNicheBySlug = resolveSolutionSlug;
+
+/**
+ * Every indexable solution route: the Service_Catalog crossed with the
+ * Approved_City_List. Consumed by `generateStaticParams`, which together with
+ * `dynamicParams = false` makes this set the entire served route space.
+ */
+export function allNicheParams(): { slug: string }[] {
+  return NICHES.flatMap((niche) =>
+    APPROVED_CITIES.map((city) => ({ slug: nicheSlug(niche, city.token) })),
+  );
 }

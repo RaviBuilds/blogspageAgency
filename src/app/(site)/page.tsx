@@ -8,10 +8,13 @@ import { FeaturedWork } from "@/components/home/featured-work";
 import { LatestBlogs } from "@/components/home/latest-blogs";
 import { CtaSection } from "@/components/home/cta-section";
 import { ContactForm } from "@/components/home/contact-form";
+import { JsonLd } from "@/components/seo/json-ld";
+import { webSiteNode } from "@/lib/structured-data";
 
 export default function HomePage() {
   return (
     <>
+      <JsonLd nodes={[webSiteNode()]} />
       <Hero />
       <ServicesBento />
       <BentoGrid />

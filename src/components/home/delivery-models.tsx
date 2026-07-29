@@ -11,7 +11,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-const models = [
+/**
+ * The two delivery-model entries. Exported so `/about` (Requirement 8.4) can
+ * render the same two named delivery models without keeping a separate,
+ * driftable copy.
+ */
+export const DELIVERY_MODELS = [
   {
     icon: Rocket,
     title: "SaaS MVP Launch",
@@ -45,7 +50,7 @@ export function DeliveryModels() {
         </div>
 
         <div className="mt-16 grid gap-5 lg:grid-cols-2">
-          {models.map((model) => (
+          {DELIVERY_MODELS.map((model) => (
             <Card
               key={model.title}
               className="group relative overflow-hidden bg-white/2.5 transition-colors hover:border-white/16"

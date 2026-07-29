@@ -1,0 +1,121 @@
+import type { SVGProps } from "react";
+
+/**
+ * Inline placeholder preview for the gym admin operations pillar.
+ * Converted from `public/gym-admin-placeholder.svg` so it renders as a
+ * plain React SVG component instead of going through the Next.js image
+ * pipeline (see design.md "Security headers and image configuration").
+ */
+export function GymAdminPlaceholder(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="1280"
+      height="800"
+      viewBox="0 0 1280 800"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="Gym admin operations dashboard preview"
+      {...props}
+    >
+      <defs>
+        <linearGradient id="bgA" x1="0" y1="0" x2="1280" y2="800" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#0c0c0f" />
+          <stop offset="1" stopColor="#050505" />
+        </linearGradient>
+        <linearGradient id="accA" x1="0" y1="0" x2="1" y2="1">
+          <stop stopColor="#5e6ad2" />
+          <stop offset="1" stopColor="#9333ea" />
+        </linearGradient>
+      </defs>
+      <rect width="1280" height="800" fill="url(#bgA)" />
+
+      {/* sidebar */}
+      <rect x="0" y="0" width="232" height="800" fill="#0f1011" />
+      <line x1="232" y1="0" x2="232" y2="800" stroke="#ffffff" strokeOpacity="0.06" />
+      <rect x="40" y="48" width="120" height="16" rx="8" fill="#f7f8f8" opacity="0.85" />
+      <rect x="40" y="120" width="152" height="14" rx="7" fill="#ffffff" opacity="0.3" />
+      <rect x="40" y="162" width="120" height="14" rx="7" fill="#ffffff" opacity="0.3" />
+      <rect x="32" y="200" width="168" height="36" rx="10" fill="#5e6ad2" opacity="0.18" />
+      <rect x="40" y="210" width="120" height="14" rx="7" fill="#f7f8f8" opacity="0.8" />
+      <rect x="40" y="262" width="140" height="14" rx="7" fill="#ffffff" opacity="0.3" />
+      <rect x="40" y="304" width="110" height="14" rx="7" fill="#ffffff" opacity="0.3" />
+
+      {/* header */}
+      <rect x="272" y="48" width="260" height="24" rx="8" fill="#f7f8f8" opacity="0.9" />
+
+      {/* KPI stat cards */}
+      <g>
+        <rect x="272" y="104" width="288" height="120" rx="16" fill="#141516" stroke="#ffffff" strokeOpacity="0.08" />
+        <rect x="296" y="128" width="120" height="12" rx="6" fill="#ffffff" opacity="0.4" />
+        <rect x="296" y="152" width="100" height="30" rx="8" fill="#f7f8f8" opacity="0.9" />
+        <rect x="296" y="196" width="60" height="10" rx="5" fill="#28c840" opacity="0.8" />
+      </g>
+      <g>
+        <rect x="584" y="104" width="288" height="120" rx="16" fill="#141516" stroke="#ffffff" strokeOpacity="0.08" />
+        <rect x="608" y="128" width="120" height="12" rx="6" fill="#ffffff" opacity="0.4" />
+        <rect x="608" y="152" width="120" height="30" rx="8" fill="url(#accA)" />
+        <rect x="608" y="196" width="80" height="10" rx="5" fill="#febc2e" opacity="0.8" />
+      </g>
+      <g>
+        <rect x="896" y="104" width="320" height="120" rx="16" fill="#141516" stroke="#ffffff" strokeOpacity="0.08" />
+        <rect x="920" y="128" width="120" height="12" rx="6" fill="#ffffff" opacity="0.4" />
+        <rect x="920" y="152" width="90" height="30" rx="8" fill="#f7f8f8" opacity="0.9" />
+        <rect x="920" y="196" width="70" height="10" rx="5" fill="#28c840" opacity="0.8" />
+      </g>
+
+      {/* inventory / fulfillment table */}
+      <rect x="272" y="256" width="944" height="496" rx="18" fill="#141516" stroke="#ffffff" strokeOpacity="0.08" />
+      <rect x="296" y="288" width="220" height="18" rx="8" fill="#f7f8f8" opacity="0.85" />
+      <rect x="1056" y="284" width="136" height="32" rx="10" fill="url(#accA)" />
+      <line x1="296" y1="340" x2="1192" y2="340" stroke="#ffffff" strokeOpacity="0.06" />
+      {/* column headers */}
+      <rect x="296" y="356" width="90" height="10" rx="5" fill="#ffffff" opacity="0.3" />
+      <rect x="560" y="356" width="80" height="10" rx="5" fill="#ffffff" opacity="0.3" />
+      <rect x="800" y="356" width="80" height="10" rx="5" fill="#ffffff" opacity="0.3" />
+      <rect x="1040" y="356" width="80" height="10" rx="5" fill="#ffffff" opacity="0.3" />
+      {/* rows */}
+      <g>
+        <rect x="296" y="400" width="180" height="12" rx="6" fill="#ffffff" opacity="0.55" />
+        <rect x="560" y="400" width="120" height="12" rx="6" fill="#ffffff" opacity="0.35" />
+        <rect x="800" y="400" width="90" height="12" rx="6" fill="#ffffff" opacity="0.35" />
+        <rect x="1040" y="394" width="96" height="24" rx="12" fill="#28c840" opacity="0.2" />
+        <line x1="296" y1="436" x2="1192" y2="436" stroke="#ffffff" strokeOpacity="0.05" />
+      </g>
+      <g>
+        <rect x="296" y="460" width="200" height="12" rx="6" fill="#ffffff" opacity="0.55" />
+        <rect x="560" y="460" width="100" height="12" rx="6" fill="#ffffff" opacity="0.35" />
+        <rect x="800" y="460" width="110" height="12" rx="6" fill="#ffffff" opacity="0.35" />
+        <rect x="1040" y="454" width="96" height="24" rx="12" fill="#febc2e" opacity="0.2" />
+        <line x1="296" y1="496" x2="1192" y2="496" stroke="#ffffff" strokeOpacity="0.05" />
+      </g>
+      <g>
+        <rect x="296" y="520" width="150" height="12" rx="6" fill="#ffffff" opacity="0.55" />
+        <rect x="560" y="520" width="130" height="12" rx="6" fill="#ffffff" opacity="0.35" />
+        <rect x="800" y="520" width="80" height="12" rx="6" fill="#ffffff" opacity="0.35" />
+        <rect x="1040" y="514" width="96" height="24" rx="12" fill="#28c840" opacity="0.2" />
+        <line x1="296" y1="556" x2="1192" y2="556" stroke="#ffffff" strokeOpacity="0.05" />
+      </g>
+      <g>
+        <rect x="296" y="580" width="190" height="12" rx="6" fill="#ffffff" opacity="0.55" />
+        <rect x="560" y="580" width="90" height="12" rx="6" fill="#ffffff" opacity="0.35" />
+        <rect x="800" y="580" width="120" height="12" rx="6" fill="#ffffff" opacity="0.35" />
+        <rect x="1040" y="574" width="96" height="24" rx="12" fill="#ff5f57" opacity="0.2" />
+        <line x1="296" y1="616" x2="1192" y2="616" stroke="#ffffff" strokeOpacity="0.05" />
+      </g>
+      <g>
+        <rect x="296" y="640" width="170" height="12" rx="6" fill="#ffffff" opacity="0.55" />
+        <rect x="560" y="640" width="110" height="12" rx="6" fill="#ffffff" opacity="0.35" />
+        <rect x="800" y="640" width="90" height="12" rx="6" fill="#ffffff" opacity="0.35" />
+        <rect x="1040" y="634" width="96" height="24" rx="12" fill="#28c840" opacity="0.2" />
+        <line x1="296" y1="676" x2="1192" y2="676" stroke="#ffffff" strokeOpacity="0.05" />
+      </g>
+      <g>
+        <rect x="296" y="700" width="160" height="12" rx="6" fill="#ffffff" opacity="0.55" />
+        <rect x="560" y="700" width="120" height="12" rx="6" fill="#ffffff" opacity="0.35" />
+        <rect x="800" y="700" width="100" height="12" rx="6" fill="#ffffff" opacity="0.35" />
+        <rect x="1040" y="694" width="96" height="24" rx="12" fill="#febc2e" opacity="0.2" />
+      </g>
+    </svg>
+  );
+}

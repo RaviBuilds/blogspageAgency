@@ -2,8 +2,20 @@ import type {PortableTextBlock} from '@portabletext/types'
 
 import type {FaqItem, Post} from '@/sanity/lib/queries'
 
-export const SITE_URL = "https://blogspage.com";
-export const SITE_NAME = "Blogspage";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { DESCRIPTION_MIN, clampDescription } from "@/lib/seo";
+import {
+  breadcrumbNode,
+  faqNode,
+  omitEmpty,
+  type BreadcrumbItem,
+} from "@/lib/structured-data";
+
+// Re-exported rather than defined locally: `src/lib/site.ts` is the identity
+// source of truth, and every call site importing `SITE_URL`/`SITE_NAME` from
+// this module keeps working unchanged.
+export { SITE_NAME, SITE_URL };
+
 const WORDS_PER_MINUTE = 225;
 
 /** Extract readable plain text from Portable Text (ignores non-text blocks). */
@@ -50,11 +62,41 @@ export function postUrl(slug: string): string {
   return `${SITE_URL}/blogs/${slug}`;
 }
 
-/** Best available description, in priority order. */
+/**
+ * Best available description, in priority order: `metaDescription` ->
+ * `excerpt` -> a generic fallback naming the post.
+ *
+ * When the chosen source is under {@link DESCRIPTION_MIN} characters (after
+ * entity decoding), it is extended with body text pulled from
+ * {@link portableTextToPlain} until the combined string reaches the 120-160
+ * character window, then clamped through {@link clampDescription} so the
+ * result never exceeds 160 characters and never cuts mid-word. If body text
+ * is unavailable or too short to close the gap, the short result is returned
+ * as-is — `clampDescription` does not pad, so a persistently short
+ * description surfaces as a content gap for the check suite to catch rather
+ * than being silently hidden.
+ */
 export function resolveDescription(post: Post): string {
   const raw =
     post.metaDescription || post.excerpt || `Read ${post.title} on the ${SITE_NAME} journal.`;
-  return decodeHtmlEntities(raw);
+  const decoded = decodeHtmlEntities(raw);
+
+  if (decoded.length >= DESCRIPTION_MIN) {
+    return clampDescription(decoded);
+  }
+
+  const bodyText = portableTextToPlain(post.content);
+  if (!bodyText) {
+    return decoded;
+  }
+
+  let extended = decoded;
+  for (const word of bodyText.split(/\s+/).filter(Boolean)) {
+    if (extended.length >= DESCRIPTION_MIN) break;
+    extended = `${extended} ${word}`.trim();
+  }
+
+  return clampDescription(extended);
 }
 
 /**
@@ -70,17 +112,32 @@ export function buildArticleJsonLd(post: Post): Record<string, unknown> {
   const datePublished = post.publishedAt;
   const dateModified = post.lastReviewed || post._updatedAt || post.publishedAt;
 
+  // `omitEmpty` below strips any of these that end up empty, null, or
+  // undefined, so the known author-URL defect (an author with no slug) drops
+  // the property instead of emitting a broken link — it does not get silently
+  // dropped when the slug *is* present, since a non-empty string survives
+  // `omitEmpty` untouched.
   const author = post.author
-    ? {
+    ? omitEmpty({
         "@type": "Person",
         name: post.author.name,
-        ...(post.author.jobTitle && { jobTitle: post.author.jobTitle }),
-        ...(post.author.slug && { url: `${SITE_URL}/blogs/author/${post.author.slug}` }),
-        ...(post.author.sameAs?.length && { sameAs: post.author.sameAs }),
-      }
+        jobTitle: post.author.jobTitle,
+        url: post.author.slug
+          ? `${SITE_URL}/blogs/author/${post.author.slug}`
+          : undefined,
+        sameAs: post.author.sameAs,
+      })
     : { "@type": "Organization", name: SITE_NAME, url: SITE_URL };
 
-  return {
+  const image = post.imageUrl
+    ? omitEmpty({
+        "@type": "ImageObject",
+        url: post.imageUrl,
+        caption: post.imageCaption,
+      })
+    : undefined;
+
+  return omitEmpty({
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     "@id": `${url}#article`,
@@ -88,15 +145,9 @@ export function buildArticleJsonLd(post: Post): Record<string, unknown> {
     url,
     headline,
     description: resolveDescription(post),
-    ...(post.imageUrl && {
-      image: {
-        "@type": "ImageObject",
-        url: post.imageUrl,
-        ...(post.imageCaption && { caption: post.imageCaption }),
-      },
-    }),
-    ...(datePublished && { datePublished }),
-    ...(dateModified && { dateModified }),
+    image,
+    datePublished,
+    dateModified,
     author,
     publisher: {
       "@type": "Organization",
@@ -107,49 +158,26 @@ export function buildArticleJsonLd(post: Post): Record<string, unknown> {
         url: `${SITE_URL}/blogspage-logo.png`,
       },
     },
-    ...(post.seoKeywords?.length && { keywords: post.seoKeywords.join(", ") }),
-    ...(post.categories?.length && {
-      articleSection: post.categories.map((c) => c.title).filter(Boolean),
-    }),
+    keywords: post.seoKeywords?.length ? post.seoKeywords.join(", ") : undefined,
+    articleSection: post.categories?.length
+      ? post.categories.map((c) => c.title).filter(Boolean)
+      : undefined,
     wordCount: words,
     timeRequired: toIsoDuration(readingMinutes),
     inLanguage: "en-US",
-  };
+  });
 }
 
 /** schema.org BreadcrumbList — improves SERP breadcrumb display and crawlability. */
 export function buildBreadcrumbJsonLd(post: Post): Record<string, unknown> {
-  const items = [
-    { name: "Home", item: SITE_URL },
-    { name: "Blog", item: `${SITE_URL}/blogs` },
-    { name: decodeHtmlEntities(post.title), item: postUrl(post.slug) },
+  const trail: BreadcrumbItem[] = [
+    { name: "Blog", path: "/blogs" },
+    { name: decodeHtmlEntities(post.title), path: `/blogs/${post.slug}` },
   ];
-
-  return {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: items.map((entry, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: entry.name,
-      item: entry.item,
-    })),
-  };
+  return breadcrumbNode(trail);
 }
 
 /** schema.org FAQPage — eligible for FAQ rich results and AI answer extraction. */
 export function buildFaqJsonLd(faq?: FaqItem[]): Record<string, unknown> | null {
-  if (!faq?.length) return null;
-  return {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: faq.map((item) => ({
-      "@type": "Question",
-      name: item.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: item.answer,
-      },
-    })),
-  };
+  return faqNode(faq);
 }

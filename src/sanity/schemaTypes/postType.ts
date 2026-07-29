@@ -52,7 +52,17 @@ export const postType = defineType({
         maxLength: 96,
         isUnique: (value, context) => context.defaultIsUnique(value, context),
       },
-      validation: (rule) => rule.required(),
+      validation: (rule) =>
+        rule
+          .required()
+          .custom((value) => {
+            const reserved = ['category', 'author', 'page']
+            const current = value?.current?.trim().toLowerCase()
+            if (current && reserved.includes(current)) {
+              return '"category", "author", and "page" are reserved slugs and cannot be used for a post'
+            }
+            return true
+          }),
     }),
     defineField({
       name: 'excerpt',

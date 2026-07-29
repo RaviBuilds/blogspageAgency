@@ -3,7 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Github, Linkedin, Twitter } from "lucide-react";
+import { Github, Linkedin, Twitter, type LucideIcon } from "lucide-react";
+import { SOCIAL_PROFILES } from "@/lib/site";
+import { serviceRoutes } from "@/lib/routes";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    MOTION PRIMITIVES
@@ -14,15 +16,14 @@ const SPRING = { type: "spring", stiffness: 150, damping: 18, mass: 0.8 } as con
    DATA
    ───────────────────────────────────────────────────────────────────────────── */
 const footerLinks = {
-  Solutions: [
-    { label: "AI Sales Agents", href: "/#services" },
-    { label: "Workflow Automation", href: "/#services" },
-    { label: "Custom SaaS", href: "/#services" },
-    { label: "Programmatic SEO", href: "/#services" },
-  ],
+  Solutions: serviceRoutes().map((route) => ({
+    label: route.label,
+    href: route.path,
+  })),
   Company: [
+    { label: "About", href: "/about" },
     { label: "Process", href: "/#process" },
-    { label: "Solutions", href: "/#solutions" },
+    { label: "Solutions", href: "/solutions" },
     { label: "Blog", href: "/blogs" },
     { label: "Contact", href: "/contact" },
   ],
@@ -32,15 +33,14 @@ const footerLinks = {
   ],
 };
 
-const socialLinks = [
-  { icon: Twitter, href: "https://x.com/ravindra5k", label: "X (Twitter)" },
-  { icon: Github, href: "https://github.com/RaviBuilds", label: "GitHub" },
-  {
-    icon: Linkedin,
-    href: "https://www.linkedin.com/in/ravindra-kamble-97094220a/",
-    label: "LinkedIn",
-  },
-];
+/* Icons are not data, so the lookup stays local; SOCIAL_PROFILES (from
+   src/lib/site.ts) supplies the label/href pairs that must stay
+   character-identical to the Organization `sameAs` array. */
+const SOCIAL_ICONS: Record<string, LucideIcon> = {
+  "X (Twitter)": Twitter,
+  GitHub: Github,
+  LinkedIn: Linkedin,
+};
 
 /* ─────────────────────────────────────────────────────────────────────────────
    ANIMATED FOOTER LINK
@@ -112,18 +112,21 @@ export function Footer() {
 
             {/* Social */}
             <div className="mt-6 flex gap-3">
-              {socialLinks.map(({ icon: Icon, href, label }) => (
-                <Link
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex size-9 items-center justify-center rounded-lg border border-white/[0.08] text-white/40 transition-colors duration-200 hover:border-white/[0.15] hover:text-white/80"
-                >
-                  <Icon className="size-4" />
-                </Link>
-              ))}
+              {SOCIAL_PROFILES.map(({ label, href }) => {
+                const Icon = SOCIAL_ICONS[label];
+                return (
+                  <Link
+                    key={label}
+                    href={href}
+                    aria-label={label}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex size-9 items-center justify-center rounded-lg border border-white/[0.08] text-white/40 transition-colors duration-200 hover:border-white/[0.15] hover:text-white/80"
+                  >
+                    <Icon className="size-4" />
+                  </Link>
+                );
+              })}
             </div>
           </div>
 
