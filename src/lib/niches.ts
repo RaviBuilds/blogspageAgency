@@ -543,62 +543,89 @@ const NICHE_SEEDS: NicheSeed[] = [
     icon: Stethoscope,
     slugTemplate: "dental-hospital-business-solution-website-at-[city]",
     seoLabel:
-      "HIPAA-aligned dental and medical booking platforms with calendar orchestration.",
+      "Premium dental clinic websites with online booking, local SEO, and AI-powered patient growth.",
     className: "md:col-span-1",
     hero: {
-      headline: "A frictionless, compliant patient booking pipeline.",
+      headline: "Get more patients walking through your door.",
       subhead:
-        "A HIPAA-aligned calendar orchestration view that turns scattered scheduling into one clear pipeline.",
+        "A premium digital presence that builds trust, ranks on Google, and books appointments around the clock for dental clinics in Hyderabad.",
     },
     problem: {
-      heading: "Patient scheduling is fragmented and compliance-sensitive.",
-      lead: "Manual booking introduces friction, errors, and avoidable compliance risk.",
+      heading: "Your clinic is invisible to the patients searching for you.",
+      lead: "Every day, patients within 5 kilometres of your clinic search for a dentist. They find whoever shows up first — and right now, that isn't you.",
       points: [
-        "Friction in the patient booking pipeline drives drop-off.",
-        "Scheduling spread across phone, paper, and disconnected tools.",
-        "Compliance-sensitive data handled without a structured system.",
+        "Patients search 'dentist near me' — your clinic doesn't appear in the top results.",
+        "Your website looks outdated compared to newer clinics in the area.",
+        "Phone-only booking means you lose every after-hours patient.",
+        "No Google reviews visible means zero social proof for new patients.",
+        "You have no idea which marketing channel actually brings patients through the door.",
       ],
     },
     solution: {
-      heading: "A HIPAA-aligned calendar orchestration view.",
-      lead: "One orchestrated calendar that coordinates practitioners, rooms, and patients with compliance built in.",
+      heading: "Everything a premium dental clinic needs online.",
+      lead: "A complete digital presence built for one purpose: turning local searchers into booked appointments.",
       capabilities: [
-        "HIPAA-aligned calendar orchestration across practitioners and rooms.",
-        "Frictionless self-service patient booking.",
-        "Automated reminders that reduce no-shows.",
-        "Structured, compliance-aware patient data handling.",
+        "Premium website that positions your clinic as the trusted, modern choice.",
+        "Online booking that fills your calendar while you sleep.",
+        "Google-optimized pages that rank for 'dentist in your area'.",
+        "Automated WhatsApp and SMS reminders that cut no-shows by up to 40%.",
+        "Patient review system that builds your Google reputation.",
+        "Analytics dashboard showing exactly where patients come from.",
+        "AI chatbot answering common patient questions instantly.",
       ],
     },
     dashboards: [
       {
-        title: "Calendar orchestration",
+        title: "Patient booking flow",
         description:
-          "A unified, compliance-aware schedule across practitioners, rooms, and patients.",
+          "What your patients see: a clean, fast, trustworthy booking experience that works on any device.",
       },
       {
-        title: "Patient pipeline",
+        title: "Clinic command centre",
         description:
-          "Track bookings from request to visit with automated reminders.",
+          "Your team's view: appointments, patient sources, review alerts, and revenue tracking in one place.",
       },
     ],
     faq: [
       {
-        question:
-          "What does HIPAA-aligned calendar orchestration mean in practice?",
+        question: "How much does a dental clinic website cost?",
         answer:
-          "It means the scheduling system coordinates practitioners, rooms, and patients through a compliance-aware structure, so patient data is handled with the safeguards a medical or dental practice needs rather than bolted on afterward. The calendar view stays unified across the whole practice, but access and data handling follow rules built for sensitive health information from the start.",
+          "Every clinic is different — a 2-chair practice has different needs than a multi-specialty clinic. Typical dental projects fall between ₹1.5L and ₹3.5L depending on scope, integrations, and the number of practitioners. We scope everything on a discovery call before quoting. The ROI math is simple: if your site generates even 2–3 extra patients per week, the investment pays for itself in the first month.",
       },
       {
-        question:
-          "How does self-service booking reduce friction for patients?",
+        question: "I already have a website. Why do I need a new one?",
         answer:
-          "Patients can request and confirm appointments directly through the booking pipeline instead of relying on phone calls during office hours, which removes a common drop-off point. The same pipeline routes the request into the orchestrated calendar automatically, so front-desk staff are not re-entering information that a patient already provided themselves.",
+          "Load your current site on your phone and time how long it takes. Then search 'dentist in your area' on Google and see where you appear. If your site takes more than 3 seconds to load or you are not in the top 5 results, your current website is actively losing you patients — driving them to competitors who invested in speed and visibility.",
       },
       {
-        question:
-          "Can automated reminders be tuned per practitioner or appointment type?",
+        question: "How long until I see results?",
         answer:
-          "Yes. Reminder timing and content can be configured per appointment type, so a routine cleaning and a specialist consultation trigger different reminder cadences. This keeps no-show rates down across varied appointment types without treating every booking on the calendar the same way.",
+          "Your site launches in 14 days. Online booking starts generating appointments immediately from day one. SEO results build over 30–90 days as Google indexes and ranks your pages. Our case study clinic saw enquiries triple within 60 days. This is not a 6-month wait — it compounds from week one.",
+      },
+      {
+        question: "I don't have time to manage a website project.",
+        answer:
+          "You will not need to. Our process requires one 45-minute discovery call and one review session. We handle design, content, development, SEO setup, and launch. Your team gets a 30-minute training at handover. Total time investment from you: about 2 hours across 14 days.",
+      },
+      {
+        question: "Do I own the website? What if I want to leave?",
+        answer:
+          "You own everything — code, design, content, domain, hosting account. There are no monthly platform fees, no lock-in contracts, no proprietary CMS you cannot leave. If you ever want to move away, you take everything with you. We build on open standards specifically so you are never dependent on us.",
+      },
+      {
+        question: "How is this different from a ₹15,000 WordPress site?",
+        answer:
+          "A template WordPress site loads in 4–6 seconds, looks like every other dental site, has zero SEO engineering, and breaks every time a plugin updates. What we build loads in under 1.2 seconds, is custom-designed for your brand, is engineered for Google rankings from the architecture up, and requires zero plugin maintenance.",
+      },
+      {
+        question: "What if it doesn't work? What's my risk?",
+        answer:
+          "Your risk is minimal. You see the design before we build. You approve before we launch. The 14-day timeline means you are not locked into a 6-month commitment with uncertain outcomes. And because you own everything, even in the unlikely event you are unsatisfied, you still have a production-grade website you can hand to any developer.",
+      },
+      {
+        question: "Can you help with Google Ads too, or just organic?",
+        answer:
+          "We lead with organic search and Google Maps because those channels compound — every month gets stronger without increasing spend. Google Ads can layer on top once your conversion infrastructure is solid. Running ads to a slow, unconvincing website wastes money. We build the foundation first, then paid channels become significantly more effective.",
       },
     ],
   },
@@ -908,16 +935,17 @@ const NICHE_ENRICHMENT: Record<
   },
   "dental-medical": {
     metrics: [
-      { value: "HIPAA", label: "Aligned data handling" },
-      { value: "↓", label: "No-shows via reminders" },
-      { value: "1", label: "Orchestrated calendar" },
+      { value: "3x", label: "More patient enquiries" },
+      { value: "40%", label: "Fewer no-shows" },
+      { value: "24/7", label: "Online booking" },
+      { value: "14", label: "Days to launch" },
     ],
     launchSchedule: [
-      { window: "Days 1-2", title: "Practice & compliance modelling", detail: "Practitioners, rooms, and compliance rules." },
-      { window: "Days 3-6", title: "Booking pipeline", detail: "Frictionless self-service patient booking." },
-      { window: "Days 7-9", title: "Calendar orchestration", detail: "Unified, compliance-aware scheduling view." },
-      { window: "Days 10-12", title: "Reminders & records", detail: "Automated reminders and structured data handling." },
-      { window: "Days 13-14", title: "Launch", detail: "QA and go-live." },
+      { window: "Days 1-2", title: "Discovery & clinic audit", detail: "A 45-minute call to learn your clinic, services, target patients, and competitive landscape." },
+      { window: "Days 3-5", title: "Design & brand", detail: "Website look, feel, and content architecture. You review once and approve." },
+      { window: "Days 6-9", title: "Build & integrate", detail: "Custom development: website, online booking, review integration, analytics, and SEO foundations." },
+      { window: "Days 10-12", title: "Content, SEO & testing", detail: "Service pages written, Google Business optimized, reminders configured, full device testing." },
+      { window: "Days 13-14", title: "Launch & handover", detail: "Go live. Team walkthrough, receptionist training, and complete ownership transfer." },
     ],
   },
   ecommerce: {
@@ -969,6 +997,18 @@ const NICHE_ENRICHMENT: Record<
  * one; the rest render without a case-study section.
  */
 const NICHE_CASE_STUDIES: Record<string, CaseStudy> = {
+  "dental-medical": {
+    title: "How a 4-chair clinic in Jubilee Hills went from 12 to 45 enquiries per week",
+    stack: ["Next.js", "Vercel", "Supabase", "WhatsApp Business API"],
+    narrative:
+      "A multi-specialty dental clinic in Jubilee Hills had been open for three years with excellent care but a 5-year-old WordPress template invisible on Google and phone-only booking. Within 60 days of launching their new platform, organic search enquiries tripled and no-shows dropped by 38% through automated WhatsApp reminders.",
+    outcomes: [
+      "3.7x increase in weekly patient enquiries (12 → 45).",
+      "Page 1 Google ranking for 5 target keywords within 60 days.",
+      "38% reduction in no-shows via automated reminders.",
+      "24/7 online booking generating 30% of new appointments.",
+    ],
+  },
   "hotel-booking": {
     title: "Commission-free multi-property booking platform",
     stack: ["MongoDB", "Express", "React", "Node.js", "JWT"],
