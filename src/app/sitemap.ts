@@ -40,7 +40,9 @@ const ROUTE_LASTMOD = routeLastmodJson as Record<string, string>;
  * (Requirement 6.3) instead of reading request time.
  */
 const SOLUTION_LASTMOD_FALLBACK =
-  ROUTE_LASTMOD["/solutions"] ?? ROUTE_LASTMOD["/"] ?? new Date(0).toISOString();
+  ROUTE_LASTMOD["/solutions"] ??
+  ROUTE_LASTMOD["/"] ??
+  new Date(0).toISOString();
 
 function staticLastModified(path: string): Date {
   return new Date(ROUTE_LASTMOD[path] ?? SOLUTION_LASTMOD_FALLBACK);
@@ -71,7 +73,8 @@ function staticFrequencyAndPriority(
   }
 
   if ("nicheId" in route) return { changeFrequency: "monthly", priority: 0.7 }; // solution route
-  if ("serviceRouteId" in route) return { changeFrequency: "monthly", priority: 0.7 }; // service route
+  if ("serviceRouteId" in route)
+    return { changeFrequency: "monthly", priority: 0.7 }; // service route
   return { changeFrequency: "monthly", priority: 0.6 }; // e.g. /about
 }
 
@@ -121,7 +124,10 @@ function postEntries(posts: PostSitemapEntry[]): SitemapEntry[] {
 
   return posts
     .filter((post) => Boolean(post.slug))
-    .filter((post) => !post.publishedAt || new Date(post.publishedAt).getTime() <= now)
+    .filter(
+      (post) =>
+        !post.publishedAt || new Date(post.publishedAt).getTime() <= now,
+    )
     .map((post) => ({
       url: `${SITE_URL}/blogs/${post.slug}`,
       lastModified: postLastModified(post),
@@ -188,7 +194,9 @@ async function contentEntries(): Promise<SitemapEntry[]> {
   });
 
   const authorCounts = await Promise.all(
-    authorSlugs.map((slug) => client.fetch<number>(AUTHOR_POSTS_COUNT_QUERY, { slug })),
+    authorSlugs.map((slug) =>
+      client.fetch<number>(AUTHOR_POSTS_COUNT_QUERY, { slug }),
+    ),
   );
   authorSlugs.forEach((slug, index) => {
     entries.push({
@@ -229,7 +237,9 @@ function finalize(entries: SitemapEntry[]): SitemapEntry[] {
   if (process.env.NODE_ENV !== "production") {
     for (const entry of deduped) {
       if (!entry.url.startsWith(SITE_URL)) {
-        console.error(`[sitemap] "${entry.url}" is not an absolute blogspage.com URL.`);
+        console.error(
+          `[sitemap] "${entry.url}" is not an absolute blogspage.com URL.`,
+        );
       }
       if (entry.url.endsWith("/") && entry.url !== SITE_URL) {
         console.error(`[sitemap] "${entry.url}" has a trailing slash.`);
@@ -257,7 +267,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Sanity fetch failed (or timed out): fall back to the static route set
     // only. Still returns a valid array at HTTP 200 rather than throwing,
     // which would otherwise 500 the route or leave it empty (Requirement 6.12).
-    console.error("[sitemap] Sanity fetch failed; serving static routes only.", error);
+    console.error(
+      "[sitemap] Sanity fetch failed; serving static routes only.",
+      error,
+    );
   }
 
   return finalize(entries);

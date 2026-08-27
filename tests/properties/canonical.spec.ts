@@ -99,8 +99,20 @@ const nonSpecialSchemeString = fc
 /** Protocol-relative and absolute foreign-host input, the security-relevant shapes. */
 const foreignHostString = fc
   .tuple(
-    fc.constantFrom("//", "http://", "https://", "ftp://", "\\\\", "//user:pw@"),
-    fc.constantFrom("evil.com", "EVIL.com", "blogspage.com.evil.com", "127.0.0.1:8080"),
+    fc.constantFrom(
+      "//",
+      "http://",
+      "https://",
+      "ftp://",
+      "\\\\",
+      "//user:pw@",
+    ),
+    fc.constantFrom(
+      "evil.com",
+      "EVIL.com",
+      "blogspage.com.evil.com",
+      "127.0.0.1:8080",
+    ),
     fc.constantFrom("", "/", "/A", "/A/B?q=1#f", "/../x", "//x//y/"),
   )
   .map((parts) => parts.join(""));
@@ -294,12 +306,14 @@ describe("Property 3: Canonical normalisation is total and idempotent", () => {
     expect(canonicalUrl("/blogs")).toBe(`${SITE_URL}/blogs`);
     expect(canonicalUrl("blogs")).toBe(`${SITE_URL}/blogs`);
     expect(canonicalUrl("/BLOGS/")).toBe(`${SITE_URL}/blogs`);
-    expect(canonicalUrl("  /blogs/my-post/  ")).toBe(`${SITE_URL}/blogs/my-post`);
+    expect(canonicalUrl("  /blogs/my-post/  ")).toBe(
+      `${SITE_URL}/blogs/my-post`,
+    );
     expect(canonicalUrl("/blogs?utm_source=x#top")).toBe(`${SITE_URL}/blogs`);
     expect(canonicalUrl("/blogs//my-post")).toBe(`${SITE_URL}/blogs/my-post`);
-    expect(canonicalUrl("/solutions/./gym-business-solution-website-at-hyderabad")).toBe(
-      `${SITE_URL}/solutions/gym-business-solution-website-at-hyderabad`,
-    );
+    expect(
+      canonicalUrl("/solutions/./gym-business-solution-website-at-hyderabad"),
+    ).toBe(`${SITE_URL}/solutions/gym-business-solution-website-at-hyderabad`);
     expect(canonicalUrl(`${SITE_URL}/blogs`)).toBe(`${SITE_URL}/blogs`);
   });
 });
