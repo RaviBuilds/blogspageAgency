@@ -189,7 +189,7 @@ describe("Property 3: Canonical normalisation is total and idempotent", () => {
 
         const url = new URL(result);
         expect(url.protocol).toBe("https:");
-        expect(url.host).toBe("blogspage.com");
+        expect(url.host).toBe("www.blogspage.com");
         expect(url.search).toBe("");
         expect(url.hash).toBe("");
 

@@ -11,7 +11,7 @@
  * Pure module: no I/O, no React, no framework imports.
  */
 
-export const SITE_URL = "https://blogspage.com";
+export const SITE_URL = "https://www.blogspage.com";
 export const SITE_NAME = "Blogspage";
 
 /**

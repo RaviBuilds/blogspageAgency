@@ -43,12 +43,12 @@ describe("KEYWORD_MAP uniqueness (Requirement 12.6)", () => {
 describe("KEYWORD_MAP absolute URLs (Requirement 12.1)", () => {
   it("derives every absoluteUrl from canonicalUrl(path), so the import cycle resolves", () => {
     expect(KEYWORD_MAP.length).toBeGreaterThan(0);
-    expect(KEYWORD_MAP[0].absoluteUrl).toBe("https://blogspage.com");
+    expect(KEYWORD_MAP[0].absoluteUrl).toBe("https://www.blogspage.com");
 
     for (const entry of KEYWORD_MAP) {
       expect(entry.absoluteUrl, entry.path).toBe(canonicalUrl(entry.path));
       expect(entry.absoluteUrl, entry.path).toMatch(
-        /^https:\/\/blogspage\.com(\/[a-z0-9\-/]*[a-z0-9])?$/,
+        /^https:\/\/www\.blogspage\.com(\/[a-z0-9\-/]*[a-z0-9])?$/,
       );
     }
   });
@@ -85,7 +85,7 @@ describe("findKeywordPhrase", () => {
     expect(findKeywordPhrase("/")).toBe("ai automation agency");
     expect(findKeywordPhrase("/blogs")).toBe("ai automation blog");
     expect(findKeywordPhrase("/Blogs/")).toBe("ai automation blog");
-    expect(findKeywordPhrase("https://blogspage.com/blogs?x=1")).toBe(
+    expect(findKeywordPhrase("https://www.blogspage.com/blogs?x=1")).toBe(
       "ai automation blog",
     );
   });

@@ -228,7 +228,7 @@ function finalize(entries: SitemapEntry[]): SitemapEntry[] {
 
   if (process.env.NODE_ENV !== "production") {
     for (const entry of deduped) {
-      if (!entry.url.startsWith("https://blogspage.com")) {
+      if (!entry.url.startsWith(SITE_URL)) {
         console.error(`[sitemap] "${entry.url}" is not an absolute blogspage.com URL.`);
       }
       if (entry.url.endsWith("/") && entry.url !== SITE_URL) {
