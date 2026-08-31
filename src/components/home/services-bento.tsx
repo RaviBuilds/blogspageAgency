@@ -1,14 +1,21 @@
 "use client";
 
 import { useRef, type MouseEvent } from "react";
-import { Bot, Workflow, Code2, Search } from "lucide-react";
-import { motion, type Variants } from "framer-motion";
+import Link from "next/link";
+import { Globe, LayoutDashboard, Bot } from "lucide-react";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { trackEvent } from "@/lib/analytics";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    MOTION PRIMITIVES — design system §5
    ───────────────────────────────────────────────────────────────────────────── */
-const SPRING = { type: "spring", stiffness: 100, damping: 20, mass: 1 } as const;
+const SPRING = {
+  type: "spring",
+  stiffness: 100,
+  damping: 20,
+  mass: 1,
+} as const;
 
 const gridVariants: Variants = {
   hidden: {},
@@ -26,59 +33,85 @@ const fadeUp: Variants = {
 };
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   SERVICE DEFINITIONS
+   TASK H3 — "What We Build"
+
+   Replaces the four AI-marketing service cards with the approved
+   three-pillar capability model. Each pillar is anchored to a real,
+   shipped project from `featured-work-data.ts` (Class B / descriptive
+   proof only — no outcome, uplift or figure is asserted here).
+
+   Proof-link destinations point at the in-page project sections owned by
+   TASK H6 (`#work`, flagship projects) and TASK H7 (`#more-work`,
+   supporting projects). Until those sections ship this sprint, both
+   anchors resolve to the top of the page — acceptable mid-sprint per the
+   implementation spec (plans/homepage-implementation-spec-v1.0.md, §8).
    ───────────────────────────────────────────────────────────────────────────── */
-const services = [
+type Pillar = {
+  id:
+    | "digital-infrastructure"
+    | "operational-software"
+    | "intelligent-automation";
+  number: string;
+  icon: typeof Globe;
+  title: string;
+  capabilities: string[];
+  body: string;
+  proofName: string;
+  proofDetail: string;
+  destination: "#work" | "#more-work";
+  accent: string;
+};
+
+const pillars: Pillar[] = [
   {
-    id: "ai-agents",
-    icon: Bot,
-    title: "Conversational AI Agents",
-    description:
-      "Custom LLM-powered chatbots that qualify leads, answer objections, and book strategy calls for you — 24 hours a day, 7 days a week, without a single salary on payroll.",
-    accent: "99,102,241", // indigo
-    className: "md:col-span-2 md:row-span-2",
-    featured: true,
-  },
-  {
-    id: "workflow-automation",
-    icon: Workflow,
-    title: "Workflow Automation",
-    description:
-      "We connect your APIs, databases, and third-party tools into seamless pipelines that eliminate manual data entry, reduce human error, and remove operational bottlenecks overnight.",
-    accent: "56,189,248", // sky
-    className: "md:col-span-1 md:row-span-2",
-    featured: false,
-  },
-  {
-    id: "saas-development",
-    icon: Code2,
-    title: "Custom SaaS Development",
-    description:
-      "Scalable, headless web applications built on Next.js and Supabase — from MVPs that validate in weeks to full-scale platforms handling thousands of concurrent users.",
+    id: "digital-infrastructure",
+    number: "01",
+    icon: Globe,
+    title: "Digital Infrastructure",
+    capabilities: ["Websites", "Web apps", "Headless CMS", "SEO architecture"],
+    body: "The digital layer your customers see, search and interact with.",
+    proofName: "Best100Movies",
+    proofDetail: "a Sanity-backed content platform with programmatic routes.",
+    destination: "#more-work",
     accent: "139,92,246", // violet
-    className: "md:col-span-2",
-    featured: false,
   },
   {
-    id: "programmatic-seo",
-    icon: Search,
-    title: "Programmatic SEO Architectures",
-    description:
-      "Templatized content engines powered by structured data that generate thousands of optimized pages — designed to dominate organic search and compound traffic while you sleep.",
+    id: "operational-software",
+    number: "02",
+    icon: LayoutDashboard,
+    title: "Operational Software",
+    capabilities: ["SaaS", "Dashboards", "Portals", "Business workflows"],
+    body: "The systems your team uses to run the business.",
+    proofName: "ArogyaDiet",
+    proofDetail:
+      "customer, rider, franchise and master-admin portals on shared data.",
+    destination: "#work",
     accent: "16,185,129", // emerald
-    className: "md:col-span-1",
-    featured: false,
+  },
+  {
+    id: "intelligent-automation",
+    number: "03",
+    icon: Bot,
+    title: "Intelligent Automation",
+    capabilities: [
+      "AI agents",
+      "Workflow automation",
+      "Lead capture",
+      "Customer follow-up",
+    ],
+    body: "The intelligence layer that removes repetitive work and keeps opportunities moving.",
+    proofName: "Phixl AI",
+    proofDetail:
+      "AI image restoration with credits, checkout and processing pipeline.",
+    destination: "#work",
+    accent: "99,102,241", // indigo
   },
 ];
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   SERVICE CARD with Hover Spotlight
+   PILLAR CARD with Hover Spotlight
    ───────────────────────────────────────────────────────────────────────────── */
-function ServiceCard({
-  service,
-}: {
-  service: (typeof services)[number];
-}) {
+function PillarCard({ pillar }: { pillar: Pillar }) {
   const cardRef = useRef<HTMLDivElement>(null);
 
   const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
@@ -89,7 +122,7 @@ function ServiceCard({
     card.style.setProperty("--y", `${event.clientY - rect.top}px`);
   };
 
-  const Icon = service.icon;
+  const Icon = pillar.icon;
 
   return (
     <motion.div
@@ -99,24 +132,22 @@ function ServiceCard({
       transition={SPRING}
       onMouseMove={handleMouseMove}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-2xl p-6",
+        "group relative flex h-full flex-col overflow-hidden rounded-2xl p-6",
         // Glassmorphism (§1 Depth & Materials)
         "border border-white/[0.08] bg-white/[0.02] backdrop-blur-md",
         // Debossed inner shadow (§6)
         "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]",
         // Hover upgrade
         "transition-colors duration-300 hover:border-white/[0.15] hover:bg-white/[0.04]",
-        service.className,
-        service.featured && "min-h-[18rem]",
       )}
-      style={{ "--card-accent": service.accent } as React.CSSProperties}
+      style={{ "--card-accent": pillar.accent } as React.CSSProperties}
     >
       {/* Border spotlight on hover */}
       <span
         aria-hidden
         className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
-          background: `radial-gradient(220px circle at var(--x,50%) var(--y,50%), rgba(${service.accent},0.55), transparent 65%)`,
+          background: `radial-gradient(220px circle at var(--x,50%) var(--y,50%), rgba(${pillar.accent},0.55), transparent 65%)`,
           padding: "1px",
           WebkitMask:
             "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
@@ -130,20 +161,9 @@ function ServiceCard({
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
-          background: `radial-gradient(300px circle at var(--x,50%) var(--y,50%), rgba(${service.accent},0.1), transparent 55%)`,
+          background: `radial-gradient(300px circle at var(--x,50%) var(--y,50%), rgba(${pillar.accent},0.1), transparent 55%)`,
         }}
       />
-
-      {/* Featured corner glow */}
-      {service.featured && (
-        <span
-          aria-hidden
-          className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full opacity-[0.08] blur-3xl"
-          style={{
-            background: `radial-gradient(circle, rgba(${service.accent},1) 0%, transparent 70%)`,
-          }}
-        />
-      )}
 
       {/* Content */}
       <div className="relative z-10 flex h-full flex-col">
@@ -152,58 +172,96 @@ function ServiceCard({
         </div>
 
         <h3 className="mt-5 text-xl font-semibold tracking-tight text-white/90">
-          {service.title}
+          <span aria-hidden className="mr-2 text-sm font-medium text-white/30">
+            {pillar.number}
+          </span>
+          {pillar.title}
         </h3>
 
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          {service.description}
+        <ul
+          className={cn(
+            "mt-4 flex flex-wrap gap-x-1 gap-y-1 text-xs font-medium uppercase tracking-wider text-white/50",
+            "[&>li:not(:last-child)]:after:ml-2 [&>li:not(:last-child)]:after:text-white/25",
+            "[&>li:not(:last-child)]:after:content-['·']",
+          )}
+        >
+          {pillar.capabilities.map((capability) => (
+            <li key={capability}>{capability}</li>
+          ))}
+        </ul>
+
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground lg:text-base">
+          {pillar.body}
         </p>
+
+        <div className="mt-auto pt-6">
+          <Link
+            href={pillar.destination}
+            onClick={() =>
+              trackEvent("solution_cta_click", {
+                cta_location: "what-we-build",
+                pillar: pillar.id,
+                destination: pillar.destination,
+              })
+            }
+            className="-my-2 inline-block py-2 text-sm font-medium text-white/70 underline-offset-4 transition-colors hover:text-white hover:underline"
+          >
+            Built with this: {pillar.proofName} — {pillar.proofDetail}
+          </Link>
+        </div>
       </div>
     </motion.div>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   SERVICES BENTO SECTION
+   SERVICES BENTO SECTION — "What We Build"
    ───────────────────────────────────────────────────────────────────────────── */
 export function ServicesBento() {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
-    <section id="services" className="border-t border-white/[0.08] py-24 lg:py-32">
+    <section
+      id="services"
+      className="border-t border-white/[0.08] py-24 lg:py-32"
+    >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         {/* Section header with stagger */}
         <motion.div
           variants={gridVariants}
-          initial="hidden"
+          initial={shouldReduceMotion ? "show" : "hidden"}
           whileInView="show"
           viewport={{ once: true, margin: "-100px" }}
           className="mx-auto max-w-2xl text-center"
         >
-          <motion.p variants={fadeUp} className="text-sm font-medium text-primary">
-            Core Capabilities
+          <motion.p
+            variants={fadeUp}
+            className="text-sm font-medium text-primary"
+          >
+            What we build
           </motion.p>
           <motion.h2
             variants={fadeUp}
             className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
           >
-            AI-powered systems that sell, qualify, and operate — so you don&apos;t have to.
+            One connected system, not four disconnected vendors.
           </motion.h2>
           <motion.p variants={fadeUp} className="mt-4 text-muted-foreground">
-            We don&apos;t build brochure sites. We engineer intelligent platforms
-            that automate revenue, eliminate busywork, and compound growth from
-            day one.
+            Your website, your internal software and your automation layer are
+            the same system seen from three angles. We build all three.
           </motion.p>
         </motion.div>
 
-        {/* Bento grid — 3 col on md+, staggered spring reveal (§5) */}
+        {/* Three equal pillars, staggered spring reveal (§5) */}
         <motion.div
           className="mt-16 grid grid-cols-1 gap-4 md:grid-cols-3"
           variants={gridVariants}
-          initial="hidden"
+          initial={shouldReduceMotion ? "show" : "hidden"}
           whileInView="show"
           viewport={{ once: true, margin: "-100px" }}
         >
-          {services.map((service) => (
-            <ServiceCard key={service.id} service={service} />
+          {pillars.map((pillar) => (
+            <PillarCard key={pillar.id} pillar={pillar} />
           ))}
         </motion.div>
       </div>
