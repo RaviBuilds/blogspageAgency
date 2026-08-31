@@ -1,0 +1,582 @@
+/* ---------------------------------------------------------------------------
+ * Hero system visual — component-scoped styles.
+ *
+ * These live in a CSS Module rather than `globals.css` deliberately.
+ * `src/app/globals.css` is the project's only stylesheet and is under an
+ * active change freeze from `plans/homepage-implementation-spec-v1.0.md` §30,
+ * which authorises exactly one edit to it (the `--word-step` change, already
+ * applied). Scoping this visual's styles here keeps that freeze intact and
+ * keeps two workstreams off the same file. Hero V2's Electric Violet accent is
+ * therefore declared on `.root` below rather than added to the global token
+ * surface.
+ *
+ * The engine reads the DOM exclusively through `data-*` attributes and never
+ * through class names, so the hashed class names this module generates are
+ * invisible to it. Styling and behaviour address the same nodes by different
+ * keys on purpose.
+ *
+ * Two rules govern everything below.
+ *
+ * 1. Every entrance state is gated on `[data-engine="on"]`, an attribute only
+ *    the engine sets, and only once it has committed to actually running. The
+ *    served HTML therefore paints the fully assembled composition, and a
+ *    session with no JS, blocked JS, failed JS, or `prefers-reduced-motion`
+ *    gets that same complete picture rather than an invisible scene waiting
+ *    for a phase change that never arrives. This is also why the entrance
+ *    needs no `prefers-reduced-motion` block: the engine never sets the
+ *    attribute in that case, so these rules are inert by construction rather
+ *    than by duplication.
+ *
+ * 2. Phase gating is applied to group containers (`[data-traces]`,
+ *    `[data-packets]`, `[data-telemetry]`), never to the individual nodes the
+ *    engine writes inline styles onto. A CSS animation with a `forwards` fill
+ *    outranks an inline style permanently, so animating a packet's own opacity
+ *    here would silently freeze the RAF loop's writes for the rest of the
+ *    session. Animating the parent sidesteps the cascade conflict entirely.
+ *
+ *    Hero V2's live-wire highlight obeys the same rule from the other side: it
+ *    is driven by a `data-live` *attribute* the engine toggles, and it styles
+ *    `stroke`, `stroke-width` and `filter` — never `opacity`, which the hover
+ *    consequence already owns as an inline style on those same paths.
+ *
+ * Every selector includes at least one local class, which is what CSS Modules
+ * requires for a rule to be "pure" — hence `.root [data-traces]` rather than a
+ * bare `[data-traces]`.
+ * ------------------------------------------------------------------------- */
+
+.root {
+  /* --- Palette -----------------------------------------------------------
+     Scoped here instead of `:root`/`.dark`, which keeps the global token
+     surface unchanged. The site is dark-only, so there is no light-mode
+     variant to mirror.
+
+     Hero V2 re-based this block. V1 derived every value from the existing
+     Linear palette, which put the wires at `#2b2e36` on a `#010102` field —
+     about 3% luminance apart. That is a legitimate choice for a diagram sitting
+     quietly in a corner and the wrong one for a visual that has to be legible
+     at a glance from across the fold, so the structural values are lifted
+     substantially and Electric Violet becomes the one signal colour: it marks
+     what is *happening* (a live wire, a packet, a focused surface) and nothing
+     else. Structure stays neutral grey; only activity is violet. */
+  --sys-violet: #7c3aed;
+  --sys-violet-lit: #a78bfa;
+  --sys-violet-glow: rgba(124, 58, 237, 0.55);
+
+  --sys-border: rgba(255, 255, 255, 0.15);
+  --sys-card: rgba(16, 17, 22, 0.92);
+  --sys-label: #e8eaf2;
+  --sys-dim: #8b91a1;
+  --sys-stage: #767d8e;
+  --sys-bar: #7a8298;
+  --sys-trace: #414757;
+  --sys-packet: #ece3ff;
+  --sys-packet-halo: #7c3aed;
+  --sys-accent: #7c3aed;
+
+  position: relative;
+  width: 100%;
+
+  /* The depth field below is drawn on pseudo-elements at `z-index: -1`. An
+     explicit stacking context keeps that behind the scene but in front of the
+     hero section's own background, rather than letting it escape upward into an
+     ancestor's paint order. */
+  isolation: isolate;
+
+  /* The root itself is inert to the pointer. Only the module cards opt back in
+     (`.cardInteractive`), so the visual can sit in the layout without its empty
+     regions swallowing a drag, a text selection, or a click aimed past it. */
+  pointer-events: none;
+}
+
+/* --- Localised depth ------------------------------------------------------ */
+
+/*
+ * A faint technical grid over a soft violet atmosphere, masked to fade out
+ * before it reaches the frame's edge. No extra markup.
+ *
+ * The point is to give the graph something to sit *on*. Against flat black the
+ * modules read as cut-outs floating in nothing; against a barely-there field
+ * they read as instrumentation on a surface. It is a static paint — no blur
+ * filter, no animation, nothing that re-renders per frame — so the depth costs
+ * one composite at paint time and nothing thereafter.
+ *
+ * Deliberately one `::before` rather than a `::before`/`::after` pair. `::after`
+ * paints *after* an element's children, so a grid layer there would sit on top of
+ * the module cards unless `z-index: -1` is honoured — and this root carries
+ * `perspective`, which makes it a 3D rendering context where paint order is less
+ * obvious than usual. `::before` paints ahead of the children by definition, so
+ * the layering holds regardless of how the 3D context sorts. The `z-index` below
+ * is belt and braces, not the mechanism.
+ *
+ * Background layers paint first-listed-on-top, hence grid before glow.
+ */
+.root::before {
+  content: "";
+  position: absolute;
+  inset: -10%;
+  z-index: -1;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    radial-gradient(
+      46% 42% at 54% 44%,
+      rgba(124, 58, 237, 0.2),
+      transparent 72%
+    ),
+    radial-gradient(
+      34% 32% at 24% 76%,
+      rgba(94, 106, 210, 0.11),
+      transparent 74%
+    );
+  background-size:
+    36px 36px,
+    36px 36px,
+    100% 100%,
+    100% 100%;
+  /* Masked rather than faded so the field has no visible edge — it simply stops
+     existing before it reaches the composition's boundary. */
+  mask-image: radial-gradient(58% 54% at 50% 46%, #000 0%, transparent 82%);
+  -webkit-mask-image: radial-gradient(
+    58% 54% at 50% 46%,
+    #000 0%,
+    transparent 82%
+  );
+  pointer-events: none;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  /* Establishes the 3D context the cards' `translateZ` resolves against. */
+  transform-style: preserve-3d;
+}
+
+/* --- Module surfaces ------------------------------------------------------ */
+
+.card {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  border-radius: 0.375rem;
+  border: 1px solid var(--sys-border);
+  background-color: var(--sys-card);
+  padding: 0.5rem 0.625rem;
+  backdrop-filter: blur(2px);
+
+  /* Three layers doing three jobs: a top inner highlight so the surface catches
+     light from above, a violet outer seat so the card belongs to the accent
+     family without being tinted, and a drop shadow so it sits above the wires
+     rather than beside them. This is what separates a surface from an outline. */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 0 0 1px rgba(124, 58, 237, 0.07),
+    0 14px 34px -20px rgba(0, 0, 0, 0.95);
+
+  /* Per-tier depth, so the pointer tilt on the stage resolves into parallax
+     rather than a flat rotation. */
+  transform: translateZ(var(--depth-z, 0px));
+  transition:
+    border-color 220ms ease,
+    background-color 220ms ease,
+    box-shadow 220ms ease,
+    opacity 220ms ease;
+}
+
+/* The operations bar spans both columns: too wide and too short to stack. */
+.card[data-layout="row"] {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.75rem;
+}
+
+/* Desktop only. Hover is the whole interaction, so a touch viewport ships no
+   affordance for it and stays fully inert. */
+.cardInteractive {
+  pointer-events: auto;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.card[data-layout="row"] .header {
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+.label {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.5625rem;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sys-label);
+}
+
+/*
+ * The pulse is the module's status LED, so V2 makes it read like one: violet
+ * with a tight bloom, resting dim. The engine writes only `opacity` and
+ * `transform` on this node when a packet arrives, so the colour and the glow are
+ * settled here once and the arrival reaction stays a two-property write.
+ */
+.pulse {
+  margin-top: 2px;
+  flex-shrink: 0;
+  width: 0.3125rem;
+  height: 0.3125rem;
+  border-radius: 9999px;
+  background-color: var(--sys-violet);
+  box-shadow: 0 0 6px var(--sys-violet-glow);
+  opacity: 0.35;
+  transition: opacity 200ms ease;
+}
+
+.card[data-layout="row"] .pulse {
+  margin-top: 0;
+}
+
+/* --- Internal state ------------------------------------------------------- */
+
+/*
+ * The three states a surface moves work through. Named rather than abstract, so
+ * the card says what it does without needing a hover, and qualitative rather
+ * than numeric, so nothing here claims a measurement that was never taken.
+ */
+.stages {
+  display: flex;
+  align-items: center;
+  gap: 0.3125rem;
+  min-width: 0;
+}
+
+.card[data-layout="row"] .stages {
+  margin-left: auto;
+}
+
+.stageToken {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.4375rem;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  color: var(--sys-stage);
+  transition:
+    color 200ms ease,
+    text-shadow 200ms ease;
+}
+
+/* The engine walks this one step per packet arrival, so the highlight travels
+   the row as work passes through the surface. */
+.stageToken[data-active="true"] {
+  color: var(--sys-violet-lit);
+  text-shadow: 0 0 8px var(--sys-violet-glow);
+}
+
+.readout {
+  display: flex;
+  align-items: flex-end;
+}
+
+.card[data-layout="row"] .readout {
+  flex: 0 0 auto;
+}
+
+.bar {
+  display: block;
+  width: 3px;
+  height: 100%;
+  border-radius: 1px;
+  background-color: var(--sys-bar);
+  /* Bars grow from their base. The engine writes `scaleY` inline each tick. */
+  transform-origin: bottom;
+}
+
+/* The caption is the hover payload: in the served HTML, revealed on demand, so
+   the interaction costs nothing at the moment it happens. */
+.caption {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.5rem;
+  line-height: 1.25;
+  letter-spacing: 0.06em;
+  color: var(--sys-dim);
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+
+/* The row card has no vertical room for a caption line; its label and stages
+   already carry the same information the caption would. */
+.card[data-layout="row"] .caption {
+  display: none;
+}
+
+/* --- Mobile topology ------------------------------------------------------ */
+
+/*
+ * Two adjustments the mobile graph needs, keyed off the topology id rather than a
+ * media query — the variant, not the viewport, is what decides them.
+ *
+ * The route label is dropped. On a three-card vertical spine the packet spends
+ * most of its journey behind a card, and at 92% card opacity a violet label
+ * directly underneath bled through as a ghost word across "CORE + DATA". Desktop
+ * has the horizontal room for the label to land in open space; mobile does not,
+ * and the label was never load-bearing.
+ *
+ * The surfaces then go effectively opaque, so nothing else can ghost through a
+ * card on a layout this tightly stacked.
+ */
+.root[data-hero-system="mobile"] [data-packet-label] {
+  display: none;
+}
+
+.root[data-hero-system="mobile"] .card {
+  --sys-card: rgba(16, 17, 22, 0.97);
+}
+
+/* The spine runs the full width of the column, so its live segments sit right
+   against the card edges. A hair thinner keeps them a filament rather than a
+   bar at 1:1 scale. */
+.root[data-hero-system="mobile"] .trace[data-live="true"] {
+  stroke-width: 1.6;
+}
+
+@media (min-width: 640px) {
+  .label {
+    font-size: 0.625rem;
+  }
+
+  .stageToken {
+    font-size: 0.5rem;
+  }
+
+  .caption {
+    font-size: 0.5625rem;
+  }
+}
+
+/* --- Wires ---------------------------------------------------------------- */
+
+.trace {
+  transition:
+    stroke 180ms ease,
+    stroke-width 180ms ease,
+    filter 300ms ease,
+    opacity 260ms ease;
+}
+
+/*
+ * The live wire.
+ *
+ * `data-live` is set by the engine on whichever edge each in-flight packet is
+ * currently traversing, and cleared as the packet leaves it. This is the single
+ * most important thing the visual does: a dot sliding over a static line is an
+ * animation, whereas a line that lights up under the dot and goes out behind it
+ * is a system carrying something. The glow is two tight `drop-shadow` passes
+ * rather than one wide one, so it reads as a filament rather than a smear, and it
+ * only ever applies to the one-to-four paths actually carrying traffic.
+ */
+.trace[data-live="true"] {
+  stroke: var(--sys-violet-lit);
+  stroke-width: 2;
+  filter:
+    drop-shadow(0 0 3px var(--sys-violet))
+    drop-shadow(0 0 8px var(--sys-violet-glow));
+}
+
+/* --- Packets -------------------------------------------------------------- */
+
+/*
+ * The packet's own bloom. Kept tight (5px) because the three concentric circles
+ * in the markup already supply most of the falloff; this adds the last bit of
+ * bleed that makes it read as emitted light rather than a filled dot.
+ *
+ * Scoped to a wrapper around the circles rather than to the whole slot on
+ * purpose: an ancestor filter cannot be undone by a descendant, and a 5px violet
+ * bleed on the 8px mono route label would smear it into unreadability. The label
+ * is a sibling of this wrapper, so it stays crisp.
+ *
+ * `filter` is safe here even though the engine writes these nodes every frame:
+ * it writes `transform` and `opacity` on the slot, and neither interacts with a
+ * filter declared on the child.
+ */
+.packetCore {
+  filter: drop-shadow(0 0 5px var(--sys-violet-glow));
+}
+
+/* --- Hover consequence ---------------------------------------------------- */
+
+/*
+ * Hovering a module answers a question: what is this, and what depends on it.
+ * The queried card accents and reveals its caption; unrelated cards recede.
+ * `data-focused` / `data-muted` are written by the engine, which already knows
+ * the incident edges and the routes through each module.
+ */
+.card[data-focused="true"] {
+  border-color: color-mix(in oklab, var(--sys-accent) 78%, transparent);
+  background-color: rgba(24, 22, 34, 0.94);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    0 0 0 1px rgba(124, 58, 237, 0.4),
+    0 0 28px -6px rgba(124, 58, 237, 0.45),
+    0 14px 34px -20px rgba(0, 0, 0, 0.95);
+}
+
+.card[data-focused="true"] .label {
+  color: #ffffff;
+}
+
+.card[data-focused="true"] .pulse {
+  opacity: 1;
+}
+
+.card[data-focused="true"] .caption {
+  opacity: 1;
+}
+
+.card[data-muted="true"] {
+  opacity: 0.5;
+}
+
+/* --- Entrance ------------------------------------------------------------- */
+
+/*
+ * The composition assembles in the order a person would explain it: surfaces
+ * appear, telemetry comes alive, wires connect, then traffic starts. Timings
+ * match `PHASE_DURATIONS` in `engine.ts` (ASSEMBLING 420ms, ACTIVATING 320ms,
+ * LINKING 480ms) so the stylesheet and the state machine describe one sequence
+ * rather than two that drift apart.
+ *
+ * V2 compressed all of it. The visual now sits above the fold beside the H1, so
+ * the entrance has to be over before the visitor has finished reading the
+ * headline — every duration and stagger below is set so its phase completes
+ * inside its own budget rather than bleeding into the next one.
+ */
+
+@keyframes assemble {
+  from {
+    opacity: 0;
+    transform: translateZ(var(--depth-z, 0px)) translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateZ(var(--depth-z, 0px)) translateY(0) scale(1);
+  }
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: var(--trace-len, 0);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Cards land one after another rather than as a single block. Six cards at 55ms
+   finish their stagger inside ASSEMBLING's 420ms. */
+.root[data-engine="on"] .card {
+  animation: assemble 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--card-index, 0) * 55ms);
+}
+
+/*
+ * Traces stay hidden until LINKING, then draw themselves in.
+ * `stroke-dashoffset` is the animated property because it is a single
+ * interpolatable number the compositor handles cheaply, and because the served
+ * `stroke-dasharray` already equals each path's length — so the undrawn state
+ * needs no extra markup and no mask.
+ */
+.root[data-engine="on"] [data-traces] {
+  opacity: 0;
+}
+
+.root[data-engine="on"][data-phase="LINKING"] [data-traces],
+.root[data-engine="on"][data-phase="FLOWING"] [data-traces],
+.root[data-engine="on"][data-phase="FOCUSED"] [data-traces],
+.root[data-engine="on"][data-phase="DORMANT"] [data-traces] {
+  opacity: 1;
+}
+
+/* Eight edges at 32ms finish inside LINKING's 480ms. */
+.root[data-engine="on"][data-phase="LINKING"] .trace {
+  animation: draw 440ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--trace-index, 0) * 32ms);
+}
+
+/* Feedback edges keep their dashed pattern, so they fade in rather than draw. */
+.root[data-engine="on"][data-phase="LINKING"] .trace[data-feedback] {
+  animation: fadeIn 440ms ease both;
+}
+
+/*
+ * Packets are suppressed until traffic actually starts. Gated on the
+ * `[data-packets]` group, never on the slots themselves — the engine writes
+ * `opacity` and `transform` inline on each slot every frame, and a
+ * `forwards`-filled animation on those same elements would outrank the inline
+ * styles permanently and freeze the loop's output.
+ */
+.root[data-engine="on"] [data-packets] {
+  opacity: 0;
+  transition: opacity 320ms ease;
+}
+
+.root[data-engine="on"][data-phase="FLOWING"] [data-packets],
+.root[data-engine="on"][data-phase="FOCUSED"] [data-packets],
+.root[data-engine="on"][data-phase="DORMANT"] [data-packets] {
+  opacity: 1;
+}
+
+/* Telemetry holds its served silhouette until the modules are powered. */
+.root[data-engine="on"] [data-telemetry] {
+  opacity: 0;
+  transition: opacity 380ms ease;
+}
+
+.root[data-engine="on"]:not([data-phase="PENDING"]):not(
+    [data-phase="ASSEMBLING"]
+  )
+  [data-telemetry] {
+  opacity: 1;
+}
+
+/* The stage row powers up with the telemetry: both are the module coming alive
+   rather than the module appearing. */
+.root[data-engine="on"] [data-stages] {
+  opacity: 0;
+  transition: opacity 380ms ease;
+}
+
+.root[data-engine="on"]:not([data-phase="PENDING"]):not(
+    [data-phase="ASSEMBLING"]
+  )
+  [data-stages] {
+  opacity: 1;
+}
+
+/* The ingress rail is part of the wiring, so it arrives with it. */
+.root[data-engine="on"] [data-rail] {
+  opacity: 0;
+  transition: opacity 380ms ease;
+}
+
+.root[data-engine="on"][data-phase="LINKING"] [data-rail],
+.root[data-engine="on"][data-phase="FLOWING"] [data-rail],
+.root[data-engine="on"][data-phase="FOCUSED"] [data-rail],
+.root[data-engine="on"][data-phase="DORMANT"] [data-rail] {
+  opacity: 1;
+}
