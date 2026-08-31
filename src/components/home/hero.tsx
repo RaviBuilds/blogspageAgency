@@ -158,7 +158,7 @@ export function Hero() {
               spanning the column costs ~260px of height rather than 420, so the
               alignment comes for free instead of being traded against size.
             */}
-            <div className="mt-12 w-full lg:hidden">
+            <div className="mx-auto mt-12 w-full lg:hidden">
               <HeroSystemVisual variant="mobile" />
             </div>
           </div>
