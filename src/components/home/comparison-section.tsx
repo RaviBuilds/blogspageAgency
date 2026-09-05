@@ -42,7 +42,7 @@ const agencyAdvantages = [
 
 export function ComparisonSection() {
   return (
-    <section id="comparison" className="border-t border-white/[0.08] py-24 lg:py-32">
+    <section id="comparison" className="border-t border-border bg-background py-24 lg:py-32">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <motion.div
           variants={container}
@@ -73,13 +73,12 @@ export function ComparisonSection() {
           viewport={{ once: true, margin: "-100px" }}
           className="mt-16 grid gap-5 lg:grid-cols-2"
         >
-          {/* Typical Freelancer — deep glass, muted, the "before". */}
+          {/* Typical Freelancer — the "before". */}
           <motion.div variants={fadeUp}>
-            <Card className="relative h-full overflow-hidden border-white/[0.08] bg-white/[0.02] backdrop-blur-md">
-              <div className="pointer-events-none absolute -right-24 -top-24 size-64 rounded-full bg-red-500/10 blur-3xl" />
+            <Card className="relative h-full overflow-hidden transition-colors duration-300 hover:border-border-strong">
               <CardHeader>
-                <div className="flex size-11 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/10">
-                  <XCircle className="size-5 text-red-400" />
+                <div className="flex size-11 items-center justify-center rounded-xl border border-destructive/20 bg-destructive/10">
+                  <XCircle className="size-5 text-destructive" />
                 </div>
                 <CardTitle className="mt-5 text-2xl">Typical Freelancer</CardTitle>
                 <CardDescription>
@@ -94,7 +93,7 @@ export function ComparisonSection() {
                       key={item}
                       className="flex gap-3 text-sm text-muted-foreground"
                     >
-                      <span className="mt-2 size-1.5 shrink-0 rounded-full bg-red-400" />
+                      <span className="mt-2 size-1.5 shrink-0 rounded-full bg-destructive" />
                       {item}
                     </li>
                   ))}
@@ -103,14 +102,12 @@ export function ComparisonSection() {
             </Card>
           </motion.div>
 
-          {/* Our Approach — deep glass with accent glows, the "after". */}
+          {/* Our Approach — the "after". */}
           <motion.div variants={fadeUp}>
-            <Card className="relative h-full overflow-hidden border-white/[0.08] bg-white/[0.02] backdrop-blur-md">
-              <div className="pointer-events-none absolute -right-24 -top-24 size-64 rounded-full bg-indigo-500/20 blur-3xl" />
-              <div className="pointer-events-none absolute -bottom-24 -left-24 size-56 rounded-full bg-emerald-500/10 blur-3xl" />
+            <Card className="relative h-full overflow-hidden transition-colors duration-300 hover:border-border-strong">
               <CardHeader>
-                <div className="flex size-11 items-center justify-center rounded-xl border border-emerald-400/20 bg-emerald-400/10">
-                  <CheckCircle2 className="size-5 text-emerald-300" />
+                <div className="flex size-11 items-center justify-center rounded-xl border border-success/20 bg-success/10">
+                  <CheckCircle2 className="size-5 text-success" />
                 </div>
                 <CardTitle className="mt-5 text-2xl">Our Approach</CardTitle>
                 <CardDescription>
@@ -121,8 +118,8 @@ export function ComparisonSection() {
               <CardContent>
                 <ul className="space-y-4">
                   {agencyAdvantages.map((item) => (
-                    <li key={item} className="flex gap-3 text-sm text-zinc-200">
-                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-300" />
+                    <li key={item} className="flex gap-3 text-sm text-foreground">
+                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" />
                       {item}
                     </li>
                   ))}
