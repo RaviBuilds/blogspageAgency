@@ -37,7 +37,7 @@ export const DELIVERY_MODELS = [
 
 export function DeliveryModels() {
   return (
-    <section id="models" className="border-t border-white/6 py-24 lg:py-32">
+    <section id="models" className="border-t border-border-subtle bg-background-subtle py-24 lg:py-32">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-medium text-primary">Delivery Models</p>
@@ -53,16 +53,17 @@ export function DeliveryModels() {
           {DELIVERY_MODELS.map((model) => (
             <Card
               key={model.title}
-              className="group relative overflow-hidden bg-white/2.5 transition-colors hover:border-white/16"
+              className="group relative overflow-hidden transition-colors hover:border-border-strong"
             >
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-indigo-300/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-              <div className="pointer-events-none absolute -right-28 -top-28 size-72 rounded-full bg-primary/15 blur-3xl" />
+              {/* Premium hairline — the approved signal gradient
+                  (transparent -> rgba(67,83,201,0.5) -> transparent), hover-only. */}
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
               <CardHeader className="relative">
                 <div className="flex items-center justify-between gap-4">
-                  <div className="flex size-12 items-center justify-center rounded-xl border border-white/8 bg-white/4">
+                  <div className="flex size-12 items-center justify-center rounded-xl border border-border-subtle bg-muted">
                     <model.icon className="size-5 text-primary" />
                   </div>
-                  <span className="rounded-full border border-white/8 bg-white/4 px-3 py-1 text-xs text-muted-foreground">
+                  <span className="rounded-full border border-border-subtle bg-muted px-3 py-1 text-xs text-muted-foreground">
                     {model.eyebrow}
                   </span>
                 </div>
@@ -76,7 +77,7 @@ export function DeliveryModels() {
                   {model.details.map((detail) => (
                     <li
                       key={detail}
-                      className="rounded-xl border border-white/6 bg-white/2.5 px-3 py-3 text-sm text-zinc-300"
+                      className="rounded-xl border border-border-subtle bg-muted px-3 py-3 text-sm text-foreground"
                     >
                       {detail}
                     </li>
@@ -84,11 +85,7 @@ export function DeliveryModels() {
                 </ul>
               </CardContent>
               <CardFooter className="relative">
-                <Button
-                  variant="outline"
-                  className="border-white/10 bg-transparent hover:bg-white/5"
-                  asChild
-                >
+                <Button variant="outline" asChild>
                   <Link href="#contact">
                     Discuss this model
                     <ArrowRight className="size-4" />
