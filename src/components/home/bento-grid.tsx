@@ -30,21 +30,22 @@ const MotionLink = motion.create(Link);
 
 /* ─────────────────────────────────────────────────────────────────────────────
    1. ACCENT COLOR MAP
-   Muted jewel-tone / pastel-neon accent per niche.
+   Category accent per niche — one hue family per vertical, tuned to the
+   readable 600 step for light surfaces (Phase 5B).
    Each entry provides Tailwind-compatible values for icon color and
    a raw CSS color for the radial glow (to avoid arbitrary-value issues).
    ───────────────────────────────────────────────────────────────────────────── */
 const ACCENT_MAP: Record<string, { tw: string; raw: string }> = {
-  "online-delivery": { tw: "text-rose-500", raw: "244,63,94" }, // rose-500
-  "hotel-booking": { tw: "text-teal-500", raw: "20,184,166" }, // teal-500
-  "pet-care": { tw: "text-rose-400", raw: "251,113,133" }, // rose-400
-  consulting: { tw: "text-sky-500", raw: "14,165,233" }, // sky-500
-  education: { tw: "text-emerald-500", raw: "16,185,129" }, // emerald-500
-  "gym-fitness": { tw: "text-teal-400", raw: "45,212,191" }, // teal-400
-  "dental-medical": { tw: "text-indigo-400", raw: "129,140,248" }, // indigo-400
-  ecommerce: { tw: "text-amber-500", raw: "245,158,11" }, // amber-500
-  "saas-platform": { tw: "text-violet-500", raw: "139,92,246" }, // violet-500
-  "seo-blogs": { tw: "text-violet-400", raw: "167,139,250" }, // violet-400
+  "online-delivery": { tw: "text-rose-600", raw: "244,63,94" }, // rose-600
+  "hotel-booking": { tw: "text-teal-600", raw: "20,184,166" }, // teal-600
+  "pet-care": { tw: "text-rose-600", raw: "251,113,133" }, // rose-600
+  consulting: { tw: "text-sky-600", raw: "14,165,233" }, // sky-600
+  education: { tw: "text-emerald-600", raw: "16,185,129" }, // emerald-600
+  "gym-fitness": { tw: "text-teal-600", raw: "45,212,191" }, // teal-600
+  "dental-medical": { tw: "text-indigo-600", raw: "129,140,248" }, // indigo-600
+  ecommerce: { tw: "text-amber-600", raw: "245,158,11" }, // amber-600
+  "saas-platform": { tw: "text-violet-600", raw: "139,92,246" }, // violet-600
+  "seo-blogs": { tw: "text-violet-600", raw: "167,139,250" }, // violet-600
 };
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -84,7 +85,7 @@ const FEATURED_IDS = new Set([
    ───────────────────────────────────────────────────────────────────────────── */
 function NicheCard({ niche }: { niche: Niche }) {
   const cardRef = useRef<HTMLAnchorElement>(null);
-  const accent = ACCENT_MAP[niche.id] ?? { tw: "text-primary", raw: "94,106,210" };
+  const accent = ACCENT_MAP[niche.id] ?? { tw: "text-primary", raw: "67,83,201" };
   const isFeatured = FEATURED_IDS.has(niche.id);
   const span = SPAN_MAP[niche.id] ?? "md:col-span-1";
 
@@ -108,12 +109,11 @@ function NicheCard({ niche }: { niche: Niche }) {
       whileHover={{ scale: 1.015 }}
       transition={SPRING}
       className={cn(
-        // Glassmorphism + ultra-subtle boundary (§4) and debossed inset (§6)
+        // White instrument card (Phase 5B light system)
         "group relative flex flex-col overflow-hidden rounded-2xl p-6",
-        "border border-white/[0.08] bg-white/[0.02] backdrop-blur-md",
-        "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]",
-        // Border illumination + brightness bump on hover (spring-driven scale above)
-        "transition-colors duration-300 hover:border-white/[0.15] hover:bg-white/[0.04]",
+        "border border-border bg-card",
+        // Border illumination on hover (spring-driven scale above)
+        "transition-colors duration-300 hover:border-border-strong",
         "motion-reduce:hover:scale-100",
         "col-span-1",
         span,
@@ -130,7 +130,7 @@ function NicheCard({ niche }: { niche: Niche }) {
         aria-hidden
         className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
-          background: `radial-gradient(220px circle at var(--x,50%) var(--y,50%), rgba(var(--card-accent),0.6), transparent 65%)`,
+          background: `radial-gradient(220px circle at var(--x,50%) var(--y,50%), rgba(var(--card-accent),0.35), transparent 65%)`,
           padding: "1px",
           WebkitMask:
             "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
@@ -144,7 +144,7 @@ function NicheCard({ niche }: { niche: Niche }) {
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
-          background: `radial-gradient(300px circle at var(--x,50%) var(--y,50%), rgba(var(--card-accent),0.12), transparent 55%)`,
+          background: `radial-gradient(300px circle at var(--x,50%) var(--y,50%), rgba(var(--card-accent),0.05), transparent 55%)`,
         }}
       />
 
@@ -179,17 +179,17 @@ function NicheCard({ niche }: { niche: Niche }) {
       {/* ── Card content ── */}
       <div className="relative z-10 flex h-full flex-col">
         {/* Icon badge */}
-        <div className="flex size-10 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04]">
+        <div className="flex size-10 items-center justify-center rounded-lg border border-border-subtle bg-muted">
           <Icon className={cn("size-5", accent.tw)} />
         </div>
 
         {/* Focus label */}
-        <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/70">
+        <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.18em] text-text-subtle">
           {niche.focus}
         </p>
 
         {/* Title */}
-        <h3 className="mt-1 text-lg font-semibold tracking-tight text-white/90">
+        <h3 className="mt-1 text-lg font-semibold tracking-tight text-foreground">
           {niche.title}
         </h3>
 
@@ -199,7 +199,7 @@ function NicheCard({ niche }: { niche: Niche }) {
         </p>
 
         {/* CTA */}
-        <span className="mt-auto inline-flex items-center gap-1 pt-5 text-sm font-medium text-foreground/60 transition-colors group-hover:text-foreground">
+        <span className="mt-auto inline-flex items-center gap-1 pt-5 text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">
           View solution
           <ArrowUpRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </span>
@@ -213,7 +213,7 @@ function NicheCard({ niche }: { niche: Niche }) {
    ───────────────────────────────────────────────────────────────────────────── */
 export function BentoGrid() {
   return (
-    <section id="solutions" className="border-t border-white/[0.06] py-24 lg:py-32">
+    <section id="solutions" className="border-t border-border-subtle bg-background-subtle py-24 lg:py-32">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         {/* Section header */}
         <div className="mx-auto max-w-2xl text-center">
