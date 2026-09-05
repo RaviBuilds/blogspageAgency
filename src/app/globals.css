@@ -41,29 +41,91 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* -----------------------------------------------------------------------
+   * Blogspage AI approved semantic tokens (Phase 1 authority).
+   *
+   * Exposed through the same mechanism as the shadcn set above, so later
+   * phases consume `bg-background-subtle`, `text-text-subtle`,
+   * `border-border-strong`, `bg-surface-dark`, etc. without touching this
+   * foundation again. Tailwind v4 emits no CSS for unused mappings, so this
+   * surface stays inert until a consumer exists.
+   * --------------------------------------------------------------------- */
+  --color-background-subtle: var(--background-subtle);
+  --color-text-subtle: var(--text-subtle);
+  --color-text-disabled: var(--text-disabled);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-cyan: var(--accent-cyan);
+  --color-accent-violet: var(--accent-violet);
+  --color-success: var(--success);
+  --color-surface-dark: var(--surface-dark);
+  --color-surface-dark-raised: var(--surface-dark-raised);
+  --color-surface-dark-border: var(--surface-dark-border);
+  --color-surface-dark-foreground: var(--surface-dark-foreground);
 }
 
+/*
+ * Blogspage AI color system — Phase 1 token foundation (approved authority).
+ *
+ * LIGHT DEFAULT. `:root` now carries the approved light palette; the approved
+ * dark palette lives on `.dark`, which — with the global `html.dark` default
+ * removed from the root layout — is no longer a site-wide theme but the
+ * scoping hook for dark islands (the homepage Hero is the first one; see the
+ * `.hero-island` block near the end of this file).
+ *
+ * Every value below is verbatim from the approved authority. Nothing is
+ * derived from the previous palette, Linear, or Tailwind defaults, and no
+ * colors beyond the approved set were introduced.
+ */
 :root {
   --radius: 0.5rem;
-  /* Linear design system palette */
-  --background: #010102;
-  --foreground: #f7f8f8;
-  --card: #0f1011;
-  --card-foreground: #f7f8f8;
-  --popover: #141516;
-  --popover-foreground: #f7f8f8;
-  --primary: #5e6ad2;
-  --primary-foreground: #ffffff;
-  --secondary: #0f1011;
-  --secondary-foreground: #f7f8f8;
-  --muted: #141516;
-  --muted-foreground: #8a8f98;
-  --accent: #18191a;
-  --accent-foreground: #f7f8f8;
-  --destructive: #ef4444;
-  --border: #23252a;
-  --input: #34343a;
-  --ring: #5e6ad2;
+
+  /* --- Approved light palette -------------------------------------------- */
+  --background: #F7F8FA;
+  --background-subtle: #EDF1F6;
+  --card: #FFFFFF;
+  --card-foreground: #0E1524;
+  --popover: #FFFFFF;
+  --popover-foreground: #0E1524;
+  --foreground: #0E1524;
+  --muted-foreground: #475467;
+  --text-subtle: #5D6B7E;
+  --text-disabled: #98A2B3;
+  --border: #DDE3EC;
+  --border-subtle: #E4E9F0;
+  --border-strong: #C6CFDC;
+  --input: #B9C3D3;
+  --primary: #4353C9;
+  --primary-foreground: #FFFFFF;
+  --secondary: #EDF1F6;
+  --secondary-foreground: #0E1524;
+  --muted: #EDF1F6;
+  --accent: #EDF1F6;
+  --accent-foreground: #0E1524;
+  --ring: #4353C9;
+  --accent-blue: #4353C9;
+  --accent-cyan: #0E7490;
+  --accent-violet: #7C3AED;
+  --success: #047857;
+  --destructive: #D92D20;
+
+  /* --- Approved dark product surface constants ----------------------------
+     Theme-independent by design: they describe the dark product surfaces
+     later phases will paint, so they are declared once, here, and never
+     flip with the scope. */
+  --surface-dark: #0B0E14;
+  --surface-dark-raised: #141822;
+  --surface-dark-border: #252C3B;
+  --surface-dark-foreground: #EEF1F6;
+
+  /* --- Preserved shadcn architecture tokens --------------------------------
+     NOT part of the approved color authority. Retained verbatim from the
+     previous sheet, in both scopes, only so the existing `@theme inline`
+     mappings above stay resolvable (nothing in the app consumes them — no
+     chart or sidebar UI exists). Flagged for review: a later phase either
+     re-approves these or drops them together with their mappings. */
   --chart-1: #5e6ad2;
   --chart-2: #828fff;
   --chart-3: #7a7fad;
@@ -79,25 +141,43 @@
   --sidebar-ring: #5e6ad2;
 }
 
+/*
+ * Approved dark island palette. With `html.dark` gone, this block only
+ * activates inside an explicit dark island — a `.dark` element whose subtree
+ * inherits these values. The `@custom-variant dark` above is
+ * descendant-scoped (`&:is(.dark *)`), so `dark:` utility variants keep
+ * resolving inside islands exactly as they did under the global default.
+ */
 .dark {
-  --background: #010102;
-  --foreground: #f7f8f8;
-  --card: #0f1011;
-  --card-foreground: #f7f8f8;
-  --popover: #141516;
-  --popover-foreground: #f7f8f8;
-  --primary: #5e6ad2;
-  --primary-foreground: #ffffff;
-  --secondary: #0f1011;
-  --secondary-foreground: #f7f8f8;
-  --muted: #141516;
-  --muted-foreground: #8a8f98;
-  --accent: #18191a;
-  --accent-foreground: #f7f8f8;
-  --destructive: #ef4444;
-  --border: #23252a;
-  --input: #34343a;
-  --ring: #5e6ad2;
+  --background: #0B0E14;
+  --background-subtle: #10141C;
+  --card: #141822;
+  --card-foreground: #EEF1F6;
+  --popover: #191E2A;
+  --popover-foreground: #EEF1F6;
+  --foreground: #EEF1F6;
+  --muted-foreground: #98A2B8;
+  --text-subtle: #7D879C;
+  --text-disabled: #565F73;
+  --border: #252C3B;
+  --border-subtle: #1C2230;
+  --border-strong: #333B4D;
+  --input: #333B4D;
+  --primary: #828FFF;
+  --primary-foreground: #0B0E14;
+  --secondary: #141822;
+  --secondary-foreground: #EEF1F6;
+  --muted: #10141C;
+  --accent: #141822;
+  --accent-foreground: #EEF1F6;
+  --ring: #828FFF;
+  --accent-blue: #828FFF;
+  --accent-cyan: #67E8F9;
+  --accent-violet: #A78BFA;
+  --success: #34D399;
+  --destructive: #F87171;
+
+  /* Preserved verbatim — see the :root note above. */
   --chart-1: #5e6ad2;
   --chart-2: #828fff;
   --chart-3: #7a7fad;
@@ -123,6 +203,11 @@
 }
 
 @layer utilities {
+  /* Byte-identical to the pre-migration sheet. `.glass`, `.gradient-mesh`
+     and `.glow-border` are consumed by locked (Hero) and unlocked components
+     alike, are fully hardcoded, and reference no tokens — leaving them
+     untouched guarantees the Hero cannot move. Their approved-token rebuild
+     belongs to a later phase. */
   .glass {
     @apply border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl;
   }
@@ -146,13 +231,28 @@
       );
   }
 
+  /*
+   * The one utility Phase 1 re-expresses, because it is the one the locked
+   * Hero consumes. Approved signal gradients, per scope: the light default
+   * gets the approved LIGHT gradient; anything inside a `.dark` island gets
+   * the approved DARK gradient.
+   */
   .text-gradient {
     @apply bg-clip-text text-transparent;
     background-image: linear-gradient(
-      135deg,
-      #f7f8f8 0%,
-      #b8bef0 46%,
-      #5e6ad2 100%
+      90deg,
+      #0891B2 0%,
+      #4353C9 48%,
+      #7C3AED 100%
+    );
+  }
+
+  .dark .text-gradient {
+    background-image: linear-gradient(
+      90deg,
+      #67E8F9 0%,
+      #828FFF 50%,
+      #A78BFA 100%
     );
   }
 
@@ -161,6 +261,73 @@
       0 0 0 1px rgb(255 255 255 / 0.08),
       0 0 44px -14px rgb(94 106 210 / 0.6);
   }
+}
+
+/*
+ * Hero island — minimum legacy scope (Phase 1 Hero isolation).
+ *
+ * The homepage Hero is LOCKED: its rendered pixels must not move. It is the
+ * one composition-level wrapper in `(site)/page.tsx` carrying
+ * `dark hero-island`, and everything inside it resolves against the
+ * pre-migration values below instead of the approved dark island palette.
+ *
+ * The inventory is exact — this is not a copied legacy theme. Auditing every
+ * class in `hero.tsx`, `hero-ambient.tsx`, and the self-contained
+ * `hero-system` module, the subtree resolves exactly these global custom
+ * properties:
+ *
+ * - `--background`         section surface (`bg-background`)
+ * - `--foreground`         inherited H1 colour, proof strip's
+ *                          `hover:text-foreground`
+ * - `--muted-foreground`   eyebrow, copy, labels, proof strip
+ * - `--primary`            the Sparkles icon (`text-primary`)
+ * - `--accent-foreground`  outline CTA hover text
+ *                          (`hover:text-accent-foreground`)
+ * - `--input`              outline CTA border and resting/hover fill
+ *                          (`dark:border-input`, `dark:bg-input/30`,
+ *                          `dark:hover:bg-input/50` — all of which outrank
+ *                          the button's hardcoded white alphas under `.dark`)
+ * - `--border`             fallback colour of the base `* { border-border }`
+ *                          rule for bordered descendants
+ * - `--ring`               CTA focus rings (`focus-visible:ring-ring/50`)
+ *
+ * `--accent` is deliberately absent: under `.dark`, the CTA's
+ * `dark:hover:bg-input/50` outranks `hover:bg-accent`, so nothing in the
+ * island resolves it. Everything else the Hero paints is hardcoded (the
+ * white CTA, white-alpha pills, the `#09090b` overlay, the violet blobs) or
+ * module-scoped (`hero-system`'s `--sys-*` palette), and therefore untouched
+ * by any of this.
+ *
+ * These rules sit OUTSIDE any `@layer` on purpose: the `:root`/`.dark` token
+ * blocks are unlayered too, and unlayered declarations outrank layered ones
+ * in the cascade regardless of specificity — declaring the legacy scope
+ * unlayered is what makes it win on the island wrapper itself. Between
+ * unlayered rules, `.dark .hero-island` (0,2,0) beats `.dark` (0,1,0).
+ */
+.dark .hero-island {
+  --background: #010102;
+  --foreground: #f7f8f8;
+  --muted-foreground: #8a8f98;
+  --primary: #5e6ad2;
+  --accent-foreground: #f7f8f8;
+  --input: #34343a;
+  --border: #23252a;
+  --ring: #5e6ad2;
+}
+
+/*
+ * The Hero's last headline line consumes `.text-gradient`. The locked
+ * gradient is the pre-migration one; this island-scoped rule is unlayered
+ * (and more specific than the layered `.dark .text-gradient`), so it pins
+ * the line against both approved signal gradients.
+ */
+.dark .hero-island .text-gradient {
+  background-image: linear-gradient(
+    135deg,
+    #f7f8f8 0%,
+    #b8bef0 46%,
+    #5e6ad2 100%
+  );
 }
 
 /*
@@ -206,4 +373,3 @@
     transform: none;
   }
 }
-
