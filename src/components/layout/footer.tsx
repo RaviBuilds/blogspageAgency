@@ -51,11 +51,11 @@ function FooterLink({ href, label }: { href: string; label: string }) {
     <motion.div initial="rest" whileHover="hover" animate="rest">
       <Link
         href={href}
-        className="group relative inline-flex items-center text-sm text-white/50 transition-colors hover:text-white/90"
+        className="group relative inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         {/* Underline from left */}
         <motion.span
-          className="absolute -bottom-0.5 left-0 h-px bg-white/40"
+          className="absolute -bottom-0.5 left-0 h-px bg-muted-foreground"
           variants={{
             rest: { width: "0%" },
             hover: { width: "100%" },
@@ -82,7 +82,7 @@ function FooterLink({ href, label }: { href: string; label: string }) {
    ───────────────────────────────────────────────────────────────────────────── */
 export function Footer() {
   return (
-    <footer className="border-t border-white/[0.05] bg-black">
+    <footer className="dark border-t border-border bg-background">
       <div className="mx-auto max-w-6xl px-6 py-16 lg:px-8">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
           {/* Brand column */}
@@ -101,12 +101,12 @@ export function Footer() {
                 className="h-10 w-auto"
               />
             </Link>
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/40">
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-text-subtle">
               Premium AI automation &amp; product engineering. We build
               intelligent systems that sell, qualify, and scale — so ambitious
               founders can grow without the headcount.
             </p>
-            <p className="mt-4 text-xs tracking-wide text-white/25">
+            <p className="mt-4 text-xs tracking-wide text-text-subtle">
               Engineering globally · Based in Hyderabad, India
             </p>
 
@@ -121,7 +121,7 @@ export function Footer() {
                     aria-label={label}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex size-9 items-center justify-center rounded-lg border border-white/[0.08] text-white/40 transition-colors duration-200 hover:border-white/[0.15] hover:text-white/80"
+                    className="flex size-9 items-center justify-center rounded-lg border border-border text-text-subtle transition-colors duration-200 hover:border-border-strong hover:text-foreground"
                   >
                     <Icon className="size-4" />
                   </Link>
@@ -133,7 +133,7 @@ export function Footer() {
           {/* Link columns */}
           {Object.entries(footerLinks).map(([category, links]) => (
             <div key={category}>
-              <h3 className="text-xs font-medium uppercase tracking-[0.2em] text-white/60">
+              <h3 className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
                 {category}
               </h3>
               <ul className="mt-4 space-y-3">
@@ -148,11 +148,11 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-white/[0.05] pt-8 sm:flex-row">
-          <p className="text-xs text-white/30">
+        <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-border-subtle pt-8 sm:flex-row">
+          <p className="text-xs text-text-subtle">
             © {new Date().getFullYear()} Blogspage Agency. All rights reserved.
           </p>
-          <p className="text-xs text-white/20">
+          <p className="text-xs text-text-subtle">
             Designed &amp; engineered with obsessive attention to detail.
           </p>
         </div>

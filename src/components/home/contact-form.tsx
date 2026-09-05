@@ -106,15 +106,15 @@ export function ContactForm({ source }: { source?: string } = {}) {
 
           {/* Right column — Terminal UI */}
           <motion.div variants={fadeUp}>
-            <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0a0a0f] shadow-2xl shadow-black/40">
+            <div className="dark overflow-hidden rounded-2xl border border-border bg-background shadow-2xl shadow-black/40">
               {/* Terminal chrome */}
-              <div className="flex items-center gap-2 border-b border-white/[0.06] px-4 py-3">
+              <div className="flex items-center gap-2 border-b border-border-subtle px-4 py-3">
                 <div className="flex gap-1.5">
                   <span className="size-2.5 rounded-full bg-red-500/70" />
                   <span className="size-2.5 rounded-full bg-yellow-500/70" />
                   <span className="size-2.5 rounded-full bg-emerald-500/70" />
                 </div>
-                <span className="ml-3 flex items-center gap-1.5 text-xs text-white/30">
+                <span className="ml-3 flex items-center gap-1.5 text-xs text-text-disabled">
                   <Terminal className="size-3" />
                   blogspage-ai-engine
                 </span>
@@ -122,48 +122,48 @@ export function ContactForm({ source }: { source?: string } = {}) {
 
               {/* Terminal body */}
               <div className="p-5 font-mono text-sm leading-relaxed">
-                <div className="text-white/40">
-                  <span className="text-emerald-400">$</span>{" "}
+                <div className="text-text-subtle">
+                  <span className="text-success">$</span>{" "}
                   <TypedLine
                     text="npx blogspage-ai --init"
                     delay={400}
-                    className="text-white/70"
+                    className="text-foreground"
                   />
                 </div>
 
-                <div className="mt-3 text-white/40">
+                <div className="mt-3 text-text-subtle">
                   <TypedLine
                     text="✓ Connecting to AI engine..."
                     delay={1800}
-                    className="text-white/50"
+                    className="text-muted-foreground"
                   />
                 </div>
 
-                <div className="mt-1 text-white/40">
+                <div className="mt-1 text-text-subtle">
                   <TypedLine
                     text="✓ Loading strategy models..."
                     delay={3000}
-                    className="text-white/50"
+                    className="text-muted-foreground"
                   />
                 </div>
 
-                <div className="mt-1 text-white/40">
+                <div className="mt-1 text-text-subtle">
                   <TypedLine
                     text="✓ Sweety (AI SDR) online. Ready to qualify."
                     delay={4200}
-                    className="text-emerald-400/80"
+                    className="text-success"
                   />
                 </div>
 
-                <div className="mt-5 border-t border-white/[0.05] pt-5">
-                  <p className="text-white/30 text-xs mb-3">
+                <div className="mt-5 border-t border-border-subtle pt-5">
+                  <p className="text-text-disabled text-xs mb-3">
                     {">"} Click below to initialize a live strategy session
                   </p>
 
                   {/* The trigger button */}
                   <button
                     onClick={openChat}
-                    className="group inline-flex items-center gap-2 rounded-lg border border-white/[0.1] bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-white/80 transition-all duration-200 hover:border-primary/40 hover:bg-primary/10 hover:text-white"
+                    className="group inline-flex items-center gap-2 rounded-lg border border-border-strong bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:border-primary/40 hover:bg-primary/10 hover:text-foreground"
                   >
                     <Sparkles className="size-3.5 text-primary" />
                     <span>Initialize System</span>

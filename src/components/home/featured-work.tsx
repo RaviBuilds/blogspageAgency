@@ -39,7 +39,7 @@ function TechPills({ stack }: { stack: string[] }) {
       {stack.map((t) => (
         <span
           key={t}
-          className="rounded-full border border-white/[0.05] bg-white/[0.03] px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-white/60 md:text-xs"
+          className="rounded-full border border-border-subtle bg-card px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground md:text-xs"
         >
           {t}
         </span>
@@ -59,10 +59,10 @@ function MetricLine({ metrics }: { metrics: ProjectMetric[] }) {
       {metrics.map((metric) => (
         <li
           key={metric.label}
-          className="text-xs font-medium text-white/70 md:text-sm"
+          className="text-xs font-medium text-muted-foreground md:text-sm"
         >
-          {metric.label}: <span className="text-white">{metric.value}</span>{" "}
-          <span className="text-white/40">({metric.basis})</span>
+          {metric.label}: <span className="text-foreground">{metric.value}</span>{" "}
+          <span className="text-text-subtle">({metric.basis})</span>
         </li>
       ))}
     </ul>
@@ -74,15 +74,15 @@ function MetricLine({ metrics }: { metrics: ProjectMetric[] }) {
    ───────────────────────────────────────────────────────────────────────────── */
 function BrowserChrome({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex h-full w-full flex-col overflow-hidden rounded-lg border border-white/[0.08] bg-[#111]/50 shadow-2xl shadow-black/50">
+    <div className="relative flex h-full w-full flex-col overflow-hidden rounded-lg border border-border bg-surface-dark-raised shadow-2xl shadow-black/50">
       {/* Title bar */}
-      <div className="flex h-7 shrink-0 items-center gap-1.5 border-b border-white/[0.05] bg-white/[0.04] px-3">
+      <div className="flex h-7 shrink-0 items-center gap-1.5 border-b border-border-subtle bg-white/[0.04] px-3">
         <span className="size-2 rounded-full bg-[#ff5f57]/70" />
         <span className="size-2 rounded-full bg-[#febc2e]/70" />
         <span className="size-2 rounded-full bg-[#28c840]/70" />
       </div>
       {/* Content area — relative + overflow-hidden so the fill image is framed */}
-      <div className="relative min-h-0 flex-1 overflow-hidden bg-[#0c0c0c]">
+      <div className="relative min-h-0 flex-1 overflow-hidden bg-surface-dark">
         {children}
       </div>
     </div>
@@ -107,7 +107,7 @@ function DesktopCard({
 
   return (
     <article
-      className="group relative mx-6 flex h-[75vh] min-h-[500px] w-[85vw] flex-shrink-0 flex-row items-center gap-12 overflow-hidden rounded-2xl border border-white/[0.06] bg-[#0a0a0a]/40 p-8 backdrop-blur-md"
+      className="group relative mx-6 flex h-[75vh] min-h-[500px] w-[85vw] flex-shrink-0 flex-row items-center gap-12 overflow-hidden rounded-2xl border border-border-subtle bg-surface-dark-raised/40 p-8 backdrop-blur-md"
       style={{ "--card-accent": project.accent } as React.CSSProperties}
     >
       {/* Background gradient glow */}
@@ -132,7 +132,7 @@ function DesktopCard({
           {project.headline}
         </h3>
 
-        <p className="text-sm leading-relaxed text-white/50 lg:text-base">
+        <p className="text-sm leading-relaxed text-muted-foreground lg:text-base">
           {project.description}
         </p>
 
@@ -187,7 +187,7 @@ function DesktopHorizontalScroll() {
   const trackX = useTransform(scrollYProgress, [0, 1], ["0vw", "-252vw"]);
 
   return (
-    <section ref={sectionRef} className="relative hidden h-[400vh] md:block">
+    <section ref={sectionRef} className="dark relative hidden h-[400vh] bg-background md:block">
       <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
         {/* Section header */}
         <div className="absolute left-0 top-10 z-10 px-6 lg:px-12">
@@ -211,7 +211,7 @@ function DesktopHorizontalScroll() {
 
         {/* Scroll hint */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
-          <p className="text-xs uppercase tracking-[0.2em] text-white/20">
+          <p className="text-xs uppercase tracking-[0.2em] text-text-disabled">
             Scroll to explore
           </p>
         </div>
@@ -225,7 +225,7 @@ function DesktopHorizontalScroll() {
    ───────────────────────────────────────────────────────────────────────────── */
 function MobileVerticalStack() {
   return (
-    <section id="work" className="border-t border-white/[0.08] py-16 md:hidden">
+    <section id="work" className="dark border-t border-border bg-background py-16 md:hidden">
       <div className="px-5">
         <p className="text-sm font-medium text-primary">Featured Systems</p>
         <h2 className="mt-2 text-2xl font-semibold tracking-tight">
@@ -244,7 +244,7 @@ function MobileVerticalStack() {
           <motion.article
             key={project.id}
             variants={mobileFadeUp}
-            className="group relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0a0a0a]/60 p-4 backdrop-blur-sm"
+            className="group relative flex w-full flex-col overflow-hidden rounded-2xl border border-border bg-surface-dark-raised/60 p-4 backdrop-blur-sm"
             style={{ "--card-accent": project.accent } as React.CSSProperties}
           >
             {/* Background gradient */}
@@ -288,7 +288,7 @@ function MobileVerticalStack() {
                 {project.headline}
               </h3>
 
-              <p className="mt-2 text-sm leading-relaxed text-white/50">
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {project.description}
               </p>
 

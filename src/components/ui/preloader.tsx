@@ -99,28 +99,28 @@ export function Preloader() {
           exit={{ y: "-100%" }}
           transition={EXIT_SPRING}
           aria-hidden="true"
-          className="fixed inset-0 z-[99] flex flex-col items-center justify-center bg-[#050505]"
+          className="dark fixed inset-0 z-[99] flex flex-col items-center justify-center bg-background"
         >
           {/* Subtle background glow */}
           <div
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 size-[30rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.08),transparent_60%)] blur-[80px]"
+            className="pointer-events-none absolute left-1/2 top-1/2 size-[30rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(130,143,255,0.08),transparent_60%)] blur-[80px]"
           />
 
           {/* Counter */}
           <div className="relative flex flex-col items-center gap-6">
-            <p className="font-mono text-[clamp(4rem,12vw,8rem)] font-bold tabular-nums leading-none tracking-tighter text-white/90">
+            <p className="font-mono text-[clamp(4rem,12vw,8rem)] font-bold tabular-nums leading-none tracking-tighter text-foreground">
               {String(counter).padStart(3, "0")}
             </p>
 
-            <p className="font-mono text-xs tracking-[0.3em] text-white/30 uppercase">
+            <p className="font-mono text-xs tracking-[0.3em] text-text-subtle uppercase">
               Initializing Blogspage AI Engine
             </p>
 
             {/* Progress bar */}
-            <div className="h-px w-48 overflow-hidden rounded-full bg-white/[0.06]">
+            <div className="h-px w-48 overflow-hidden rounded-full bg-border-subtle">
               <motion.div
-                className="h-full bg-gradient-to-r from-indigo-500 to-violet-500"
+                className="h-full bg-gradient-to-r from-accent-blue to-accent-violet"
                 initial={{ width: "0%" }}
                 animate={{ width: `${counter}%` }}
                 transition={{ duration: 0.05 }}
