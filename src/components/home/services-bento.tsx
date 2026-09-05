@@ -133,12 +133,10 @@ function PillarCard({ pillar }: { pillar: Pillar }) {
       onMouseMove={handleMouseMove}
       className={cn(
         "group relative flex h-full flex-col overflow-hidden rounded-2xl p-6",
-        // Glassmorphism (§1 Depth & Materials)
-        "border border-white/[0.08] bg-white/[0.02] backdrop-blur-md",
-        // Debossed inner shadow (§6)
-        "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]",
-        // Hover upgrade
-        "transition-colors duration-300 hover:border-white/[0.15] hover:bg-white/[0.04]",
+        // White instrument card (Phase 5A light system)
+        "border border-border bg-card",
+        // Hover upgrade — border strengthens, surface stays white
+        "transition-colors duration-300 hover:border-border-strong",
       )}
       style={{ "--card-accent": pillar.accent } as React.CSSProperties}
     >
@@ -147,7 +145,7 @@ function PillarCard({ pillar }: { pillar: Pillar }) {
         aria-hidden
         className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
-          background: `radial-gradient(220px circle at var(--x,50%) var(--y,50%), rgba(${pillar.accent},0.55), transparent 65%)`,
+          background: `radial-gradient(220px circle at var(--x,50%) var(--y,50%), rgba(${pillar.accent},0.35), transparent 65%)`,
           padding: "1px",
           WebkitMask:
             "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
@@ -161,18 +159,18 @@ function PillarCard({ pillar }: { pillar: Pillar }) {
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
-          background: `radial-gradient(300px circle at var(--x,50%) var(--y,50%), rgba(${pillar.accent},0.1), transparent 55%)`,
+          background: `radial-gradient(300px circle at var(--x,50%) var(--y,50%), rgba(${pillar.accent},0.05), transparent 55%)`,
         }}
       />
 
       {/* Content */}
       <div className="relative z-10 flex h-full flex-col">
-        <div className="flex size-11 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04]">
+        <div className="flex size-11 items-center justify-center rounded-xl border border-border bg-muted">
           <Icon className="size-5 text-primary" />
         </div>
 
-        <h3 className="mt-5 text-xl font-semibold tracking-tight text-white/90">
-          <span aria-hidden className="mr-2 text-sm font-medium text-white/30">
+        <h3 className="mt-5 text-xl font-semibold tracking-tight text-foreground">
+          <span aria-hidden className="mr-2 text-sm font-medium text-text-disabled">
             {pillar.number}
           </span>
           {pillar.title}
@@ -180,8 +178,8 @@ function PillarCard({ pillar }: { pillar: Pillar }) {
 
         <ul
           className={cn(
-            "mt-4 flex flex-wrap gap-x-1 gap-y-1 text-xs font-medium uppercase tracking-wider text-white/50",
-            "[&>li:not(:last-child)]:after:ml-2 [&>li:not(:last-child)]:after:text-white/25",
+            "mt-4 flex flex-wrap gap-x-1 gap-y-1 text-xs font-medium uppercase tracking-wider text-text-subtle",
+            "[&>li:not(:last-child)]:after:ml-2 [&>li:not(:last-child)]:after:text-text-disabled",
             "[&>li:not(:last-child)]:after:content-['·']",
           )}
         >
@@ -204,7 +202,7 @@ function PillarCard({ pillar }: { pillar: Pillar }) {
                 destination: pillar.destination,
               })
             }
-            className="-my-2 inline-block py-2 text-sm font-medium text-white/70 underline-offset-4 transition-colors hover:text-white hover:underline"
+            className="-my-2 inline-block py-2 text-sm font-medium text-primary underline-offset-4 transition-colors hover:text-primary/80 hover:underline"
           >
             Built with this: {pillar.proofName} — {pillar.proofDetail}
           </Link>
@@ -223,7 +221,7 @@ export function ServicesBento() {
   return (
     <section
       id="services"
-      className="border-t border-white/[0.08] py-24 lg:py-32"
+      className="border-t border-border bg-background py-24 lg:py-32"
     >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         {/* Section header with stagger */}
