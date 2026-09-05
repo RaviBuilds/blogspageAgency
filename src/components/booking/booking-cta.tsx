@@ -74,14 +74,14 @@ function BookingModal({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 16 }}
         transition={{ duration: 0.24, ease: EASE }}
-        className="relative flex h-[min(760px,90vh)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-card"
+        className="relative flex h-[min(760px,90vh)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-border bg-card"
         onClick={(event) => event.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
           aria-label="Close booking"
-          className="absolute right-3 top-3 z-10 flex size-9 items-center justify-center rounded-lg border border-white/[0.08] bg-popover text-muted-foreground transition-colors hover:text-foreground"
+          className="absolute right-3 top-3 z-10 flex size-9 items-center justify-center rounded-lg border border-border bg-popover text-muted-foreground transition-colors hover:text-foreground"
         >
           <X className="size-4" />
         </button>
