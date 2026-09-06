@@ -56,7 +56,7 @@ function InfiniteMarquee() {
             className="mx-4 text-[clamp(4rem,10vw,10rem)] font-bold uppercase leading-none tracking-tighter"
             style={{
               color: "transparent",
-              WebkitTextStroke: "1px rgba(255,255,255,0.08)",
+              WebkitTextStroke: "1px rgba(14,21,36,0.06)",
             }}
           >
             {MARQUEE_TEXT}
@@ -121,16 +121,15 @@ function MagneticButton() {
       onMouseLeave={handleMouseLeave}
       style={{ x, y, scale }}
       whileTap={{ scale: 0.95 }}
-      className="group relative inline-flex h-14 items-center gap-3 rounded-full border border-white/[0.12] bg-white px-8 text-base font-semibold text-black shadow-2xl shadow-indigo-500/20 transition-colors hover:bg-white/95"
+      className="group relative inline-flex h-14 items-center gap-3 rounded-full border border-foreground bg-foreground px-8 text-base font-semibold text-background transition-colors hover:bg-foreground/90"
     >
-      {/* Glow ring on hover */}
+      {/* Signal Gradient ring on hover — restrained, approved (ring only) */}
       <span
         aria-hidden
         className="pointer-events-none absolute -inset-[2px] rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
           background:
-            "conic-gradient(from 180deg, rgba(99,102,241,0.5), rgba(139,92,246,0.3), rgba(56,189,248,0.4), rgba(99,102,241,0.5))",
-          filter: "blur(6px)",
+            "linear-gradient(90deg, #0891B2 0%, #4353C9 48%, #7C3AED 100%)",
           zIndex: -1,
         }}
       />
@@ -145,13 +144,7 @@ function MagneticButton() {
    ───────────────────────────────────────────────────────────────────────────── */
 export function CtaSection() {
   return (
-    <section className="relative isolate overflow-hidden border-t border-white/[0.05] py-48">
-      {/* Background glows */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 -z-10 size-[40rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.15),transparent_60%)] blur-[100px]"
-      />
-
+    <section className="relative isolate overflow-hidden border-t border-border-subtle bg-background-subtle py-48">
       {/* Infinite marquee — behind the content */}
       <InfiniteMarquee />
 
@@ -184,7 +177,7 @@ export function CtaSection() {
 
         <motion.p
           variants={fadeUp}
-          className="mt-8 text-sm text-muted-foreground/60"
+          className="mt-8 text-sm text-text-subtle"
         >
           Free strategy call · No commitment · Response in 24h
         </motion.p>
