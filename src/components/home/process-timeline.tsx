@@ -67,12 +67,12 @@ function StepCard({
       className="relative pl-12 md:pl-16"
     >
       {/* Timeline node */}
-      <div className="absolute left-0 top-1 flex size-8 items-center justify-center rounded-full border border-primary/30 bg-background shadow-[0_0_24px_rgba(99,102,241,0.35)]">
+      <div className="absolute left-0 top-1 flex size-8 items-center justify-center rounded-full border border-primary/30 bg-card shadow-[0_0_12px_rgba(67,83,201,0.15)]">
         <div className="size-2.5 rounded-full bg-primary" />
       </div>
 
       {/* Card */}
-      <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]">
+      <div className="rounded-2xl border border-border bg-card p-6 transition-colors duration-300 hover:border-border-strong">
         <span className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
           Phase {step.number}
         </span>
@@ -118,7 +118,7 @@ function ScrollLine() {
           y1="0"
           x2="1"
           y2="100"
-          stroke="rgba(255,255,255,0.06)"
+          style={{ stroke: "var(--border-subtle)" }}
           strokeWidth="2"
           vectorEffect="non-scaling-stroke"
         />
@@ -137,9 +137,9 @@ function ScrollLine() {
         />
         <defs>
           <linearGradient id="line-gradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgba(99,102,241,0.9)" />
-            <stop offset="60%" stopColor="rgba(139,92,246,0.6)" />
-            <stop offset="100%" stopColor="rgba(56,189,248,0.3)" />
+            <stop offset="0%" stopColor="rgba(14,116,144,0.9)" />
+            <stop offset="60%" stopColor="rgba(67,83,201,0.6)" />
+            <stop offset="100%" stopColor="rgba(124,58,237,0.3)" />
           </linearGradient>
         </defs>
       </svg>
@@ -152,7 +152,7 @@ function ScrollLine() {
    ───────────────────────────────────────────────────────────────────────────── */
 export function ProcessTimeline() {
   return (
-    <section id="process" className="border-t border-white/[0.08] py-24 lg:py-32">
+    <section id="process" className="border-t border-border-subtle bg-background py-24 lg:py-32">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         {/* Section header with stagger */}
         <motion.div
