@@ -723,7 +723,7 @@ function StructureBlock({ plan }: { plan: Plan }) {
   if (!plan.structure) return null;
 
   return (
-    <div className="mt-5 rounded-xl border border-white/[0.07] bg-white/[0.02] p-4">
+    <div className="mt-5 rounded-xl border border-border-subtle bg-background-subtle p-4">
       {plan.structure.map((option) => (
         <div key={option.label} className="mt-3 first:mt-0">
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/70">
@@ -733,7 +733,7 @@ function StructureBlock({ plan }: { plan: Plan }) {
             {option.pages.map((page) => (
               <span
                 key={page}
-                className="rounded-md border border-white/[0.08] bg-white/[0.03] px-2 py-1 text-xs text-foreground/80"
+                className="rounded-md border border-border-subtle bg-muted px-2 py-1 text-xs text-foreground/80"
               >
                 {page}
               </span>
@@ -755,7 +755,7 @@ function BestForChips({ items }: { items: string[] }) {
         {items.map((item) => (
           <span
             key={item}
-            className="rounded-full border border-white/[0.1] bg-white/[0.03] px-3 py-1 text-xs text-foreground/80"
+            className="rounded-full border border-border-subtle bg-muted px-3 py-1 text-xs text-foreground/80"
           >
             {item}
           </span>
@@ -770,14 +770,14 @@ function PlanAccordionItem({ plan }: { plan: Plan }) {
   const Icon = plan.icon;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.02]">
+    <div className="overflow-hidden rounded-xl border border-border bg-card">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex w-full items-center gap-4 p-5 text-left transition-colors hover:bg-white/[0.03]"
+        className="flex w-full items-center gap-4 p-5 text-left transition-colors hover:bg-accent"
       >
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-primary/10">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border bg-primary/10">
           <Icon className="size-5 text-primary" />
         </span>
         <span className="min-w-0 flex-1">
@@ -805,7 +805,7 @@ function PlanAccordionItem({ plan }: { plan: Plan }) {
             transition={{ duration: 0.24, ease: EASE }}
             className="overflow-hidden"
           >
-            <div className="border-t border-white/[0.06] p-5">
+            <div className="border-t border-border-subtle p-5">
               <p className="text-sm leading-relaxed text-muted-foreground">
                 {plan.tagline}
               </p>
@@ -831,7 +831,7 @@ function PlanAccordionItem({ plan }: { plan: Plan }) {
                 fallbackHref={CONTACT_HREF}
                 size="default"
                 variant="outline"
-                className="mt-6 h-10 border-white/10 bg-transparent px-5 hover:bg-white/[0.04]"
+                className="mt-6 h-10 px-5"
                 frameTitle={`Schedule a consultation about ${plan.name}`}
               >
                 Schedule Consultation
@@ -879,7 +879,7 @@ export function DentalPackagesLanding({
               initial="hidden"
               animate="visible"
               custom={0}
-              className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs text-muted-foreground"
+              className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-muted px-4 py-1.5 text-xs text-muted-foreground"
             >
               <Stethoscope className="size-3.5 text-primary" />
               Dental growth solutions · {cityLabel}
@@ -927,7 +927,7 @@ export function DentalPackagesLanding({
               <Button
                 size="lg"
                 variant="outline"
-                className="h-11 border-white/10 bg-transparent px-6 hover:bg-white/[0.04]"
+                className="h-11 px-6"
                 asChild
               >
                 <Link href={solutionPath}>
@@ -941,7 +941,7 @@ export function DentalPackagesLanding({
       </section>
 
       {/* SECTION 2: FEATURED PACKAGES */}
-      <section id="packages" className="border-t border-white/[0.06] py-20 lg:py-24">
+      <section id="packages" className="border-t border-border-subtle py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <FadeUp>
             <p className="text-sm font-medium text-primary">Packages</p>
@@ -973,7 +973,7 @@ export function DentalPackagesLanding({
                   className={`relative flex h-full flex-col overflow-hidden rounded-2xl border p-7 backdrop-blur-md transition-colors ${
                     plan.popular
                       ? "border-primary/40 bg-primary/[0.04]"
-                      : "border-white/[0.08] bg-white/[0.02] hover:border-white/[0.16]"
+                      : "border-border bg-card hover:border-border-strong"
                   }`}
                 >
                   {plan.popular && (
@@ -986,7 +986,7 @@ export function DentalPackagesLanding({
                     </>
                   )}
                   <div className="relative flex flex-1 flex-col">
-                    <span className="flex size-11 items-center justify-center rounded-xl border border-white/[0.08] bg-primary/10">
+                    <span className="flex size-11 items-center justify-center rounded-xl border border-border bg-primary/10">
                       <Icon className="size-5 text-primary" />
                     </span>
                     <h3 className="mt-5 text-xl font-semibold tracking-tight">
@@ -996,7 +996,7 @@ export function DentalPackagesLanding({
                       {plan.tagline}
                     </p>
 
-                    <div className="mt-6 border-y border-white/[0.06] py-5">
+                    <div className="mt-6 border-y border-border-subtle py-5">
                       <p className="text-3xl font-semibold tracking-tight text-foreground">
                         {plan.price}
                       </p>
@@ -1033,7 +1033,7 @@ export function DentalPackagesLanding({
                       className={
                         plan.popular
                           ? "glow-border mt-7 h-11 bg-primary px-6 text-primary-foreground transition-transform hover:bg-primary/90 active:scale-[0.98]"
-                          : "mt-7 h-11 border-white/10 bg-transparent px-6 hover:bg-white/[0.04]"
+                          : "mt-7 h-11 px-6"
                       }
                       frameTitle={`Schedule a consultation about ${plan.name}`}
                     >
@@ -1050,7 +1050,7 @@ export function DentalPackagesLanding({
       </section>
 
       {/* SECTION 3: REMAINING PLANS (accordion) */}
-      <section id="all-plans" className="border-t border-white/[0.06] py-20 lg:py-24">
+      <section id="all-plans" className="border-t border-border-subtle py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <FadeUp>
             <p className="text-sm font-medium text-primary">Explore all plans</p>
@@ -1076,7 +1076,7 @@ export function DentalPackagesLanding({
       </section>
 
       {/* SECTION 4: COMPARISON TABLE */}
-      <section className="border-t border-white/[0.06] py-20 lg:py-24">
+      <section className="border-t border-border-subtle py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <FadeUp>
             <p className="text-sm font-medium text-primary">Compare</p>
@@ -1088,14 +1088,14 @@ export function DentalPackagesLanding({
             </h2>
           </FadeUp>
           <FadeUp delay={0.08}>
-            <div className="mt-10 overflow-x-auto rounded-2xl border border-white/[0.08] bg-card">
+            <div className="mt-10 overflow-x-auto rounded-2xl border border-border bg-card">
               <table className="w-full min-w-[900px] border-collapse text-sm">
                 <caption className="sr-only">
                   Dental website plan comparison: specifications and features by
                   package
                 </caption>
                 <thead>
-                  <tr className="border-b border-white/[0.08]">
+                  <tr className="border-b border-border">
                     <th
                       scope="col"
                       className="px-5 py-4 text-left text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground"
@@ -1122,7 +1122,7 @@ export function DentalPackagesLanding({
                   {COMPARISON_ROWS.map((row) => (
                     <tr
                       key={row.label}
-                      className="border-b border-white/[0.05] last:border-b-0"
+                      className="border-b border-border-subtle last:border-b-0"
                     >
                       <th
                         scope="row"
@@ -1154,7 +1154,7 @@ export function DentalPackagesLanding({
       </section>
 
       {/* SECTION 5: AI CHATBOT + AI RECEPTIONIST */}
-      <section id="ai-add-ons" className="border-t border-white/[0.06] py-20 lg:py-24">
+      <section id="ai-add-ons" className="border-t border-border-subtle py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <FadeUp>
             <p className="text-sm font-medium text-primary">AI systems</p>
@@ -1172,10 +1172,10 @@ export function DentalPackagesLanding({
 
           <div className="mt-12 grid gap-5 lg:grid-cols-2">
             <FadeUp>
-              <article className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 backdrop-blur-md">
+              <article className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card p-8 backdrop-blur-md">
                 <div className="pointer-events-none absolute -right-24 -top-24 size-64 rounded-full bg-indigo-500/15 blur-3xl" />
                 <div className="relative">
-                  <span className="flex size-11 items-center justify-center rounded-xl border border-white/[0.08] bg-primary/10">
+                  <span className="flex size-11 items-center justify-center rounded-xl border border-border bg-primary/10">
                     <AI_CHATBOT.icon className="size-5 text-primary" />
                   </span>
                   <h3 className="mt-5 text-xl font-semibold tracking-tight">
@@ -1203,11 +1203,11 @@ export function DentalPackagesLanding({
             </FadeUp>
 
             <FadeUp delay={0.08}>
-              <article className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 backdrop-blur-md">
+              <article className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card p-8 backdrop-blur-md">
                 <div className="pointer-events-none absolute -right-24 -top-24 size-64 rounded-full bg-primary/20 blur-3xl" />
                 <div className="pointer-events-none absolute -bottom-24 -left-24 size-56 rounded-full bg-emerald-500/10 blur-3xl" />
                 <div className="relative">
-                  <span className="flex size-11 items-center justify-center rounded-xl border border-white/[0.08] bg-primary/10">
+                  <span className="flex size-11 items-center justify-center rounded-xl border border-border bg-primary/10">
                     <AI_RECEPTIONIST.icon className="size-5 text-primary" />
                   </span>
                   <h3 className="mt-5 text-xl font-semibold tracking-tight">
@@ -1244,7 +1244,7 @@ export function DentalPackagesLanding({
                           {AI_RECEPTIONIST.integrations.map((item) => (
                             <span
                               key={item}
-                              className="rounded-full border border-white/[0.1] bg-white/[0.03] px-3 py-1 text-xs text-foreground/80"
+                              className="rounded-full border border-border-subtle bg-muted px-3 py-1 text-xs text-foreground/80"
                             >
                               {item}
                             </span>
@@ -1284,7 +1284,7 @@ export function DentalPackagesLanding({
                 {SIGNATURE_INCLUSIONS.map((item) => (
                   <span
                     key={item}
-                    className="rounded-full border border-white/[0.1] bg-white/[0.04] px-3 py-1 text-xs text-foreground/85"
+                    className="rounded-full border border-border-subtle bg-card px-3 py-1 text-xs text-foreground/85"
                   >
                     {item}
                   </span>
@@ -1296,7 +1296,7 @@ export function DentalPackagesLanding({
       </section>
 
       {/* SECTION 6: OPTIONAL ADD-ONS */}
-      <section id="add-ons" className="border-t border-white/[0.06] py-20 lg:py-24">
+      <section id="add-ons" className="border-t border-border-subtle py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <FadeUp>
             <p className="text-sm font-medium text-primary">Add-ons</p>
@@ -1311,13 +1311,13 @@ export function DentalPackagesLanding({
             </p>
           </FadeUp>
           <FadeUp delay={0.08}>
-            <div className="mt-10 overflow-hidden rounded-2xl border border-white/[0.08] bg-card">
+            <div className="mt-10 overflow-hidden rounded-2xl border border-border bg-card">
               <table className="w-full border-collapse text-sm">
                 <caption className="sr-only">
                   Optional add-on services and investment
                 </caption>
                 <thead>
-                  <tr className="border-b border-white/[0.08]">
+                  <tr className="border-b border-border">
                     <th
                       scope="col"
                       className="px-5 py-4 text-left text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground"
@@ -1336,7 +1336,7 @@ export function DentalPackagesLanding({
                   {ADD_ONS.map((addOn) => (
                     <tr
                       key={addOn.service}
-                      className="border-b border-white/[0.05] last:border-b-0"
+                      className="border-b border-border-subtle last:border-b-0"
                     >
                       <th
                         scope="row"
@@ -1357,7 +1357,7 @@ export function DentalPackagesLanding({
       </section>
 
       {/* SECTION 7: PAYMENT TERMS */}
-      <section className="border-t border-white/[0.06] py-20 lg:py-24">
+      <section className="border-t border-border-subtle py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <FadeUp>
             <p className="text-sm font-medium text-primary">Payment terms</p>
@@ -1371,7 +1371,7 @@ export function DentalPackagesLanding({
           <div className="mt-10 grid gap-4 md:grid-cols-3">
             {PAYMENT_TERMS.map((term, i) => (
               <FadeUp key={term.share} delay={i * 0.08}>
-                <div className="h-full rounded-xl border border-white/[0.08] bg-card p-6">
+                <div className="h-full rounded-xl border border-border bg-card p-6">
                   <p className="text-4xl font-semibold tracking-tight text-primary">
                     {term.share}
                   </p>
@@ -1394,10 +1394,10 @@ export function DentalPackagesLanding({
       </section>
 
       {/* SECTION 8: FINAL CTA */}
-      <section className="border-t border-white/[0.06] py-20 lg:py-24">
+      <section className="border-t border-border-subtle py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <FadeUp>
-            <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-card p-10 text-center lg:p-14">
+            <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-10 text-center lg:p-14">
               <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-primary/20 blur-3xl" />
               <div className="relative mx-auto max-w-2xl">
                 <h2
@@ -1425,7 +1425,7 @@ export function DentalPackagesLanding({
                   <Button
                     size="lg"
                     variant="outline"
-                    className="h-11 border-white/10 bg-transparent px-6 hover:bg-white/[0.04]"
+                    className="h-11 px-6"
                     asChild
                   >
                     <Link href={solutionPath}>

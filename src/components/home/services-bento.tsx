@@ -145,7 +145,7 @@ function PillarCard({ pillar }: { pillar: Pillar }) {
         aria-hidden
         className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
-          background: `radial-gradient(220px circle at var(--x,50%) var(--y,50%), rgba(${pillar.accent},0.35), transparent 65%)`,
+          background: `radial-gradient(220px circle at var(--x,50%) var(--y,50%), rgba(${pillar.accent},0.50), transparent 65%)`,
           padding: "1px",
           WebkitMask:
             "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
@@ -159,7 +159,7 @@ function PillarCard({ pillar }: { pillar: Pillar }) {
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
-          background: `radial-gradient(300px circle at var(--x,50%) var(--y,50%), rgba(${pillar.accent},0.05), transparent 55%)`,
+          background: `radial-gradient(300px circle at var(--x,50%) var(--y,50%), rgba(${pillar.accent},0.08), transparent 55%)`,
         }}
       />
 
