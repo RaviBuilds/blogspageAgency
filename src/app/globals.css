@@ -149,6 +149,12 @@
  * resolving inside islands exactly as they did under the global default.
  */
 .dark {
+  /* Inherited-foreground fix (Phase 5 QA): body declares its color at the
+     light root, and inherited *computed* colors cannot be re-resolved by
+     island token overrides. Declaring color here makes every .dark island
+     subtree inherit the dark foreground (h1/h2/h3 without explicit text
+     utilities included). Per-element text-* utilities still override. */
+  color: var(--foreground);
   --background: #0B0E14;
   --background-subtle: #10141C;
   --card: #141822;

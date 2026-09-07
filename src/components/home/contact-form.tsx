@@ -69,7 +69,7 @@ export function ContactForm({ source }: { source?: string } = {}) {
   };
 
   return (
-    <section id="contact" className="border-t border-white/[0.05] py-24 lg:py-32">
+    <section id="contact" className="border-t border-border-subtle bg-background py-24 lg:py-32">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <motion.div
           variants={container}
@@ -173,7 +173,7 @@ export function ContactForm({ source }: { source?: string } = {}) {
               </div>
             </div>
 
-            <p className="mt-4 text-center text-xs text-muted-foreground/50">
+            <p className="mt-4 text-center text-xs text-text-subtle">
               Powered by our proprietary LLM pipeline · Response in &lt;5s
             </p>
           </motion.div>

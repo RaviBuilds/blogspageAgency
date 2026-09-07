@@ -50,7 +50,7 @@ export default function ContactPage() {
       <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
         Let&apos;s build something intelligent.
       </h1>
-      <p className="mt-4 max-w-2xl text-lg leading-relaxed text-white/60">
+      <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
         Whether you need an AI automation engine, a custom SaaS platform, or a
         strategy conversation — reach out through any channel below.
       </p>
@@ -60,23 +60,23 @@ export default function ContactPage() {
         {details.map((item) => (
           <div
             key={item.label}
-            className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 backdrop-blur-sm"
+            className="rounded-2xl border border-border bg-card p-6"
           >
-            <div className="flex size-10 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04]">
+            <div className="flex size-10 items-center justify-center rounded-xl border border-border-subtle bg-muted">
               <item.icon className="size-4 text-primary" />
             </div>
-            <p className="mt-4 text-xs font-medium uppercase tracking-[0.18em] text-white/40">
+            <p className="mt-4 text-xs font-medium uppercase tracking-[0.18em] text-text-subtle">
               {item.label}
             </p>
             {item.href ? (
               <a
                 href={item.href}
-                className="mt-2 block whitespace-pre-line text-sm leading-relaxed text-white/80 transition-colors hover:text-white"
+                className="mt-2 block whitespace-pre-line text-sm leading-relaxed text-foreground transition-colors hover:text-primary"
               >
                 {item.value}
               </a>
             ) : (
-              <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-white/80">
+              <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-foreground">
                 {item.value}
               </p>
             )}
@@ -85,11 +85,11 @@ export default function ContactPage() {
       </div>
 
       {/* AI Chat Trigger */}
-      <div className="mt-16 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 text-center backdrop-blur-sm">
+      <div className="mt-16 rounded-2xl border border-border bg-card p-8 text-center">
         <h2 className="text-xl font-semibold tracking-tight">
           Prefer an instant conversation?
         </h2>
-        <p className="mt-2 text-sm text-white/50">
+        <p className="mt-2 text-sm text-muted-foreground">
           Talk to Sweety, our AI SDR. Get a strategy recommendation in under 2
           minutes — no forms, no waiting.
         </p>
@@ -99,7 +99,7 @@ export default function ContactPage() {
       </div>
 
       {/* Availability note */}
-      <p className="mt-12 text-center text-xs text-white/30">
+      <p className="mt-12 text-center text-xs text-text-subtle">
         Business hours: {OPENING_HOURS_COPY} · Response within 24 hours
       </p>
 
