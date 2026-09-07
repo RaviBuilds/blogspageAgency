@@ -19,13 +19,13 @@ export default function TermsPage() {
       <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
         Terms of Service
       </h1>
-      <p className="mt-4 text-sm text-white/40">
+      <p className="mt-4 text-sm text-text-subtle">
         Last updated: June 17, 2025
       </p>
 
-      <article className="prose-policy mt-12 space-y-8 text-sm leading-relaxed text-white/70">
+      <article className="prose-policy mt-12 space-y-8 text-sm leading-relaxed text-muted-foreground">
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             1. Agreement to Terms
           </h2>
           <p>
@@ -44,7 +44,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             2. Services Provided
           </h2>
           <p>Blogspage provides the following services:</p>
@@ -74,7 +74,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             3. Project Engagement &amp; Acceptance
           </h2>
           <ul className="list-disc space-y-1 pl-5">
@@ -94,7 +94,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             4. Payment Terms
           </h2>
           <ul className="list-disc space-y-1 pl-5">
@@ -123,7 +123,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             5. Intellectual Property
           </h2>
           <ul className="list-disc space-y-1 pl-5">
@@ -152,7 +152,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             6. AI Agent &amp; LLM Output Disclaimer
           </h2>
           <p>
@@ -188,7 +188,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             7. Client Responsibilities
           </h2>
           <ul className="list-disc space-y-1 pl-5">
@@ -212,7 +212,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             8. Warranties &amp; Limitation of Liability
           </h2>
           <p>
@@ -249,7 +249,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             9. Confidentiality
           </h2>
           <p>
@@ -262,7 +262,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             10. Termination
           </h2>
           <ul className="list-disc space-y-1 pl-5">
@@ -286,7 +286,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             11. Indemnification
           </h2>
           <p>
@@ -301,7 +301,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             12. Force Majeure
           </h2>
           <p>
@@ -314,7 +314,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             13. Governing Law &amp; Jurisdiction
           </h2>
           <p>
@@ -326,7 +326,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             14. Modifications
           </h2>
           <p>
@@ -338,13 +338,13 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             15. Contact
           </h2>
           <p>
             For questions regarding these Terms of Service, contact us at:
           </p>
-          <div className="mt-3 rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 text-white/80">
+          <div className="mt-3 rounded-xl border border-border bg-card p-4 text-foreground">
             <p className="font-medium">{NAP.legalName}</p>
             <p>{NAP.streetAddress}</p>
             <p>

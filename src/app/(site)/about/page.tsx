@@ -33,7 +33,7 @@ export default function AboutPage() {
       <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
         Blogspage is an AI agency built to ship, not just advise.
       </h1>
-      <p className="mt-4 max-w-2xl text-lg leading-relaxed text-white/60">
+      <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
         Founded in {FOUNDING_YEAR}, Blogspage designs and ships AI
         automation, custom SaaS platforms, and programmatic SEO systems for
         founders who need working software, not slide decks.
@@ -44,7 +44,7 @@ export default function AboutPage() {
         <h2 className="text-2xl font-semibold tracking-tight">
           What we build
         </h2>
-        <p className="mt-2 text-white/60">
+        <p className="mt-2 text-muted-foreground">
           Ten service categories, each engineered around a specific business
           problem.
         </p>
@@ -52,10 +52,10 @@ export default function AboutPage() {
           {NICHES.map((niche) => (
             <li
               key={niche.id}
-              className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5"
+              className="rounded-2xl border border-border bg-card p-5"
             >
-              <h3 className="font-semibold text-white">{niche.title}</h3>
-              <p className="mt-1 text-sm leading-relaxed text-white/60">
+              <h3 className="font-semibold text-foreground">{niche.title}</h3>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                 {niche.description}
               </p>
             </li>
@@ -68,7 +68,7 @@ export default function AboutPage() {
         <h2 className="text-2xl font-semibold tracking-tight">
           How we work
         </h2>
-        <p className="mt-2 text-white/60">
+        <p className="mt-2 text-muted-foreground">
           Two engagement models, chosen to match your risk, timeline, and
           business model.
         </p>
@@ -76,13 +76,13 @@ export default function AboutPage() {
           {DELIVERY_MODELS.map((model) => (
             <li
               key={model.title}
-              className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5"
+              className="rounded-2xl border border-border bg-card p-5"
             >
               <p className="text-xs font-medium uppercase tracking-wide text-primary">
                 {model.eyebrow}
               </p>
-              <h3 className="mt-2 font-semibold text-white">{model.title}</h3>
-              <p className="mt-1 text-sm leading-relaxed text-white/60">
+              <h3 className="mt-2 font-semibold text-foreground">{model.title}</h3>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                 {model.description}
               </p>
             </li>
@@ -95,7 +95,7 @@ export default function AboutPage() {
         <h2 className="text-2xl font-semibold tracking-tight">
           Delivered projects
         </h2>
-        <p className="mt-2 text-white/60">
+        <p className="mt-2 text-muted-foreground">
           Real, shipped systems, with the technology used and the outcome we
           track for each.
         </p>
@@ -103,17 +103,17 @@ export default function AboutPage() {
           {mirroredProjects.map((project) => (
             <li
               key={project.id}
-              className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5"
+              className="rounded-2xl border border-border bg-card p-5"
             >
-              <h3 className="font-semibold text-white">{project.headline}</h3>
-              <p className="mt-1 text-sm leading-relaxed text-white/60">
+              <h3 className="font-semibold text-foreground">{project.headline}</h3>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                 {project.description}
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {project.tech.map((tech) => (
                   <span
                     key={tech}
-                    className="rounded-full border border-white/[0.05] bg-white/[0.03] px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-white/60"
+                    className="rounded-full border border-border-subtle bg-muted px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-text-subtle"
                   >
                     {tech}
                   </span>
@@ -121,10 +121,10 @@ export default function AboutPage() {
               </div>
               <ul className="mt-3 flex flex-col gap-1">
                 {project.metrics.map((metric) => (
-                  <li key={metric.label} className="text-xs text-white/70">
+                  <li key={metric.label} className="text-xs text-muted-foreground">
                     {metric.label}:{" "}
-                    <span className="text-white">{metric.value}</span>{" "}
-                    <span className="text-white/40">({metric.basis})</span>
+                    <span className="text-foreground">{metric.value}</span>{" "}
+                    <span className="text-text-subtle">({metric.basis})</span>
                   </li>
                 ))}
               </ul>

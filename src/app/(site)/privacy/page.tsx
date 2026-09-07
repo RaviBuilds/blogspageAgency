@@ -19,13 +19,13 @@ export default function PrivacyPage() {
       <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
         Privacy Policy
       </h1>
-      <p className="mt-4 text-sm text-white/40">
+      <p className="mt-4 text-sm text-text-subtle">
         Last updated: June 17, 2025
       </p>
 
-      <article className="prose-policy mt-12 space-y-8 text-sm leading-relaxed text-white/70">
+      <article className="prose-policy mt-12 space-y-8 text-sm leading-relaxed text-muted-foreground">
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             1. Introduction
           </h2>
           <p>
@@ -44,10 +44,10 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             2. Information We Collect
           </h2>
-          <h3 className="mt-4 font-medium text-white/80">
+          <h3 className="mt-4 font-medium text-foreground">
             2.1 Information You Provide
           </h3>
           <ul className="list-disc space-y-1 pl-5">
@@ -65,7 +65,7 @@ export default function PrivacyPage() {
             </li>
           </ul>
 
-          <h3 className="mt-4 font-medium text-white/80">
+          <h3 className="mt-4 font-medium text-foreground">
             2.2 Information Collected Automatically
           </h3>
           <ul className="list-disc space-y-1 pl-5">
@@ -84,7 +84,7 @@ export default function PrivacyPage() {
             <li>Cookies and similar tracking technologies (see Section 7).</li>
           </ul>
 
-          <h3 className="mt-4 font-medium text-white/80">
+          <h3 className="mt-4 font-medium text-foreground">
             2.3 Information from AI Interactions
           </h3>
           <p>
@@ -98,7 +98,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             3. How We Use Your Information
           </h2>
           <ul className="list-disc space-y-1 pl-5">
@@ -126,7 +126,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             4. AI Processing &amp; Third-Party LLM Integrations
           </h2>
           <p>
@@ -164,7 +164,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             5. Data Sharing &amp; Disclosure
           </h2>
           <p>
@@ -192,7 +192,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             6. Data Retention
           </h2>
           <p>
@@ -217,7 +217,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             7. Cookies &amp; Tracking Technologies
           </h2>
           <p>We use the following cookies and tracking technologies:</p>
@@ -242,7 +242,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             8. Your Rights (GDPR &amp; CCPA)
           </h2>
           <p>
@@ -292,7 +292,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             9. Data Security
           </h2>
           <p>
@@ -305,7 +305,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             10. International Data Transfers
           </h2>
           <p>
@@ -317,7 +317,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             11. Children&apos;s Privacy
           </h2>
           <p>
@@ -329,7 +329,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             12. Changes to This Policy
           </h2>
           <p>
@@ -341,14 +341,14 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             13. Contact Us Regarding Privacy
           </h2>
           <p>
             If you have questions or concerns about this Privacy Policy or our
             data practices, contact us at:
           </p>
-          <div className="mt-3 rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 text-white/80">
+          <div className="mt-3 rounded-xl border border-border bg-card p-4 text-foreground">
             <p className="font-medium">{NAP.legalName}</p>
             <p>{NAP.streetAddress}</p>
             <p>
