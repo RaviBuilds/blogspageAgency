@@ -30,7 +30,7 @@ export function SolutionTemplate({
       <SolutionHero niche={niche} city={city} cityLabel={cityLabel} />
 
       {/* The Problem — Financial Bleed */}
-      <section className="border-t border-white/[0.06] py-20 lg:py-24">
+      <section className="border-t border-border-subtle py-20 lg:py-24">
         <div className="mx-auto grid max-w-6xl gap-10 px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
           <FadeUp>
             <p className="text-sm font-medium text-primary">The Problem</p>
@@ -45,7 +45,7 @@ export function SolutionTemplate({
           <div className="grid gap-4">
             {niche.problem.points.map((point, index) => (
               <FadeUp key={point} delay={index * 0.08}>
-                <div className="flex gap-3 rounded-xl border border-white/[0.08] bg-card p-5 text-sm leading-relaxed text-muted-foreground">
+                <div className="flex gap-3 rounded-xl border border-border bg-card p-5 text-sm leading-relaxed text-muted-foreground">
                   <TrendingDown className="mt-0.5 size-4 shrink-0 text-primary" />
                   <span>{point}</span>
                 </div>
@@ -56,10 +56,10 @@ export function SolutionTemplate({
       </section>
 
       {/* The Custom Solution */}
-      <section className="border-t border-white/[0.06] py-20 lg:py-24">
+      <section className="border-t border-border-subtle py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <FadeUp>
-            <div className="grid gap-10 rounded-2xl border border-white/[0.08] bg-card p-8 lg:grid-cols-[0.8fr_1.2fr] lg:p-10">
+            <div className="grid gap-10 rounded-2xl border border-border bg-card p-8 lg:grid-cols-[0.8fr_1.2fr] lg:p-10">
               <div>
                 <p className="text-sm font-medium text-primary">The Solution</p>
                 <h2
@@ -91,7 +91,7 @@ export function SolutionTemplate({
       </section>
 
       {/* Dashboard Previews — mockup containers */}
-      <section className="border-t border-white/[0.06] py-20 lg:py-24">
+      <section className="border-t border-border-subtle py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <FadeUp>
             <div className="max-w-2xl">
@@ -108,13 +108,13 @@ export function SolutionTemplate({
           <div className="mt-12 grid gap-4 md:grid-cols-2">
             {niche.dashboards.map((dashboard, index) => (
               <FadeUp key={dashboard.title} delay={index * 0.08}>
-                <article className="overflow-hidden rounded-xl border border-white/[0.08] bg-card transition-colors hover:border-white/[0.16]">
+                <article className="overflow-hidden rounded-xl border border-border bg-card transition-colors hover:border-border-strong">
                   {/* Mockup container: window chrome + skeleton surface */}
-                  <div className="border-b border-white/[0.06] bg-popover px-4 py-3">
+                  <div className="border-b border-border-subtle bg-popover px-4 py-3">
                     <div className="flex gap-1.5">
-                      <span className="size-2.5 rounded-full bg-white/15" />
-                      <span className="size-2.5 rounded-full bg-white/15" />
-                      <span className="size-2.5 rounded-full bg-white/15" />
+                      <span className="size-2.5 rounded-full bg-border" />
+                      <span className="size-2.5 rounded-full bg-border" />
+                      <span className="size-2.5 rounded-full bg-border" />
                     </div>
                   </div>
                   <div
@@ -122,13 +122,13 @@ export function SolutionTemplate({
                     aria-hidden
                   >
                     <div className="absolute inset-0 p-5">
-                      <div className="h-3 w-1/3 rounded-full bg-white/10" />
+                      <div className="h-3 w-1/3 rounded-full bg-muted" />
                       <div className="mt-4 grid grid-cols-3 gap-3">
-                        <div className="h-16 rounded-lg border border-white/[0.06] bg-white/[0.03]" />
-                        <div className="h-16 rounded-lg border border-white/[0.06] bg-white/[0.03]" />
-                        <div className="h-16 rounded-lg border border-white/[0.06] bg-primary/15" />
+                        <div className="h-16 rounded-lg border border-border-subtle bg-muted" />
+                        <div className="h-16 rounded-lg border border-border-subtle bg-muted" />
+                        <div className="h-16 rounded-lg border border-border-subtle bg-primary/15" />
                       </div>
-                      <div className="mt-3 h-20 rounded-lg border border-white/[0.06] bg-white/[0.02]" />
+                      <div className="mt-3 h-20 rounded-lg border border-border-subtle bg-background-subtle" />
                     </div>
                   </div>
                   <div className="p-6">
@@ -146,10 +146,10 @@ export function SolutionTemplate({
 
       {/* Real-world case study (only when present) */}
       {niche.caseStudy && (
-        <section className="border-t border-white/[0.06] py-20 lg:py-24">
+        <section className="border-t border-border-subtle py-20 lg:py-24">
           <div className="mx-auto max-w-6xl px-6 lg:px-8">
             <FadeUp>
-              <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-card p-8 lg:p-10">
+              <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-8 lg:p-10">
                 <div className="pointer-events-none absolute -left-24 -top-24 size-72 rounded-full bg-primary/15 blur-3xl" />
                 <div className="relative grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
                   <div>
@@ -170,7 +170,7 @@ export function SolutionTemplate({
                       {niche.caseStudy.stack.map((tech) => (
                         <span
                           key={tech}
-                          className="rounded-full border border-white/[0.1] bg-white/[0.03] px-3 py-1 text-xs text-foreground/80"
+                          className="rounded-full border border-border-subtle bg-muted px-3 py-1 text-xs text-foreground/80"
                         >
                           {tech}
                         </span>
@@ -181,7 +181,7 @@ export function SolutionTemplate({
                     {niche.caseStudy.outcomes.map((outcome) => (
                       <li
                         key={outcome}
-                        className="flex gap-3 rounded-xl border border-white/[0.08] bg-popover p-4 text-sm text-muted-foreground"
+                        className="flex gap-3 rounded-xl border border-border bg-popover p-4 text-sm text-muted-foreground"
                       >
                         <Check className="mt-0.5 size-4 shrink-0 text-primary" />
                         <span>{outcome}</span>
@@ -196,14 +196,14 @@ export function SolutionTemplate({
       )}
 
       {/* Localized conversion metrics */}
-      <section className="border-t border-white/[0.06] py-20 lg:py-24">
+      <section className="border-t border-border-subtle py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <FadeUp>
             <div className="grid gap-4 sm:grid-cols-3">
               {niche.metrics.map((metric) => (
                 <div
                   key={metric.label}
-                  className="rounded-xl border border-white/[0.08] bg-card p-6 text-center"
+                  className="rounded-xl border border-border bg-card p-6 text-center"
                 >
                   <p className="text-4xl font-semibold tracking-tight text-primary">
                     {metric.value}
@@ -219,7 +219,7 @@ export function SolutionTemplate({
       </section>
 
       {/* Step-by-step launch schedule */}
-      <section className="border-t border-white/[0.06] py-20 lg:py-24">
+      <section className="border-t border-border-subtle py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <FadeUp>
             <div className="max-w-2xl">
@@ -238,7 +238,7 @@ export function SolutionTemplate({
           <ol className="mt-12 flex flex-col">
             {niche.launchSchedule.map((phase, index) => (
               <FadeUp key={phase.window} delay={index * 0.06}>
-                <li className="relative flex gap-6 border-l border-white/[0.1] pb-8 pl-6 last:pb-0">
+                <li className="relative flex gap-6 border-l border-border pb-8 pl-6 last:pb-0">
                   <span className="absolute -left-[5px] top-1.5 size-2.5 rounded-full bg-primary" />
                   <div>
                     <p className="text-xs font-medium uppercase tracking-[0.18em] text-primary">
@@ -262,10 +262,10 @@ export function SolutionTemplate({
       </section>
 
       {/* Local SEO CTA */}
-      <section className="border-t border-white/[0.06] py-20 lg:py-24">
+      <section className="border-t border-border-subtle py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <FadeUp>
-            <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-card p-10 text-center lg:p-14">
+            <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-10 text-center lg:p-14">
               <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-primary/20 blur-3xl" />
               <div className="relative mx-auto max-w-2xl">
                 <h2
@@ -294,7 +294,7 @@ export function SolutionTemplate({
                   <Button
                     size="lg"
                     variant="outline"
-                    className="h-11 border-white/10 bg-transparent px-6 hover:bg-white/[0.04]"
+                    className="h-11 px-6"
                     asChild
                   >
                     <Link href="/#process">See our process</Link>
@@ -308,7 +308,7 @@ export function SolutionTemplate({
 
       {/* Frequently asked questions (Requirements 9.6, 9.8, 9.9) */}
       {niche.faq?.length ? (
-        <section className="border-t border-white/[0.06] py-20 lg:py-24">
+        <section className="border-t border-border-subtle py-20 lg:py-24">
           <div className="mx-auto max-w-3xl px-6 lg:px-8">
             <FadeUp>
               <h2
@@ -336,7 +336,7 @@ export function SolutionTemplate({
 
       {/* Related reading (Requirement 7.8) */}
       {relatedPosts.length ? (
-        <section className="border-t border-white/[0.06] py-20 lg:py-24">
+        <section className="border-t border-border-subtle py-20 lg:py-24">
           <div className="mx-auto max-w-6xl px-6 lg:px-8">
             <FadeUp>
               <h2
@@ -350,7 +350,7 @@ export function SolutionTemplate({
                   <li key={post._id}>
                     <Link
                       href={`/blogs/${post.slug}`}
-                      className="group flex h-full flex-col rounded-xl border border-white/[0.08] bg-card p-5 transition-colors hover:border-white/[0.16]"
+                      className="group flex h-full flex-col rounded-xl border border-border bg-card p-5 transition-colors hover:border-border-strong"
                     >
                       <h3 className="line-clamp-2 text-base font-medium tracking-tight transition-colors group-hover:text-primary">
                         {post.title}
