@@ -120,10 +120,10 @@ function getPortableTextComponents(
               alt={alt}
               width={dimensions.width}
               height={dimensions.height}
-              className="h-auto w-full rounded-2xl border border-white/[0.08] object-cover shadow-2xl"
+              className="h-auto w-full rounded-2xl border border-border object-cover shadow-2xl"
             />
           ) : (
-            <div className="relative aspect-video overflow-hidden rounded-2xl border border-white/[0.08] shadow-2xl">
+            <div className="relative aspect-video overflow-hidden rounded-2xl border border-border shadow-2xl">
               <Image
                 src={src}
                 alt={alt}
