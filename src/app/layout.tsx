@@ -53,7 +53,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang={LOCALE.html}>
+    // suppressHydrationWarning: the preloader boot script in (site)/layout.tsx
+    // sets `data-preloader="skip"` on <html> during HTML parsing, before React
+    // hydrates, so the hydrated DOM legitimately differs from the server HTML
+    // on this one attribute. React can't know that mutation is ours, so the
+    // warning is suppressed for <html>'s own attributes only (not children) —
+    // the same pattern next-themes uses for its pre-hydration theme script.
+    <html lang={LOCALE.html} suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >

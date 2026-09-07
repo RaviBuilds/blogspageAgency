@@ -379,3 +379,15 @@
     transform: none;
   }
 }
+
+/*
+ * Preloader skip flag — the blocking boot script in `(site)/layout.tsx` sets
+ * `data-preloader="skip"` on <html> whenever the SSR'd cinematic preloader
+ * must not play (session revisit, prefers-reduced-motion, or the no-hydration
+ * failsafe). Hiding happens before first paint, so returning visitors never
+ * see the overlay flash. The rule is unlayered, so it outranks the overlay's
+ * layered Tailwind `flex` utility without needing !important.
+ */
+html[data-preloader="skip"] [data-preloader-overlay] {
+  display: none;
+}

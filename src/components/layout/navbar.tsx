@@ -90,7 +90,7 @@ export function Navbar() {
             height={96}
             priority
             quality={100}
-            className="h-11 w-auto"
+            className="h-11 w-auto rounded-xl"
           />
         </Link>
 

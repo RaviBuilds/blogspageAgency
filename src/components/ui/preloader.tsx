@@ -7,7 +7,15 @@ import { motion, AnimatePresence } from "framer-motion";
    CINEMATIC PRELOADER
    Full-screen overlay that masks the page while it loads. Displays a rapid
    counter (000 → 100) then slides upward with premium spring physics.
-   Only runs once per session (sessionStorage guard).
+
+   The overlay is part of the server-rendered HTML (`loading` starts `true`,
+   not `null`), so it masks the page from the very first paint — the content
+   beneath never flashes before the sequence runs. Skipping is the exception
+   and is decided before first paint by the boot script in
+   `(site)/layout.tsx` plus the `data-preloader="skip"` rule in globals.css:
+   once per session (sessionStorage guard), never under prefers-reduced-motion
+   (Requirement 11.9), and the boot script's failsafe timer hides the overlay
+   if hydration never lands.
    ───────────────────────────────────────────────────────────────────────────── */
 
 const EXIT_SPRING = { type: "spring", stiffness: 100, damping: 30, mass: 1 } as const;
@@ -21,19 +29,27 @@ const HOLD_DURATION_MS = 150;
 const EXIT_DURATION_MS = 400;
 
 export function Preloader() {
-  const [loading, setLoading] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(true);
   const [counter, setCounter] = useState(0);
   const releasedRef = useRef(false);
 
   const release = () => {
     if (releasedRef.current) return;
     releasedRef.current = true;
-    sessionStorage.setItem("blogspage-preloaded", "true");
+    try {
+      sessionStorage.setItem("blogspage-preloaded", "true");
+    } catch {
+      // Blocked storage (privacy extensions, old private mode) must never
+      // trap the visitor behind the overlay — the session guard is
+      // best-effort, the release is not.
+    }
     setLoading(false);
   };
 
-  // Guard: only show once per session, and skip entirely under
-  // prefers-reduced-motion (Requirement 11.9) so no animated sequence runs.
+  // Skip guards: the overlay ships inside the HTML, so this decision runs as
+  // soon as hydration lands. Revisits and reduced-motion users dismiss the
+  // overlay immediately — the boot script has already hidden it pre-paint,
+  // this unmounts it (the exit animation is invisible behind `display:none`).
   useEffect(() => {
     const hasLoaded = sessionStorage.getItem("blogspage-preloaded");
     if (hasLoaded) {
@@ -49,8 +65,6 @@ export function Preloader() {
       release();
       return;
     }
-
-    setLoading(true);
   }, []);
 
   // Rapid counter from 0 → 100 over COUNTER_DURATION_MS, plus a hard release
@@ -87,14 +101,12 @@ export function Preloader() {
     };
   }, [loading]);
 
-  // Don't render anything until we know (avoids flash on revisit)
-  if (loading === null) return null;
-
   return (
     <AnimatePresence>
       {loading && (
         <motion.div
           key="preloader"
+          data-preloader-overlay
           initial={{ y: "0%" }}
           exit={{ y: "-100%" }}
           transition={EXIT_SPRING}
