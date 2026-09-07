@@ -230,7 +230,7 @@ export function GymSolutionLanding({
   ];
 
   return (
-    <div className="relative overflow-hidden bg-[#050505]">
+    <div className="dark relative overflow-hidden bg-[#050505]">
       {/* ambient hero glow */}
       <div className="pointer-events-none absolute left-1/2 top-0 -z-10 size-[40rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(94,106,210,0.30),rgba(147,51,234,0.12)_42%,transparent_70%)] blur-3xl" />
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[640px] bg-[radial-gradient(ellipse_at_center,transparent_0%,#050505_74%)]" />
