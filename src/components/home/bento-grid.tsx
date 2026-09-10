@@ -6,6 +6,8 @@ import { ArrowUpRight } from "lucide-react";
 import { motion, type Variants } from "framer-motion";
 import { NICHES, type Niche } from "@/lib/niches";
 import { cn } from "@/lib/utils";
+import { trackEvent } from "@/lib/analytics";
+import { BRIDGE } from "@/lib/homepage-data";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    0. MOTION PRIMITIVES (design system §5)
@@ -105,6 +107,12 @@ function NicheCard({ niche }: { niche: Niche }) {
       ref={cardRef}
       href={niche.href()}
       onMouseMove={handleMouseMove}
+      onClick={() =>
+        trackEvent("niche_card_click", {
+          niche: niche.id,
+          destination: niche.href(),
+        })
+      }
       variants={cardVariants}
       whileHover={{ scale: 1.015 }}
       transition={SPRING}
@@ -213,17 +221,16 @@ function NicheCard({ niche }: { niche: Niche }) {
    ───────────────────────────────────────────────────────────────────────────── */
 export function BentoGrid() {
   return (
-    <section id="solutions" className="border-t border-border-subtle bg-background-subtle py-24 lg:py-32">
+    <section id="solutions" className="scroll-mt-24 border-t border-border-subtle bg-background-subtle py-24 lg:py-32">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         {/* Section header */}
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium text-primary">Solutions</p>
+          <p className="text-sm font-medium text-primary">{BRIDGE.eyebrow}</p>
           <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-            Ten industries. One engineering standard.
+            {BRIDGE.heading}
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Purpose-built digital ecosystems for the verticals we know best,
-            each tuned to the exact way that business makes and keeps revenue.
+            {BRIDGE.sub}
           </p>
         </div>
 
