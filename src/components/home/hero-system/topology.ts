@@ -25,6 +25,28 @@ export type Point = readonly [number, number];
 /** The customer-touchpoint rail. An edge source, but not a module card. */
 export const INGRESS_ID = "ingress";
 
+/**
+ * The semantic brand hue this surface carries, in the canonical Blogspage
+ * signal: cyan = digital presence / entry (the website), blue = business and
+ * its customers, violet = AI / automation / advanced capability.
+ *
+ * Consumed as a single CSS custom property per card and per packet, so the
+ * accent stays data-driven: the stylesheet defines one hue family per value
+ * and never needs to know which module carries which.
+ */
+export type SignalHue = "cyan" | "blue" | "violet";
+
+/**
+ * Each hue rendered through one custom property defined in
+ * `hero-system.module.css`. Components and the engine reference the var rather
+ * than a literal colour, so the palette stays in the stylesheet.
+ */
+export const SIGNAL_HUE_VAR: Record<SignalHue, string> = {
+  cyan: "var(--sys-hue-cyan)",
+  blue: "var(--sys-hue-blue)",
+  violet: "var(--sys-hue-violet)",
+};
+
 export interface SystemModule {
   id: string;
   /** Mono header label. A real engineering or business noun, never filler. */
@@ -43,6 +65,19 @@ export interface SystemModule {
    * being exactly three.
    */
   stages: readonly [string, string, string];
+  /**
+   * The business layer this surface belongs to. Drives the card's signal
+   * accent (LED, active stage label, focus ring) — cyan for the digital
+   * front door, blue for the business and its customers, violet for the
+   * AI and automation layer. Never decorative.
+   */
+  signal: SignalHue;
+  /**
+   * Marks the system's single entry surface (WEBSITE). The entry card gets a
+   * resting edge tinted with its own hue so the front door reads before any
+   * interaction. Optional; absent on every other node by design.
+   */
+  entry?: boolean;
   x: number;
   y: number;
   w: number;
@@ -67,6 +102,13 @@ export interface SystemRoute {
   id: string;
   /** The business transaction this route carries, shown as the packet label. */
   label: string;
+  /**
+   * The signal hue the packet travelling this route renders in — the colour
+   * of the information itself, not of the wire it happens to use. Cyan for
+   * presence-bound traffic (an enquiry arriving at the website), blue for
+   * business/customer records, violet for AI and automation work.
+   */
+  signal: SignalHue;
   /** Edge ids, in travel order. Must form a contiguous chain. */
   edges: readonly string[];
   /** Relative dispatch weight. */
@@ -105,19 +147,25 @@ export interface Topology {
 //
 //   rail        col 1                 col 2
 //   ┌──┐   ┌─────────────┐      ┌─────────────┐
-//   │  ├──▶│  INTERFACE  ├─────▶│  CORE LOGIC │◀─┐
+//   │  ├──▶│   WEBSITE   ├─────▶│ YOUR BUSINESS│◀─┐
 //   └──┘   └─────────────┘      └──────┬──────┘  │
 //          ┌─────────────┐             │         │
-//          │ DATA LAYER  │◀────────────┘         │
+//          │  CUSTOMERS  │◀────────────┘         │
 //          └──┬───────┬──┘      ┌─────────────┐  │
-//             │       └────────▶│  AI ENGINE  ├──┘
+//             │       └────────▶│AI ASSISTANT ├──┘
 //             │                 └──────┬──────┘
 //             │                 ┌──────┴──────┐
 //             │                 │ AUTOMATION  │
 //             │                 └──────┬──────┘
 //          ┌──┴────────────────────────┴──────┐
-//          │            OPERATIONS            │
+//          │         BUSINESS SOFTWARE        │
 //          └──────────────────────────────────┘
+//
+// R2.1: the same graph, read as a business becoming digitally connected —
+// customers arrive from the left rail, meet the WEBSITE, reach the business,
+// and the later layers (AI, automation, software) appear as the system's
+// deeper machinery. Ids, geometry, edges and routes are unchanged; only the
+// displayed vocabulary moved from engineering nouns to business nouns.
 // ---------------------------------------------------------------------------
 
 const DESKTOP_W = 540;
@@ -179,9 +227,11 @@ export const DESKTOP_TOPOLOGY: Topology = {
   modules: [
     {
       id: "interface",
-      label: "INTERFACE",
-      caption: "site · web app · delivery",
-      stages: ["WEB", "MOBILE", "INBOUND"],
+      label: "WEBSITE",
+      caption: "brand · your site · web · mobile",
+      stages: ["FIND", "TRUST", "CONTACT"],
+      signal: "cyan",
+      entry: true,
       x: COL_1_X,
       y: ROW_1_Y,
       w: COL_W,
@@ -190,9 +240,10 @@ export const DESKTOP_TOPOLOGY: Topology = {
     },
     {
       id: "core",
-      label: "CORE LOGIC",
-      caption: "routing · validation · business rules",
-      stages: ["REQUEST", "ROUTE", "VALIDATE"],
+      label: "YOUR BUSINESS",
+      caption: "your services · your team · your day",
+      stages: ["OFFER", "SERVE", "GROW"],
+      signal: "blue",
       x: COL_2_X,
       y: ROW_1_Y,
       w: COL_W,
@@ -201,9 +252,10 @@ export const DESKTOP_TOPOLOGY: Topology = {
     },
     {
       id: "data",
-      label: "DATA LAYER",
-      caption: "records · state · audit trail",
-      stages: ["RECORDS", "QUERY", "SYNC"],
+      label: "CUSTOMERS",
+      caption: "enquiries · bookings · records",
+      stages: ["ENQUIRY", "BOOKING", "HISTORY"],
+      signal: "blue",
       x: COL_1_X,
       y: ROW_2_Y,
       w: COL_W,
@@ -212,9 +264,10 @@ export const DESKTOP_TOPOLOGY: Topology = {
     },
     {
       id: "ai",
-      label: "AI ENGINE",
-      caption: "classification · extraction · drafting",
-      stages: ["INPUT", "MODEL", "OUTPUT"],
+      label: "AI ASSISTANT",
+      caption: "replies · summaries · sorting",
+      stages: ["READS", "DRAFTS", "SORTS"],
+      signal: "violet",
       x: COL_2_X,
       y: ROW_2_Y,
       w: COL_W,
@@ -224,8 +277,9 @@ export const DESKTOP_TOPOLOGY: Topology = {
     {
       id: "automation",
       label: "AUTOMATION",
-      caption: "triggers · rules · follow-up",
+      caption: "follow-ups · reminders · updates",
       stages: ["TRIGGER", "ACTION", "DONE"],
+      signal: "violet",
       x: COL_2_X,
       y: ROW_3_Y,
       w: COL_W,
@@ -234,9 +288,10 @@ export const DESKTOP_TOPOLOGY: Topology = {
     },
     {
       id: "operations",
-      label: "OPERATIONS",
+      label: "BUSINESS SOFTWARE",
       caption: "leads · bookings · invoices",
       stages: ["QUEUE", "STATUS", "LIVE"],
+      signal: "blue",
       x: COL_1_X,
       y: OPS_Y,
       w: COL_2_RIGHT - COL_1_X,
@@ -331,30 +386,37 @@ export const DESKTOP_TOPOLOGY: Topology = {
     // Traversals are ~15% quicker than V1. The packet is the single clearest
     // signal that this is a running system rather than a diagram, and at the old
     // pace a glance could land between two of them and see nothing move.
+    // Packet labels are the business transactions a visitor can relate to:
+    // an enquiry arrives, the assistant suggests, automation follows up, and
+    // the software reports status. Route ids are load-bearing (engine + tests).
     {
       id: "enquiry",
       label: "enquiry",
+      signal: "cyan",
       edges: ["E1", "E2", "E3"],
       weight: 3,
       durationMs: 3600,
     },
     {
       id: "inference",
-      label: "inference",
+      label: "suggestion",
+      signal: "violet",
       edges: ["E3", "E4", "E5"],
       weight: 2,
       durationMs: 4100,
     },
     {
       id: "automation",
-      label: "automation",
+      label: "follow-up",
+      signal: "violet",
       edges: ["E4", "E6", "E7"],
       weight: 2,
       durationMs: 3800,
     },
     {
       id: "report",
-      label: "report",
+      label: "status",
+      signal: "blue",
       edges: ["E8"],
       weight: 1,
       durationMs: 2300,
@@ -363,10 +425,14 @@ export const DESKTOP_TOPOLOGY: Topology = {
 };
 
 // ---------------------------------------------------------------------------
-// Mobile topology — 320 x 300
+// Mobile topology — 340 x 260
 //
 // A different graph, not a scaled one: a vertical spine of three surfaces with
 // a single packet, no rail, no parallax, no hover.
+//
+// R2.1 mobile priority (creative blueprint §5): Business → Website →
+// Customers. The three surfaces read as that vertical progression, and the
+// secondary technical nodes are simply not present on mobile.
 // ---------------------------------------------------------------------------
 
 /**
@@ -402,9 +468,11 @@ export const MOBILE_TOPOLOGY: Topology = {
   modules: [
     {
       id: "interface",
-      label: "CUSTOMER INTERFACE",
-      caption: "site · web app",
-      stages: ["WEB", "MOBILE", "INBOUND"],
+      label: "WEBSITE",
+      caption: "your site · web · mobile",
+      stages: ["FIND", "TRUST", "CONTACT"],
+      signal: "cyan",
+      entry: true,
       x: MOBILE_X,
       y: 0,
       w: MOBILE_CARD_W,
@@ -413,9 +481,10 @@ export const MOBILE_TOPOLOGY: Topology = {
     },
     {
       id: "core",
-      label: "CORE + DATA",
-      caption: "business rules · records",
-      stages: ["ROUTE", "VALIDATE", "RECORDS"],
+      label: "YOUR BUSINESS",
+      caption: "services · team · customers",
+      stages: ["OFFER", "SERVE", "GROW"],
+      signal: "blue",
       x: MOBILE_X,
       y: MOBILE_ROW_2_Y,
       w: MOBILE_CARD_W,
@@ -424,9 +493,10 @@ export const MOBILE_TOPOLOGY: Topology = {
     },
     {
       id: "operations",
-      label: "OPERATIONS",
-      caption: "leads · bookings",
+      label: "CUSTOMERS",
+      caption: "enquiries · bookings",
       stages: ["QUEUE", "STATUS", "LIVE"],
+      signal: "blue",
       x: MOBILE_X,
       y: MOBILE_ROW_3_Y,
       w: MOBILE_CARD_W,
@@ -458,6 +528,7 @@ export const MOBILE_TOPOLOGY: Topology = {
     {
       id: "request",
       label: "enquiry",
+      signal: "cyan",
       edges: ["M1", "M2"],
       weight: 1,
       durationMs: 5200,
@@ -508,6 +579,8 @@ export interface RoutePlan {
   label: string;
   weight: number;
   durationMs: number;
+  /** Copied from the route — the packet hue, resolved to a CSS var downstream. */
+  signal?: SignalHue;
   points: readonly Point[];
   /** `cumulative[i]` is the arc length from the start to `points[i]`. */
   cumulative: readonly number[];
@@ -558,6 +631,7 @@ export function buildRoutePlan(topology: Topology, routeId: string): RoutePlan {
     label: route.label,
     weight: route.weight,
     durationMs: route.durationMs,
+    signal: route.signal,
     points,
     cumulative,
     length,

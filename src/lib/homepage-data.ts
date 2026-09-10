@@ -29,10 +29,10 @@
 
 export const HERO = {
   eyebrow: "Digital build partner for growing businesses · Hyderabad",
-  headlineLines: ["We build the digital systems", "behind your business."],
+  headlineLines: ["Build a business people", "can find, trust and use."],
   subcopy:
-    "Websites, business software and AI automation for growing businesses. Start with what you need today — we'll help you figure out what to build next.",
-  capabilityLine: "Websites · Software · AI · Automation",
+    "We build your brand, website, business software and AI automation around the way your business actually works. Start with what your business needs today — we'll help you figure out what comes next.",
+  capabilityLine: "Branding · Websites · Software · AI & Automation",
 } as const;
 
 /**
@@ -67,6 +67,12 @@ export const AUDIENCE = {
       id: "no-website",
       title: "I don't have a website yet",
       line: "I have a business, but I need a proper online presence.",
+      // The shared journey motif (creative blueprint, Motif A): each pathway
+      // is an entry point into the same business journey.
+      journey: ["Business", "Website"],
+      // Website-first commercial emphasis (subtle, not manipulative): the
+      // most common entry for the primary audience gets a quiet marker.
+      featured: true,
       detail:
         "That's the most common starting point. Your website becomes your business's digital home — the one place Google, Instagram and WhatsApp can all point to.",
       cta: { label: "See what a website gives you", href: "#online-presence" },
@@ -75,6 +81,8 @@ export const AUDIENCE = {
       id: "have-website",
       title: "I already have a website",
       line: "It needs to look better, explain the business better, or bring in more enquiries.",
+      journey: ["Website", "Stronger presence"],
+      featured: false,
       detail:
         "We improve what you have — a clearer message, a better-looking site, faster pages — and build the layers your business is missing.",
       cta: { label: "See the three ways we can help", href: "#services" },
@@ -83,6 +91,8 @@ export const AUDIENCE = {
       id: "need-software",
       title: "I need more than a website",
       line: "My team needs software, connected workflows or automation.",
+      journey: ["Website", "Software & automation"],
+      featured: false,
       detail:
         "We build the software your team runs on — portals, dashboards, booking systems — and automate the work nobody should be doing by hand.",
       cta: { label: "Talk to us about your workflow", href: "#contact?need=software" },

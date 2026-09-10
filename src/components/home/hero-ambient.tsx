@@ -28,37 +28,43 @@ const fadeUp: Variants = {
 };
 
 /**
- * Instrumented hero CTA pair (TASK H1 / §19). Real crawlable `<Link>`
- * anchors wrapped by `Button` with `asChild`, exactly as before — only the
- * `onClick` analytics call is new. Lives here, not in the server `Hero`,
- * because firing `trackEvent` requires a client component.
+ * Instrumented hero CTA pair (analytics contract §32, creative blueprint).
+ * Event names are untouched — only the labels and their payload values
+ * evolve with the R2.1 copy. Real crawlable `<Link>` anchors wrapped by
+ * `Button` with `asChild`; `trackEvent` requires a client component.
+ *
+ * R2.1 FINAL polish: the primary stays a plain white button — the strongest
+ * clickable element precisely because it is not decorated — with only an
+ * arrow that travels a few pixels on hover and the site-wide active press.
+ * The signal on the CTA is the `glow-border` halo, not a gradient fill.
  */
 export function HeroCtas() {
   return (
     <div className="mt-10 flex flex-col items-start gap-4 sm:flex-row">
       <Button
         size="lg"
-        className="glow-border h-11 w-full bg-white px-6 text-black hover:bg-white/90 sm:w-auto"
+        className="glow-border h-11 w-full bg-white px-6 text-black transition-transform hover:bg-white/90 active:scale-[0.98] sm:w-auto"
         asChild
       >
         <Link
           href="#contact"
+          className="group"
           onClick={() =>
             trackEvent("hero_cta_click", {
               cta_location: "hero",
-              cta_label: "tell-us-what-youre-building",
+              cta_label: "tell-us-what-your-business-needs",
               destination: "#contact",
             })
           }
         >
-          Tell Us What You&apos;re Building
-          <ArrowRight className="size-4" />
+          Tell Us What Your Business Needs
+          <ArrowRight className="size-4 transition-transform duration-200 ease-out group-hover:translate-x-0.5" />
         </Link>
       </Button>
       <Button
         size="lg"
         variant="outline"
-        className="h-11 w-full border-white/[0.08] bg-white/2 px-6 hover:bg-white/6 sm:w-auto"
+        className="h-11 w-full border-white/[0.08] bg-white/2 px-6 text-muted-foreground transition-colors hover:bg-white/6 hover:text-foreground sm:w-auto"
         asChild
       >
         <Link
@@ -66,12 +72,12 @@ export function HeroCtas() {
           onClick={() =>
             trackEvent("work_cta_click", {
               cta_location: "hero",
-              cta_label: "see-our-work",
+              cta_label: "see-what-weve-built",
               destination: "#work",
             })
           }
         >
-          See Our Work
+          See What We&apos;ve Built
         </Link>
       </Button>
     </div>
@@ -79,7 +85,39 @@ export function HeroCtas() {
 }
 
 /**
- * Client-side ambience for the hero: the two breathing radial-gradient blobs
+ * Signature motif A — the connector line (creative blueprint §19).
+ *
+ * A single quiet vertical line dropping from the centre of the hero's bottom
+ * edge, fading as it crosses into the light section below, where the matching
+ * stub in `AudiencePathways` receives it. Purely decorative CSS (`aria-hidden`,
+ * zero JS, zero listeners) — it reads as one visual thread from the system
+ * into "Where are you right now?" without any scroll machinery.
+ */
+export function HeroConnector() {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center"
+    >
+      {/*
+        The signal dot: the same gradient triad the system's packets speak,
+        compressed to one point. It marks the thread's origin — the business
+        story leaving the hero — without adding a second visual voice.
+
+        R2.1 FINAL-POLISH: the filament is a step longer and slightly firmer at
+        its origin, so the thread spans the tightened lower rhythm and visibly
+        hands the visitor into "Where are you right now?" rather than dissolving
+        halfway. Still pure CSS, zero JS, and the matching stub in
+        AudiencePathways receives it unchanged.
+      */}
+      <span className="size-1.5 rounded-full bg-[linear-gradient(135deg,#67E8F9,#828FFF,#A78BFA)] shadow-[0_0_10px_rgba(130,143,255,0.6)]" />
+      <div className="mt-1 h-20 w-px bg-gradient-to-b from-[#828FFF]/60 via-[#828FFF]/22 to-transparent md:h-28" />
+    </div>
+  );
+}
+
+/**
+ * Client-side ambience for the hero: the breathing radial-gradient light
  * behind the content. Purely decorative, `aria-hidden`, and has no bearing on
  * the server-rendered `<h1>` or summary paragraph living in `Hero`.
  */
@@ -87,19 +125,22 @@ export function HeroGradients() {
   return (
     <>
       {/*
-        Hero V2 re-aimed and re-coloured both blobs.
+        Hero V2 aimed both blobs at the system visual; R2.1 FINAL completes
+        the atmosphere with the full canonical triad, one hue per region and
+        every one of them barely-there:
 
-        The first now sits behind the system column (left 76%, vertically level
-        with it) rather than drifting near the headline at left 58%. Its job
-        changed: it is no longer generic hero ambience, it is the atmosphere the
-        Active Blueprint is lit against, which is what stops the modules reading
-        as cut-outs floating in flat black. Electric Violet `#7c3aed` replaces the
-        old violet/fuchsia pair so the hero resolves to one accent.
+        - Violet keeps its seat behind the Active Blueprint — the atmosphere
+          the system is lit against, which is what stops the modules reading
+          as cut-outs floating in flat black.
+        - Blue holds the lower-left, faint enough to read as depth rather
+          than as a colour of its own (it replaces the old indigo with the
+          canonical dark-signal blue).
+        - Cyan enters as a small cool key light above the system, so the
+          WEBSITE side of the composition sits in the hue it carries.
 
-        The second was sky blue — a second accent competing with the first for a
-        hero that should have exactly one. It is now a very faint indigo (the
-        existing `--primary`), low enough to read as depth in the bottom-left
-        rather than as a colour of its own.
+        None of them floods the frame: each stays at or under a third of its
+        already-low peak alpha, blurred past recognition, breathing on its
+        own long period so the light never syncs into a visible rhythm.
       */}
       <motion.div
         aria-hidden
@@ -118,7 +159,19 @@ export function HeroGradients() {
           ease: "easeInOut",
           delay: 1.5,
         }}
-        className="pointer-events-none absolute -bottom-40 left-[12%] -z-10 size-[36rem] rounded-full bg-[radial-gradient(circle,rgba(94,106,210,0.16),transparent_64%)] blur-[120px]"
+        className="pointer-events-none absolute -bottom-40 left-[12%] -z-10 size-[36rem] rounded-full bg-[radial-gradient(circle,rgba(130,143,255,0.14),transparent_64%)] blur-[120px]"
+      />
+      <motion.div
+        aria-hidden
+        initial={{ opacity: 0.12, scale: 0.95 }}
+        animate={{ opacity: [0.12, 0.24, 0.12], scale: [0.95, 1.06, 0.95] }}
+        transition={{
+          duration: 18,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 3,
+        }}
+        className="pointer-events-none absolute left-[86%] top-[4%] -z-10 size-[30rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(103,232,249,0.11),transparent_62%)] blur-[100px]"
       />
     </>
   );
@@ -144,7 +197,7 @@ export function HeroProofStrip() {
       initial={shouldReduceMotion ? "show" : "hidden"}
       whileInView="show"
       viewport={{ once: true, margin: "-100px" }}
-      className="mt-16 max-w-3xl rounded-2xl border border-white/[0.08] bg-white/2.5 px-5 py-5 backdrop-blur lg:mt-28"
+      className="mt-16 max-w-3xl rounded-2xl border border-white/[0.08] bg-white/2.5 px-5 py-5 backdrop-blur lg:mt-20"
     >
       <motion.p
         variants={fadeUp}

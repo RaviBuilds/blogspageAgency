@@ -46,6 +46,15 @@ export function AudiencePathways() {
 
   return (
     <section className="border-t border-border bg-background py-24 lg:py-32">
+      {/*
+        The receiving half of the hero's connector motif (creative blueprint
+        §19): the same visual thread continues out of the dark hero, through
+        this seam, into the first scene's heading. Purely decorative.
+      */}
+      <div
+        aria-hidden
+        className="mx-auto -mt-16 mb-10 h-16 w-px bg-gradient-to-b from-transparent via-primary/25 to-primary/40 lg:-mt-20"
+      />
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <motion.div
           variants={container}
@@ -82,12 +91,27 @@ export function AudiencePathways() {
                 key={path.id}
                 variants={fadeUp}
                 className={cn(
-                  "flex h-full flex-col rounded-2xl border bg-card p-6 transition-colors duration-300",
+                  "relative flex h-full flex-col rounded-2xl border bg-card p-6 transition-colors duration-300",
                   isSelected
                     ? "border-border-strong"
                     : "border-border hover:border-border-strong",
                 )}
               >
+                {/* Signal accent (Motif C) — marks the active pathway only. */}
+                {isSelected ? (
+                  <span
+                    aria-hidden
+                    className="absolute inset-x-6 top-0 h-0.5 rounded-full bg-primary"
+                  />
+                ) : null}
+
+                {/* Website-first emphasis: a quiet marker, not a louder card. */}
+                {path.featured ? (
+                  <span className="mb-4 inline-flex w-fit items-center rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-[11px] font-medium text-primary">
+                    Most common starting point
+                  </span>
+                ) : null}
+
                 {/* Selection toggle — reveals context; never the only carrier
                     of the message (title + line are always visible). */}
                 <button
@@ -104,6 +128,17 @@ export function AudiencePathways() {
                     {path.line}
                   </span>
                 </button>
+
+                {/* Journey motif (Motif A): every pathway is an entry point
+                    into the same business journey — visible without hover. */}
+                <div
+                  className="mt-5 flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground"
+                  aria-label={`Journey: ${path.journey[0]} to ${path.journey[1]}`}
+                >
+                  <span>{path.journey[0]}</span>
+                  <span aria-hidden className="h-px w-6 bg-border-strong" />
+                  <span>{path.journey[1]}</span>
+                </div>
 
                 {isSelected ? (
                   <div className="mt-5 flex flex-1 flex-col border-t border-border-subtle pt-5">

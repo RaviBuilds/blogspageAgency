@@ -14,7 +14,7 @@
  */
 
 import styles from "./hero-system.module.css";
-import type { SystemModule, Topology } from "./topology";
+import { SIGNAL_HUE_VAR, type SystemModule, type Topology } from "./topology";
 import { TelemetryBars } from "./telemetry";
 
 /** `translateZ` per depth tier, in px. Gives the pointer tilt real parallax. */
@@ -53,6 +53,7 @@ export function ModuleCard({
       data-module={mod.id}
       data-depth={mod.depth}
       data-layout={row ? "row" : "stack"}
+      data-entry={mod.entry ? "true" : undefined}
       className={[styles.card, interactive ? styles.cardInteractive : ""]
         .filter(Boolean)
         .join(" ")}
@@ -65,6 +66,9 @@ export function ModuleCard({
         // amount under the same rotation.
         ["--depth-z" as string]: `${DEPTH_Z[mod.depth]}px`,
         ["--card-index" as string]: index,
+        // The card's signal hue: LED, active stage label and focus ring all
+        // read `--sys-accent`, so one property carries the whole accent.
+        ["--sys-accent" as string]: SIGNAL_HUE_VAR[mod.signal],
       }}
     >
       <div className={styles.header}>

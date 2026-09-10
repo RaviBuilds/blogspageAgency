@@ -1,5 +1,5 @@
-import { Sparkles } from "lucide-react";
 import {
+  HeroConnector,
   HeroCtas,
   HeroGradients,
   HeroProofStrip,
@@ -80,8 +80,14 @@ export function Hero() {
         be discovered by scrolling, which is the one thing an above-the-fold
         visual must not require. 128px top holds a deliberate 56px clearance under
         the navbar and buys back the ~110px the composition needed.
+
+        R2.1 FINAL-POLISH: the bottom was the hero's one dead stretch — a wide
+        black band between the proof strip and the seam. 96px (from 128px)
+        tightens the lower rhythm so the connector thread lands nearer the proof
+        strip and the seam reads as an authored hand-off, not an unfinished page.
+        The hero still breathes; it just no longer trails off.
       */}
-      <div className="mx-auto max-w-7xl px-6 pb-20 pt-24 lg:px-8 lg:pb-32 lg:pt-32">
+      <div className="mx-auto max-w-7xl px-6 pb-16 pt-24 lg:px-8 lg:pb-24 lg:pt-32">
         {/*
           One grid row, two cells — not two rows.
 
@@ -101,8 +107,21 @@ export function Hero() {
         <div className="grid grid-cols-1 gap-y-14 lg:grid-cols-12 lg:gap-x-8">
           {/* Message column. */}
           <div className="lg:col-span-7 lg:col-start-1">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/4 px-4 py-1.5 text-xs text-muted-foreground shadow-2xl shadow-indigo-500/10 backdrop-blur lg:mb-8">
-              <Sparkles className="size-3.5 text-primary" />
+            {/*
+              Eyebrow — business-first, one quiet brand signal.
+
+              The generic Sparkles glyph is replaced by the canonical Blogspage
+              signal dot (cyan → blue → violet): the same triad the system
+              visual speaks, so the brand reads as one continuous idea from the
+              first 12px of the page. The pill itself is calmed — hairline
+              border, flatter fill, no drop shadow — so it frames the line
+              instead of competing with the headline beneath it.
+            */}
+            <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/[0.1] bg-white/[0.03] px-4 py-2 text-xs text-muted-foreground backdrop-blur lg:mb-8">
+              <span
+                aria-hidden
+                className="size-2 shrink-0 rounded-full bg-[linear-gradient(135deg,#0891B2,#4353C9,#7C3AED)] shadow-[0_0_10px_rgba(130,143,255,0.55)]"
+              />
               {HERO.eyebrow}
             </div>
 
@@ -177,6 +196,13 @@ export function Hero() {
         {/* Proof strip — client-animated scroll reveal. */}
         <HeroProofStrip />
       </div>
+
+      {/*
+        Signature connector motif (creative blueprint §19): one quiet line
+        leading the eye out of the hero into "Where are you right now?".
+        Purely decorative; the matching stub lives in AudiencePathways.
+      */}
+      <HeroConnector />
     </section>
   );
 }

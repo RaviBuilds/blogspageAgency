@@ -57,21 +57,40 @@
      at a glance from across the fold, so the structural values are lifted
      substantially and Electric Violet becomes the one signal colour: it marks
      what is *happening* (a live wire, a packet, a focused surface) and nothing
-     else. Structure stays neutral grey; only activity is violet. */
+     else. Structure stays neutral grey; only activity is signal.
+
+     R2.1 FINAL: "one accent" becomes "one signal system" — the canonical
+     Blogspage triad, each hue assigned a business meaning rather than a
+     decorative one. Cyan = digital presence / entry (the website). Blue =
+     the business and its customers. Violet = AI and automation. The hue is
+     data (`signal` in topology.ts), delivered per card and per packet as a
+     custom property; the rules below only ever read `--sys-accent`,
+     `--live-hue` or `--packet-hue`, so the stylesheet never hardcodes which
+     module is which. Signal share stays ~5-15% of the frame: structure
+     remains neutral grey, and no hue ever fills a surface. */
+  --sys-hue-cyan: #67e8f9;
+  --sys-hue-blue: #828fff;
+  --sys-hue-violet: #a78bfa;
+
+  /* Legacy aliases — every pre-existing violet rule keeps working, now fed
+     from the violet member of the triad. */
   --sys-violet: #7c3aed;
-  --sys-violet-lit: #a78bfa;
+  --sys-violet-lit: var(--sys-hue-violet);
   --sys-violet-glow: rgba(124, 58, 237, 0.55);
 
-  --sys-border: rgba(255, 255, 255, 0.15);
-  --sys-card: rgba(16, 17, 22, 0.92);
-  --sys-label: #e8eaf2;
-  --sys-dim: #8b91a1;
-  --sys-stage: #767d8e;
-  --sys-bar: #7a8298;
-  --sys-trace: #414757;
+  /* Fallbacks for elements the engine has not hue-tagged yet (the first static
+     paint of a packet slot, a live wire before the first dispatch). */
   --sys-packet: #ece3ff;
   --sys-packet-halo: #7c3aed;
-  --sys-accent: #7c3aed;
+  --sys-accent: var(--sys-hue-violet);
+
+  --sys-border: rgba(255, 255, 255, 0.185);
+  --sys-card: rgba(19, 20, 27, 0.94);
+  --sys-label: #f3f4f8;
+  --sys-dim: #9aa0b0;
+  --sys-stage: #848ca0;
+  --sys-bar: #838ba3;
+  --sys-trace: #4a5164;
 
   position: relative;
   width: 100%;
@@ -116,16 +135,21 @@
   inset: -10%;
   z-index: -1;
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to right, rgba(255, 255, 255, 0.042) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.042) 1px, transparent 1px),
     radial-gradient(
-      46% 42% at 54% 44%,
+      46% 42% at 58% 44%,
       rgba(124, 58, 237, 0.2),
       transparent 72%
     ),
     radial-gradient(
+      30% 30% at 16% 34%,
+      rgba(103, 232, 249, 0.08),
+      transparent 74%
+    ),
+    radial-gradient(
       34% 32% at 24% 76%,
-      rgba(94, 106, 210, 0.11),
+      rgba(130, 143, 255, 0.11),
       transparent 74%
     );
   background-size:
@@ -135,9 +159,9 @@
     100% 100%;
   /* Masked rather than faded so the field has no visible edge — it simply stops
      existing before it reaches the composition's boundary. */
-  mask-image: radial-gradient(58% 54% at 50% 46%, #000 0%, transparent 82%);
+  mask-image: radial-gradient(62% 58% at 50% 46%, #000 0%, transparent 82%);
   -webkit-mask-image: radial-gradient(
-    58% 54% at 50% 46%,
+    62% 58% at 50% 46%,
     #000 0%,
     transparent 82%
   );
@@ -232,8 +256,9 @@
   width: 0.3125rem;
   height: 0.3125rem;
   border-radius: 9999px;
-  background-color: var(--sys-violet);
-  box-shadow: 0 0 6px var(--sys-violet-glow);
+  /* The LED inherits the module's business hue, not a global accent. */
+  background-color: var(--sys-accent);
+  box-shadow: 0 0 6px color-mix(in oklab, var(--sys-accent) 55%, transparent);
   opacity: 0.35;
   transition: opacity 200ms ease;
 }
@@ -275,8 +300,8 @@
 /* The engine walks this one step per packet arrival, so the highlight travels
    the row as work passes through the surface. */
 .stageToken[data-active="true"] {
-  color: var(--sys-violet-lit);
-  text-shadow: 0 0 8px var(--sys-violet-glow);
+  color: var(--sys-accent);
+  text-shadow: 0 0 8px color-mix(in oklab, var(--sys-accent) 55%, transparent);
 }
 
 .readout {
@@ -293,7 +318,17 @@
   width: 3px;
   height: 100%;
   border-radius: 1px;
+  /* The bars echo their module's signal: a neutral base rising into a faint
+     tint of the module's own hue at the top. Decoration stays decoration —
+     lowest rung of the hierarchy — but it now repeats the card's meaning
+     instead of an anonymous grey. Static paint; the engine still only writes
+     `scaleY` on these nodes. */
   background-color: var(--sys-bar);
+  background-image: linear-gradient(
+    to top,
+    var(--sys-bar),
+    color-mix(in oklab, var(--sys-accent) 30%, var(--sys-bar))
+  );
   /* Bars grow from their base. The engine writes `scaleY` inline each tick. */
   transform-origin: bottom;
 }
@@ -382,11 +417,19 @@
  * only ever applies to the one-to-four paths actually carrying traffic.
  */
 .trace[data-live="true"] {
-  stroke: var(--sys-violet-lit);
+  /* The wire lights in the hue of the transaction it is carrying — cyan for an
+     enquiry on its way in, blue for a business record, violet for AI work. The
+     engine sets `--live-hue` alongside `data-live`; without it the violet
+     fallback keeps the wire readable in any engine-less or first-paint state. */
+  stroke: var(--live-hue, var(--sys-violet-lit));
   stroke-width: 2;
   filter:
-    drop-shadow(0 0 3px var(--sys-violet))
-    drop-shadow(0 0 8px var(--sys-violet-glow));
+    drop-shadow(
+      0 0 3px color-mix(in oklab, var(--live-hue, var(--sys-violet-lit)) 70%, transparent)
+    )
+    drop-shadow(
+      0 0 8px color-mix(in oklab, var(--live-hue, var(--sys-violet-lit)) 45%, transparent)
+    );
 }
 
 /* --- Packets -------------------------------------------------------------- */
@@ -406,7 +449,22 @@
  * filter declared on the child.
  */
 .packetCore {
-  filter: drop-shadow(0 0 5px var(--sys-violet-glow));
+  filter: drop-shadow(
+    0 0 5px color-mix(in oklab, var(--packet-hue, var(--sys-violet-lit)) 55%, transparent)
+  );
+}
+
+/* --- The entry edge ------------------------------------------------------- */
+
+/*
+ * One node — WEBSITE — is the system's front door, so it alone carries a
+ * resting edge tinted with its own signal hue. This is the "one important
+ * node with a slightly clearer active edge" refinement: the entry point reads
+ * before any interaction, without promoting any other surface. Placed before
+ * the focus rules so hovering the card still wins the cascade.
+ */
+.card[data-entry="true"] {
+  border-color: color-mix(in oklab, var(--sys-accent) 30%, var(--sys-border));
 }
 
 /* --- Hover consequence ---------------------------------------------------- */
@@ -422,8 +480,8 @@
   background-color: rgba(24, 22, 34, 0.94);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.09),
-    0 0 0 1px rgba(124, 58, 237, 0.4),
-    0 0 28px -6px rgba(124, 58, 237, 0.45),
+    0 0 0 1px color-mix(in oklab, var(--sys-accent) 40%, transparent),
+    0 0 28px -6px color-mix(in oklab, var(--sys-accent) 45%, transparent),
     0 14px 34px -20px rgba(0, 0, 0, 0.95);
 }
 

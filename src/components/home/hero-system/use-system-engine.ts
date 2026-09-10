@@ -49,10 +49,12 @@ import {
   type SchedulerState,
 } from "./engine";
 import {
+  SIGNAL_HUE_VAR,
   buildRoutePlans,
   incidentEdgeIds,
   routesThroughModule,
   type RoutePlan,
+  type SignalHue,
   type Topology,
 } from "./topology";
 import { TELEMETRY_BAR_COUNT, telemetryHeights } from "./telemetry";
@@ -255,13 +257,21 @@ export function useSystemEngine({
     // to change one of them would be the most expensive thing in the loop.
     let liveEdges = new Set<string>();
     const nextLiveEdges = new Set<string>();
+    // The hue each live wire should carry this frame, from the route of the
+    // packet currently traversing it. Written only on the same diff that flips
+    // `data-live`, so it costs nothing on frames where the live set is stable.
+    const nextLiveHues = new Map<string, SignalHue>();
 
     const clearLiveEdges = () => {
       for (const edgeId of liveEdges) {
         const el = edgeEls.get(edgeId);
-        if (el) el.removeAttribute("data-live");
+        if (el) {
+          el.removeAttribute("data-live");
+          el.style.removeProperty("--live-hue");
+        }
       }
       liveEdges.clear();
+      nextLiveHues.clear();
     };
 
     const applyPhase = (next: Phase) => {
@@ -394,6 +404,15 @@ export function useSystemEngine({
           const point = positionAt(plan, packet.t);
           slot.group.style.opacity = "1";
           slot.group.style.transform = `translate(${point.x.toFixed(2)}px, ${point.y.toFixed(2)}px)`;
+          // The packet inherits its route's hue — the colour of the information
+          // itself. Same property the served static slots carry, same diff
+          // guard as the label so a slot holding its route writes nothing.
+          if (plan.signal) {
+            const hue = SIGNAL_HUE_VAR[plan.signal];
+            if (slot.group.style.getPropertyValue("--packet-hue") !== hue) {
+              slot.group.style.setProperty("--packet-hue", hue);
+            }
+          }
           if (slot.label) {
             if (slot.label.textContent !== plan.label) {
               slot.label.textContent = plan.label;
@@ -406,7 +425,10 @@ export function useSystemEngine({
           const edges = routeEdgeIds.get(packet.routeId);
           if (edges) {
             const edgeId = edges[activeEdgeIndexAt(plan, packet.t)];
-            if (edgeId) nextLiveEdges.add(edgeId);
+            if (edgeId) {
+              nextLiveEdges.add(edgeId);
+              if (plan.signal) nextLiveHues.set(edgeId, plan.signal);
+            }
           }
         }
 
@@ -414,11 +436,20 @@ export function useSystemEngine({
         if (!sameSet(liveEdges, nextLiveEdges)) {
           for (const edgeId of liveEdges) {
             if (nextLiveEdges.has(edgeId)) continue;
-            edgeEls.get(edgeId)?.removeAttribute("data-live");
+            const el = edgeEls.get(edgeId);
+            if (el) {
+              el.removeAttribute("data-live");
+              el.style.removeProperty("--live-hue");
+            }
           }
           for (const edgeId of nextLiveEdges) {
             if (liveEdges.has(edgeId)) continue;
-            edgeEls.get(edgeId)?.setAttribute("data-live", "true");
+            const el = edgeEls.get(edgeId);
+            if (!el) continue;
+            el.setAttribute("data-live", "true");
+            // Light the wire in the hue of the transaction it carries.
+            const hue = nextLiveHues.get(edgeId);
+            if (hue) el.style.setProperty("--live-hue", SIGNAL_HUE_VAR[hue]);
           }
           liveEdges = new Set(nextLiveEdges);
         }

@@ -25,6 +25,7 @@
 import { labelOpacityAt, positionAt } from "./engine";
 import styles from "./hero-system.module.css";
 import {
+  SIGNAL_HUE_VAR,
   buildRoutePlans,
   polylineLength,
   polylineToPath,
@@ -51,6 +52,9 @@ export function TraceLayer({
       point: positionAt(plan, composed.t),
       label: plan.label,
       opacity: labelOpacityAt(composed.t),
+      // The packet's hue, so the served static composition is already
+      // colour-coded; the engine rewrites the same property per dispatch.
+      hue: plan.signal ? SIGNAL_HUE_VAR[plan.signal] : undefined,
     };
   });
 
@@ -144,12 +148,15 @@ export function TraceLayer({
               transform: slot
                 ? `translate(${slot.point.x.toFixed(2)}px, ${slot.point.y.toFixed(2)}px)`
                 : "translate(-100px, -100px)",
+              ...(slot?.hue
+                ? { ["--packet-hue" as string]: slot.hue }
+                : null),
             }}
           >
             {/* Glow wrapper — see `.packetCore`. Keeps the bloom off the label. */}
             <g className={styles.packetCore}>
-              <circle r={7} fill="var(--sys-packet-halo)" opacity={0.16} />
-              <circle r={3.6} fill="var(--sys-packet-halo)" opacity={0.55} />
+              <circle r={7} fill="var(--packet-hue, var(--sys-packet-halo))" opacity={0.16} />
+              <circle r={3.6} fill="var(--packet-hue, var(--sys-packet-halo))" opacity={0.55} />
               <circle r={1.9} fill="var(--sys-packet)" />
             </g>
             <text
@@ -159,7 +166,7 @@ export function TraceLayer({
               className="font-mono"
               fontSize={8}
               letterSpacing={0.6}
-              fill="var(--sys-packet)"
+              fill="var(--packet-hue, var(--sys-packet))"
               opacity={slot ? slot.opacity * 0.9 : 0}
             >
               {slot ? slot.label : ""}
