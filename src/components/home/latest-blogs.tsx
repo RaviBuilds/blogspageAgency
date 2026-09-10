@@ -29,7 +29,7 @@ export async function LatestBlogs() {
           <div>
             <p className="text-sm font-medium text-primary">Journal</p>
             <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-              Latest articles
+              From the journal
             </h2>
             <p className="mt-3 max-w-xl text-muted-foreground">
               Engineering deep-dives, local SEO playbooks, and the systems behind

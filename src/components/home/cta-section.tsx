@@ -1,23 +1,36 @@
 "use client";
 
-import { useRef, type MouseEvent } from "react";
+import Link from "next/link";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import {
-  motion,
-  useMotionValue,
-  useSpring,
-  useTransform,
-  type Variants,
-} from "framer-motion";
+
+import { trackEvent } from "@/lib/analytics";
+import { FINAL_CTA } from "@/lib/homepage-data";
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   MOTION PRIMITIVES — design system §5
+   MOVEMENT 7 — Final conversion (Blueprint §20)
+
+   "Tell us where you want your business to go." with four understandable
+   starting paths. Replaces the marquee + magnetic-button section: the
+   perpetual marquee animation is retired (motion rules) and the old
+   "scale without headcount / deploy your AI system" voice is replaced by
+   the business-owner narrative.
+
+   Each choice navigates to the conversation section carrying its context
+   (`#contact?need=…`), which the ConversationExperience parses out of the
+   hash. Nobody is forced into the chat; every path is a real link.
    ───────────────────────────────────────────────────────────────────────────── */
-const SPRING = { type: "spring", stiffness: 100, damping: 20, mass: 1 } as const;
+
+const SPRING = {
+  type: "spring",
+  stiffness: 100,
+  damping: 20,
+  mass: 1,
+} as const;
 
 const container: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.1 } },
+  show: { transition: { staggerChildren: 0.08 } },
 };
 
 const fadeUp: Variants = {
@@ -25,161 +38,59 @@ const fadeUp: Variants = {
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   INFINITE MARQUEE
-   Massive, uppercase, transparent stroke text scrolling infinitely.
-   Uses a duplicated string + `animate={{ x: ["0%", "-50%"] }}` so the
-   seam is invisible (the content repeats at 50%).
-   ───────────────────────────────────────────────────────────────────────────── */
-const MARQUEE_TEXT =
-  "AI SALES AGENTS • WORKFLOW AUTOMATION • CUSTOM SAAS • PROGRAMMATIC SEO • ";
-
-function InfiniteMarquee() {
-  return (
-    <div className="pointer-events-none absolute inset-0 flex items-center overflow-hidden">
-      <motion.div
-        className="flex shrink-0 whitespace-nowrap"
-        animate={{ x: ["0%", "-50%"] }}
-        transition={{
-          x: {
-            repeat: Infinity,
-            repeatType: "loop",
-            duration: 30,
-            ease: "linear",
-          },
-        }}
-      >
-        {/* Duplicate the text so the loop is seamless */}
-        {[...Array(4)].map((_, i) => (
-          <span
-            key={i}
-            className="mx-4 text-[clamp(4rem,10vw,10rem)] font-bold uppercase leading-none tracking-tighter"
-            style={{
-              color: "transparent",
-              WebkitTextStroke: "1px rgba(14,21,36,0.06)",
-            }}
-          >
-            {MARQUEE_TEXT}
-          </span>
-        ))}
-      </motion.div>
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   MAGNETIC BUTTON
-   Pulls gently toward the cursor within a bounding area, snaps back
-   with premium spring on mouse leave. No jitter — uses `useSpring`.
-   ───────────────────────────────────────────────────────────────────────────── */
-function MagneticButton() {
-  const buttonRef = useRef<HTMLButtonElement>(null);
-
-  // Raw motion values updated on mousemove
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  // Springy output (magnetic snap-back)
-  const springConfig = { stiffness: 150, damping: 15, mass: 0.5 };
-  const x = useSpring(mouseX, springConfig);
-  const y = useSpring(mouseY, springConfig);
-
-  // Subtle scale up while cursor is within bounding box
-  const distance = useMotionValue(0);
-  const scale = useTransform(distance, [0, 1], [1.05, 1]);
-
-  const handleMouseMove = (event: MouseEvent<HTMLButtonElement>) => {
-    const el = buttonRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    const deltaX = event.clientX - centerX;
-    const deltaY = event.clientY - centerY;
-
-    // Pull strength: 30% of distance
-    mouseX.set(deltaX * 0.3);
-    mouseY.set(deltaY * 0.3);
-    distance.set(0);
-  };
-
-  const handleMouseLeave = () => {
-    mouseX.set(0);
-    mouseY.set(0);
-    distance.set(1);
-  };
-
-  const handleClick = () => {
-    window.dispatchEvent(new Event("open-ai-chat"));
-  };
+export function FinalCTA() {
+  const shouldReduceMotion = useReducedMotion();
 
   return (
-    <motion.button
-      ref={buttonRef}
-      onClick={handleClick}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{ x, y, scale }}
-      whileTap={{ scale: 0.95 }}
-      className="group relative inline-flex h-14 items-center gap-3 rounded-full border border-foreground bg-foreground px-8 text-base font-semibold text-background transition-colors hover:bg-foreground/90"
-    >
-      {/* Signal Gradient ring on hover — restrained, approved (ring only) */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute -inset-[2px] rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{
-          background:
-            "linear-gradient(90deg, #0891B2 0%, #4353C9 48%, #7C3AED 100%)",
-          zIndex: -1,
-        }}
-      />
-      Deploy Your AI System
-      <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
-    </motion.button>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   IMMERSIVE CTA SECTION
-   ───────────────────────────────────────────────────────────────────────────── */
-export function CtaSection() {
-  return (
-    <section className="relative isolate overflow-hidden border-t border-border-subtle bg-background-subtle py-48">
-      {/* Infinite marquee — behind the content */}
-      <InfiniteMarquee />
-
-      {/* Content */}
+    <section className="border-t border-border-subtle bg-background-subtle py-24 lg:py-32">
       <motion.div
         variants={container}
-        initial="hidden"
+        initial={shouldReduceMotion ? "show" : "hidden"}
         whileInView="show"
         viewport={{ once: true, margin: "-100px" }}
         className="relative z-10 mx-auto max-w-4xl px-6 text-center lg:px-8"
       >
+        <motion.p variants={fadeUp} className="text-sm font-medium text-primary">
+          {FINAL_CTA.eyebrow}
+        </motion.p>
+
         <motion.h2
           variants={fadeUp}
-          className="text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl"
+          className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl lg:text-5xl"
         >
-          Ready to scale without the headcount?
+          {FINAL_CTA.heading}
         </motion.h2>
 
         <motion.p
           variants={fadeUp}
           className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground"
         >
-          Let&apos;s architect your AI automation engine — so revenue grows
-          while your team stays lean.
+          {FINAL_CTA.sub}
         </motion.p>
 
-        <motion.div variants={fadeUp} className="mt-12 flex justify-center">
-          <MagneticButton />
-        </motion.div>
+        <div className="mx-auto mt-10 grid max-w-2xl gap-3 sm:grid-cols-2">
+          {FINAL_CTA.choices.map((choice) => (
+            <motion.div key={choice.need} variants={fadeUp}>
+              <Link
+                href={`#contact?need=${choice.need}`}
+                onClick={() =>
+                  trackEvent("contact_cta_click", {
+                    cta_location: "final-cta",
+                    need: choice.need,
+                    destination: `#contact?need=${choice.need}`,
+                  })
+                }
+                className="group flex h-14 items-center justify-between rounded-xl border border-border bg-card px-5 text-sm font-semibold text-foreground transition-colors duration-300 hover:border-border-strong hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
+                {choice.label}
+                <ArrowRight className="size-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-1 group-hover:text-primary" />
+              </Link>
+            </motion.div>
+          ))}
+        </div>
 
-        <motion.p
-          variants={fadeUp}
-          className="mt-8 text-sm text-text-subtle"
-        >
-          Free strategy call · No commitment · Response in 24h
+        <motion.p variants={fadeUp} className="mt-8 text-sm text-muted-foreground">
+          {FINAL_CTA.footnote}
         </motion.p>
       </motion.div>
     </section>
