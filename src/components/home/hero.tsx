@@ -10,6 +10,48 @@ import { HERO } from "@/lib/homepage-data";
 const HEADLINE_LINES = HERO.headlineLines;
 
 /**
+ * R2.1 brand expression: the meaningful tail of the H1 — "find, trust and
+ * use." — carries the approved dark-signal triad (cyan → blue → violet) as
+ * one continuous `background-clip: text` sweep. Declared inline rather than
+ * via `.text-gradient` because the hero island's locked override in
+ * `globals.css` (outside this phase's scope) pins that class to the legacy
+ * near-white gradient — exactly the "white H1" problem this phase corrects.
+ *
+ * The triad is the same one the eyebrow dot, the system packets and the
+ * connector speak, so the typography and the visual read as one system.
+ * Static by design — never animated, never hue-shifting.
+ */
+const BRAND_PHRASE_GRADIENT: React.CSSProperties = {
+  backgroundImage:
+    "linear-gradient(94deg, #67E8F9 0%, #828FFF 48%, #A78BFA 100%)",
+  WebkitBackgroundClip: "text",
+  backgroundClip: "text",
+  color: "transparent",
+  WebkitTextFillColor: "transparent",
+};
+
+/** First word of the brand phrase, resolved against the real word order. */
+const BRAND_PHRASE_FIRST_WORD = "find,";
+
+const BRAND_PHRASE_FROM_WORD = HEADLINE_LINES
+  .flatMap((line) => line.split(" "))
+  .indexOf(BRAND_PHRASE_FIRST_WORD);
+
+/**
+ * Words the supporting copy quietly emphasizes. Weight only — the emphasis
+ * lifts them from `--muted-foreground` to `--foreground` without introducing
+ * a second colour into the body text.
+ */
+const SUBCOPY_EMPHASIS = new Set([
+  "brand",
+  "website",
+  "business software",
+  "AI automation",
+]);
+
+const SUBCOPY_SPLIT = /(brand|website|business software|AI automation)/g;
+
+/**
  * Renders a headline as plain server-rendered text, one `<span>` per word.
  * Each word carries a `--word-index` custom property (a single increasing
  * index across all lines, so the CSS stagger in `globals.css` reads
@@ -21,44 +63,75 @@ const HEADLINE_LINES = HERO.headlineLines;
  * individual `.hero-word` spans animate in from `opacity: 0` via the CSS
  * keyframe in `globals.css`, which is a purely visual enhancement layered on
  * top of already-crawlable, already-readable text.
+ *
+ * R2.1: words from `brandFromWord` (global index) to the end of their line
+ * render inside one gradient wrapper, so the brand phrase reads as a single
+ * continuous sweep — never a gradient per word. The mechanism is the same
+ * one the line-level gradient used (background-clip: text over the same
+ * nested word spans), only scoped to the phrase.
  */
 function KineticHeadline({
   lines,
   className,
+  brandFromWord,
 }: {
   lines: readonly string[];
   className?: string;
+  brandFromWord?: number;
 }) {
   let wordIndex = 0;
 
   return (
     <>
-      {lines.map((line, lineIdx) => (
-        <span
-          key={lineIdx}
-          className={`block overflow-hidden pb-3 ${lineIdx > 0 ? "mt-2" : ""} ${className ?? ""}`}
-        >
-          {line.split(" ").map((word, i, arr) => {
-            const index = wordIndex;
-            wordIndex += 1;
-            return (
-              <span
-                key={`${word}-${lineIdx}-${i}`}
-                className="inline-block align-bottom"
-                style={{ perspective: "1000px" }}
-              >
-                <span
-                  className="hero-word inline-block origin-bottom will-change-transform"
-                  style={{ "--word-index": index } as React.CSSProperties}
-                >
-                  {word}
-                </span>
-                {i < arr.length - 1 ? "\u00A0" : null}
-              </span>
-            );
-          })}
-        </span>
-      ))}
+      {lines.map((line, lineIdx) => {
+        const words = line.split(" ");
+        const lineBase = wordIndex;
+        wordIndex += words.length;
+
+        // Where the brand phrase starts within this line. The phrase always
+        // runs to the end of the line, so one split decides the grouping.
+        const brandAt =
+          brandFromWord === undefined ? -1 : brandFromWord - lineBase;
+
+        const renderWord = (word: string, index: number, i: number) => (
+          <span
+            key={`${word}-${lineIdx}-${i}`}
+            className="inline-block align-bottom"
+            style={{ perspective: "1000px" }}
+          >
+            <span
+              className="hero-word inline-block origin-bottom will-change-transform"
+              style={{ "--word-index": index } as React.CSSProperties}
+            >
+              {word}
+            </span>
+            {i < words.length - 1 ? "\u00A0" : null}
+          </span>
+        );
+
+        const lineClass = `block overflow-hidden pb-3 ${lineIdx > 0 ? "mt-2" : ""} ${className ?? ""}`;
+
+        if (brandAt <= 0 || brandAt >= words.length) {
+          return (
+            <span key={lineIdx} className={lineClass}>
+              {words.map((word, i) => renderWord(word, lineBase + i, i))}
+            </span>
+          );
+        }
+
+        return (
+          <span key={lineIdx} className={lineClass}>
+            {words.slice(0, brandAt).map((word, i) =>
+              renderWord(word, lineBase + i, i)
+            )}
+            <span style={BRAND_PHRASE_GRADIENT}>
+              {words.slice(brandAt).map((word, i) =>
+                renderWord(word, lineBase + brandAt + i, brandAt + i)
+              )}
+            </span>
+          </span>
+        );
+      })}
     </>
   );
 }
@@ -137,6 +210,15 @@ export function Hero() {
 
               Wording is unchanged, and no line breaks are forced: `text-balance`
               plus the column width decide where it wraps.
+
+              R2.1 BRAND EXPRESSION: the meaningful phrase — "find, trust and
+              use." — carries the approved cyan → blue → violet triad as one
+              continuous background-clip sweep, declared inline because the
+              island's locked `.text-gradient` override still points the class
+              at the legacy near-white gradient. The rest of the H1 stays
+              neutral `--foreground`: strong neutral base, one deliberate
+              brand-emphasized phrase, same mechanism the line-level gradient
+              already proved over these nested word spans.
             */}
             <h1
               className="text-[clamp(2.75rem,6.2vw,5.75rem)] font-semibold leading-[0.88] tracking-tighter text-balance"
@@ -146,16 +228,49 @@ export function Hero() {
             >
               <KineticHeadline
                 lines={HEADLINE_LINES}
-                className="last:text-gradient"
+                brandFromWord={BRAND_PHRASE_FROM_WORD}
               />
             </h1>
 
+            {/*
+              R2.1: the supporting copy keeps its neutral body colour but the
+              four build-capability words lift to full `--foreground` weight.
+              Typography, not colour — the body introduces no second accent,
+              so the phrase gradient in the H1 stays the composition's single
+              typographic brand moment.
+            */}
             <p className="mt-8 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              {HERO.subcopy}
+              {HERO.subcopy.split(SUBCOPY_SPLIT).map((part, i) =>
+                SUBCOPY_EMPHASIS.has(part) ? (
+                  <strong
+                    key={`${part}-${i}`}
+                    className="font-medium text-foreground"
+                  >
+                    {part}
+                  </strong>
+                ) : (
+                  part
+                )
+              )}
             </p>
 
+            {/*
+              Capability line: one restrained accent only. The separators —
+              not the capabilities — carry the signal blue, so the line stays
+              a quiet index of what the business can ask for while picking up
+              the same hue the system visual's business records speak.
+            */}
             <p className="mt-4 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground sm:text-sm">
-              {HERO.capabilityLine}
+              {HERO.capabilityLine.split(" · ").map((capability, i, all) => (
+                <span key={capability}>
+                  {capability}
+                  {i < all.length - 1 ? (
+                    <span aria-hidden className="text-[#828FFF]/70">
+                      {" · "}
+                    </span>
+                  ) : null}
+                </span>
+              ))}
             </p>
 
             <HeroCtas />
