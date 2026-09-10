@@ -2,36 +2,45 @@ import { Hero } from "@/components/home/hero";
 import { AudiencePathways } from "@/components/home/audience-pathways";
 import { DigitalPresenceStory } from "@/components/home/digital-presence-story";
 import { ServiceVerticals } from "@/components/home/services-bento";
+import { FeaturedProof } from "@/components/home/featured-work";
+import { SupportingWork } from "@/components/home/supporting-work";
 import { BentoGrid } from "@/components/home/bento-grid";
-import { ComparisonSection } from "@/components/home/comparison-section";
 import { DeliveryModels } from "@/components/home/delivery-models";
 import { ProcessTimeline } from "@/components/home/process-timeline";
-import { FeaturedWork } from "@/components/home/featured-work";
 import { LatestBlogs } from "@/components/home/latest-blogs";
 import { CtaSection } from "@/components/home/cta-section";
 import { ContactForm } from "@/components/home/contact-form";
 import { JsonLd } from "@/components/seo/json-ld";
 import { webSiteNode } from "@/lib/structured-data";
 
+/*
+ * Homepage v2.0 composition (R1).
+ *
+ * Narrative order follows the approved plan / Blueprint §44 storyboard:
+ *   Movement 1  Hero (dark island, untouched isolation wrapper)
+ *   Movement 2  AudiencePathways — "Where are you right now?"
+ *   Movement 2b DigitalPresenceStory — starting-from-zero story
+ *   Movement 3  ServiceVerticals (id="services")
+ *   Movement 4  FeaturedProof (id="work") + SupportingWork (id="more-work")
+ *   Bridge      BentoGrid (id="solutions") — the ten solution links
+ *   Movement 5  ProcessTimeline (id="process") + DeliveryModels (id="models")
+ *   Movement 6/7 ConversationExperience (id="contact") + FinalCTA + journal
+ *
+ * Protected contracts honoured here: the `webSiteNode` JSON-LD stays rendered
+ * on this page; every section keeps its anchor id; ComparisonSection is
+ * retired from the composition (zero inbound `#comparison` links verified at
+ * plan time; the file stays in the repo, deprecated, not deleted).
+ */
 export default function HomePage() {
   return (
     <>
       <JsonLd nodes={[webSiteNode()]} />
       {/*
-        Phase 1 Hero island — the only composition-level change on this page.
-
-        The global `html.dark` default has been removed, so the approved light
-        tokens are the site default. The Hero is visually locked, and this
-        wrapper is the minimum isolation that preserves it exactly: `.dark`
-        scopes the approved dark island palette onto the Hero's subtree (and
-        keeps the `dark:` utility variants inside `Button` resolving as
-        before), while `.hero-island` — defined in `globals.css` — pins the
-        exact pre-migration values the Hero's subtree actually resolves.
+        Hero island isolation: `.dark` scopes the approved dark island
+        palette onto the Hero's subtree, while `.hero-island` — defined in
+        `globals.css` — pins the exact values the Hero's subtree resolves.
         The Active Blueprint (`hero-system/**`) is module-scoped and sits
         inside the same boundary, untouched.
-
-        No other section is wrapped: migrating them onto the light token
-        system belongs to later phases.
       */}
       <div className="dark hero-island">
         <Hero />
@@ -39,14 +48,15 @@ export default function HomePage() {
       <AudiencePathways />
       <DigitalPresenceStory />
       <ServiceVerticals />
+      <FeaturedProof />
+      <SupportingWork />
       <BentoGrid />
-      <ComparisonSection />
-      <DeliveryModels />
       <ProcessTimeline />
-      <FeaturedWork />
+      <DeliveryModels />
       <LatestBlogs />
       <CtaSection />
       <ContactForm />
     </>
   );
 }
+
