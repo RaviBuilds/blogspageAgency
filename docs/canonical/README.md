@@ -18,7 +18,11 @@ Primary authority for Google Search visibility strategy, brand/entity consistenc
 
 Primary authority for homepage creative execution, visual hierarchy, storytelling, scene transitions, signature motion, premium visual direction, business-owner-first creative treatment, card reduction, typography hierarchy, and motion/performance rules.
 
-### 4. blogspage-architecture-report.md
+### 4. BLOGSPAGE_AI_MASTER_VISUAL_DESIGN_SYSTEM_v1.0.md
+
+Primary authority for the Blogspage AI visual design language, color system, typography, surfaces, brand-signal usage, imagery, illustration, motion, interaction language, responsive visual behavior, accessibility and cross-project visual consistency.
+
+### 5. blogspage-architecture-report.md
 
 Primary architecture reference.
 
@@ -34,7 +38,7 @@ Use it to understand:
 
 Do not treat it as a visual or content redesign brief.
 
-### 5. seo-audit-report.md
+### 6. seo-audit-report.md
 
 Primary SEO reference and protection document.
 
