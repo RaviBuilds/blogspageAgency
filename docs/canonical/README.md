@@ -14,7 +14,11 @@ For homepage work, this document takes priority over older homepage planning doc
 
 Primary authority for Google Search visibility strategy, brand/entity consistency, sitelink-supporting site architecture, Google Business Profile relationship, local/entity signals, important-page discoverability, FAQ strategy, and search-oriented internal linking.
 
-### 3. blogspage-architecture-report.md
+### 3. BLOGSPAGE_AI_HOMEPAGE_CREATIVE_DIRECTION_MOTION_BLUEPRINT_v1.0.md
+
+Primary authority for homepage creative execution, visual hierarchy, storytelling, scene transitions, signature motion, premium visual direction, business-owner-first creative treatment, card reduction, typography hierarchy, and motion/performance rules.
+
+### 4. blogspage-architecture-report.md
 
 Primary architecture reference.
 
@@ -30,7 +34,7 @@ Use it to understand:
 
 Do not treat it as a visual or content redesign brief.
 
-### 4. seo-audit-report.md
+### 5. seo-audit-report.md
 
 Primary SEO reference and protection document.
 
