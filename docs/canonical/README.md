@@ -10,7 +10,11 @@ Primary authority for homepage strategy, positioning, messaging, information arc
 
 For homepage work, this document takes priority over older homepage planning documents.
 
-### 2. blogspage-architecture-report.md
+### 2. BLOGSPAGE_SEARCH_VISIBILITY_AND_ENTITY_BLUEPRINT.md
+
+Primary authority for Google Search visibility strategy, brand/entity consistency, sitelink-supporting site architecture, Google Business Profile relationship, local/entity signals, important-page discoverability, FAQ strategy, and search-oriented internal linking.
+
+### 3. blogspage-architecture-report.md
 
 Primary architecture reference.
 
@@ -26,7 +30,7 @@ Use it to understand:
 
 Do not treat it as a visual or content redesign brief.
 
-### 3. seo-audit-report.md
+### 4. seo-audit-report.md
 
 Primary SEO reference and protection document.
 
