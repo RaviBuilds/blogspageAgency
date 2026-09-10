@@ -2,14 +2,35 @@
 
 import { useRef, type MouseEvent } from "react";
 import Link from "next/link";
-import { Globe, LayoutDashboard, Bot } from "lucide-react";
+import { Bot, Globe, LayoutDashboard, type LucideIcon } from "lucide-react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
+import {
+  HOME_VERTICALS,
+  VERTICALS_SECTION,
+  type HomeVertical,
+} from "@/lib/homepage-verticals";
+import { projects } from "@/lib/featured-work-data";
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   MOTION PRIMITIVES — design system §5
+   MOVEMENT 3 — "Start with what your business needs today." (Blueprint §11–12)
+
+   The three permanent verticals, rendered from the presentation-layer model
+   in `homepage-verticals.ts` — never from the SEO catalog. When the future
+   service hubs ship, only that module's `href`/`hrefMode` values change.
+
+   Preserved contracts: `id="services"` (navbar), the spotlight-hover card
+   pattern, the §5 spring/stagger motion system, and the `solution_cta_click`
+   event name (the `pillar` property now carries the vertical id).
    ───────────────────────────────────────────────────────────────────────────── */
+
+const VERTICAL_ICONS: Record<HomeVertical["id"], LucideIcon> = {
+  "brand-digital-presence": Globe,
+  "applications-software": LayoutDashboard,
+  "ai-automation": Bot,
+};
+
 const SPRING = {
   type: "spring",
   stiffness: 100,
@@ -32,86 +53,7 @@ const fadeUp: Variants = {
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   TASK H3 — "What We Build"
-
-   Replaces the four AI-marketing service cards with the approved
-   three-pillar capability model. Each pillar is anchored to a real,
-   shipped project from `featured-work-data.ts` (Class B / descriptive
-   proof only — no outcome, uplift or figure is asserted here).
-
-   Proof-link destinations point at the in-page project sections owned by
-   TASK H6 (`#work`, flagship projects) and TASK H7 (`#more-work`,
-   supporting projects). Until those sections ship this sprint, both
-   anchors resolve to the top of the page — acceptable mid-sprint per the
-   implementation spec (plans/homepage-implementation-spec-v1.0.md, §8).
-   ───────────────────────────────────────────────────────────────────────────── */
-type Pillar = {
-  id:
-    | "digital-infrastructure"
-    | "operational-software"
-    | "intelligent-automation";
-  number: string;
-  icon: typeof Globe;
-  title: string;
-  capabilities: string[];
-  body: string;
-  proofName: string;
-  proofDetail: string;
-  destination: "#work" | "#more-work";
-  accent: string;
-};
-
-const pillars: Pillar[] = [
-  {
-    id: "digital-infrastructure",
-    number: "01",
-    icon: Globe,
-    title: "Digital Infrastructure",
-    capabilities: ["Websites", "Web apps", "Headless CMS", "SEO architecture"],
-    body: "The digital layer your customers see, search and interact with.",
-    proofName: "Best100Movies",
-    proofDetail: "a Sanity-backed content platform with programmatic routes.",
-    destination: "#more-work",
-    accent: "139,92,246", // violet
-  },
-  {
-    id: "operational-software",
-    number: "02",
-    icon: LayoutDashboard,
-    title: "Operational Software",
-    capabilities: ["SaaS", "Dashboards", "Portals", "Business workflows"],
-    body: "The systems your team uses to run the business.",
-    proofName: "ArogyaDiet",
-    proofDetail:
-      "customer, rider, franchise and master-admin portals on shared data.",
-    destination: "#work",
-    accent: "16,185,129", // emerald
-  },
-  {
-    id: "intelligent-automation",
-    number: "03",
-    icon: Bot,
-    title: "Intelligent Automation",
-    capabilities: [
-      "AI agents",
-      "Workflow automation",
-      "Lead capture",
-      "Customer follow-up",
-    ],
-    body: "The intelligence layer that removes repetitive work and keeps opportunities moving.",
-    proofName: "Phixl AI",
-    proofDetail:
-      "AI image restoration with credits, checkout and processing pipeline.",
-    destination: "#work",
-    accent: "99,102,241", // indigo
-  },
-];
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   PILLAR CARD with Hover Spotlight
-   ───────────────────────────────────────────────────────────────────────────── */
-function PillarCard({ pillar }: { pillar: Pillar }) {
+function VerticalCard({ vertical }: { vertical: HomeVertical }) {
   const cardRef = useRef<HTMLDivElement>(null);
 
   const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
@@ -122,7 +64,10 @@ function PillarCard({ pillar }: { pillar: Pillar }) {
     card.style.setProperty("--y", `${event.clientY - rect.top}px`);
   };
 
-  const Icon = pillar.icon;
+  const Icon = VERTICAL_ICONS[vertical.id];
+  const proofName =
+    projects.find((project) => project.id === vertical.proofProjectId)
+      ?.headline ?? vertical.proofProjectId;
 
   return (
     <motion.div
@@ -133,19 +78,17 @@ function PillarCard({ pillar }: { pillar: Pillar }) {
       onMouseMove={handleMouseMove}
       className={cn(
         "group relative flex h-full flex-col overflow-hidden rounded-2xl p-6",
-        // White instrument card (Phase 5A light system)
         "border border-border bg-card",
-        // Hover upgrade — border strengthens, surface stays white
         "transition-colors duration-300 hover:border-border-strong",
       )}
-      style={{ "--card-accent": pillar.accent } as React.CSSProperties}
+      style={{ "--card-accent": vertical.accent } as React.CSSProperties}
     >
       {/* Border spotlight on hover */}
       <span
         aria-hidden
         className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
-          background: `radial-gradient(220px circle at var(--x,50%) var(--y,50%), rgba(${pillar.accent},0.50), transparent 65%)`,
+          background: `radial-gradient(220px circle at var(--x,50%) var(--y,50%), rgba(${vertical.accent},0.50), transparent 65%)`,
           padding: "1px",
           WebkitMask:
             "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
@@ -159,52 +102,72 @@ function PillarCard({ pillar }: { pillar: Pillar }) {
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
-          background: `radial-gradient(300px circle at var(--x,50%) var(--y,50%), rgba(${pillar.accent},0.08), transparent 55%)`,
+          background: `radial-gradient(300px circle at var(--x,50%) var(--y,50%), rgba(${vertical.accent},0.08), transparent 55%)`,
         }}
       />
 
-      {/* Content */}
       <div className="relative z-10 flex h-full flex-col">
-        <div className="flex size-11 items-center justify-center rounded-xl border border-border bg-muted">
-          <Icon className="size-5 text-primary" />
+        <div className="flex items-center justify-between">
+          <div className="flex size-11 items-center justify-center rounded-xl border border-border bg-muted">
+            <Icon className="size-5 text-primary" />
+          </div>
+          <span className="rounded-full border border-border-subtle bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+            {vertical.stage}
+          </span>
         </div>
 
         <h3 className="mt-5 text-xl font-semibold tracking-tight text-foreground">
           <span aria-hidden className="mr-2 text-sm font-medium text-text-disabled">
-            {pillar.number}
+            {vertical.number}
           </span>
-          {pillar.title}
+          {vertical.title}
         </h3>
 
-        <ul
-          className={cn(
-            "mt-4 flex flex-wrap gap-x-1 gap-y-1 text-xs font-medium uppercase tracking-wider text-text-subtle",
-            "[&>li:not(:last-child)]:after:ml-2 [&>li:not(:last-child)]:after:text-text-disabled",
-            "[&>li:not(:last-child)]:after:content-['·']",
-          )}
-        >
-          {pillar.capabilities.map((capability) => (
+        <p className="mt-2 text-sm font-medium text-primary">
+          {vertical.plainPromise}
+        </p>
+
+        <ul className="mt-4 flex flex-wrap gap-x-1 gap-y-1 text-xs font-medium uppercase tracking-wider text-text-subtle [&>li:not(:last-child)]:after:ml-2 [&>li:not(:last-child)]:after:text-text-disabled [&>li:not(:last-child)]:after:content-['·']">
+          {vertical.capabilities.map((capability) => (
             <li key={capability}>{capability}</li>
           ))}
         </ul>
 
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground lg:text-base">
-          {pillar.body}
+          {vertical.body}
+        </p>
+
+        <p className="mt-4 text-sm text-muted-foreground">
+          Built with this:{" "}
+          <Link
+            href={vertical.proofDestination}
+            onClick={() =>
+              trackEvent("solution_cta_click", {
+                cta_location: "vertical-proof",
+                pillar: vertical.id,
+                destination: vertical.proofDestination,
+              })
+            }
+            className="underline-offset-4 transition-colors hover:text-foreground hover:underline"
+          >
+            {proofName} — {vertical.proofDetail}
+          </Link>
         </p>
 
         <div className="mt-auto pt-6">
           <Link
-            href={pillar.destination}
+            href={vertical.href}
             onClick={() =>
               trackEvent("solution_cta_click", {
-                cta_location: "what-we-build",
-                pillar: pillar.id,
-                destination: pillar.destination,
+                cta_location: "vertical-cta",
+                pillar: vertical.id,
+                destination: vertical.href,
               })
             }
-            className="-my-2 inline-block py-2 text-sm font-medium text-primary underline-offset-4 transition-colors hover:text-primary/80 hover:underline"
+            className="-my-2 inline-block py-2 text-sm font-semibold text-primary underline-offset-4 transition-colors hover:text-primary/80 hover:underline"
           >
-            Built with this: {pillar.proofName} — {pillar.proofDetail}
+            {vertical.ctaLabel}
+            <span aria-hidden> →</span>
           </Link>
         </div>
       </div>
@@ -212,19 +175,15 @@ function PillarCard({ pillar }: { pillar: Pillar }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   SERVICES BENTO SECTION — "What We Build"
-   ───────────────────────────────────────────────────────────────────────────── */
-export function ServicesBento() {
+export function ServiceVerticals() {
   const shouldReduceMotion = useReducedMotion();
 
   return (
     <section
       id="services"
-      className="border-t border-border bg-background py-24 lg:py-32"
+      className="scroll-mt-24 border-t border-border bg-background py-24 lg:py-32"
     >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-        {/* Section header with stagger */}
         <motion.div
           variants={gridVariants}
           initial={shouldReduceMotion ? "show" : "hidden"}
@@ -232,25 +191,20 @@ export function ServicesBento() {
           viewport={{ once: true, margin: "-100px" }}
           className="mx-auto max-w-2xl text-center"
         >
-          <motion.p
-            variants={fadeUp}
-            className="text-sm font-medium text-primary"
-          >
-            What we build
+          <motion.p variants={fadeUp} className="text-sm font-medium text-primary">
+            {VERTICALS_SECTION.eyebrow}
           </motion.p>
           <motion.h2
             variants={fadeUp}
             className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
           >
-            One connected system, not four disconnected vendors.
+            {VERTICALS_SECTION.heading}
           </motion.h2>
           <motion.p variants={fadeUp} className="mt-4 text-muted-foreground">
-            Your website, your internal software and your automation layer are
-            the same system seen from three angles. We build all three.
+            {VERTICALS_SECTION.sub}
           </motion.p>
         </motion.div>
 
-        {/* Three equal pillars, staggered spring reveal (§5) */}
         <motion.div
           className="mt-16 grid grid-cols-1 gap-4 md:grid-cols-3"
           variants={gridVariants}
@@ -258,8 +212,8 @@ export function ServicesBento() {
           whileInView="show"
           viewport={{ once: true, margin: "-100px" }}
         >
-          {pillars.map((pillar) => (
-            <PillarCard key={pillar.id} pillar={pillar} />
+          {HOME_VERTICALS.map((vertical) => (
+            <VerticalCard key={vertical.id} vertical={vertical} />
           ))}
         </motion.div>
       </div>

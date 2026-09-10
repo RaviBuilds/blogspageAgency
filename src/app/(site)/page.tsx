@@ -1,5 +1,7 @@
 import { Hero } from "@/components/home/hero";
-import { ServicesBento } from "@/components/home/services-bento";
+import { AudiencePathways } from "@/components/home/audience-pathways";
+import { DigitalPresenceStory } from "@/components/home/digital-presence-story";
+import { ServiceVerticals } from "@/components/home/services-bento";
 import { BentoGrid } from "@/components/home/bento-grid";
 import { ComparisonSection } from "@/components/home/comparison-section";
 import { DeliveryModels } from "@/components/home/delivery-models";
@@ -34,7 +36,9 @@ export default function HomePage() {
       <div className="dark hero-island">
         <Hero />
       </div>
-      <ServicesBento />
+      <AudiencePathways />
+      <DigitalPresenceStory />
+      <ServiceVerticals />
       <BentoGrid />
       <ComparisonSection />
       <DeliveryModels />
