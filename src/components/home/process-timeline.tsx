@@ -2,9 +2,18 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform, type Variants } from "framer-motion";
+import { PROCESS } from "@/lib/homepage-data";
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   MOTION PRIMITIVES — design system §5
+   MOVEMENT 5 — Trust: process (Blueprint §16)
+
+   "You don't need to know how to build it. You need to know what happens
+   next." The four phases are rewritten in business language, each ending
+   with the concrete deliverable the owner receives. Copy lives in
+   `homepage-data.ts` (PROCESS).
+
+   Preserved contracts: `id="process"` (navbar, footer, gym/dental solution
+   landings), the scroll-driven SVG line, the §5 spring/stagger system.
    ───────────────────────────────────────────────────────────────────────────── */
 const SPRING = { type: "spring", stiffness: 100, damping: 20, mass: 1 } as const;
 
@@ -19,43 +28,13 @@ const fadeUp: Variants = {
 };
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   PROCESS STEPS — AI-first engineering firm positioning
-   ───────────────────────────────────────────────────────────────────────────── */
-const steps = [
-  {
-    number: "01",
-    title: "Architecture & Data Strategy",
-    description:
-      "We map backend contracts, data flows, AI model constraints, and integration boundaries before writing a single line of code. Every decision is grounded in your business model and unit economics.",
-  },
-  {
-    number: "02",
-    title: "AI & System Integration",
-    description:
-      "We wire up the LLMs, configure webhook pipelines, connect your headless CMS and CRM, and build the automated workflows that turn raw user intent into qualified pipeline — all on a tested, observable infrastructure layer.",
-  },
-  {
-    number: "03",
-    title: "Front-End Polish & Cinematic UI",
-    description:
-      "We deliver an Awwwards-level interface with spring-physics interactions, kinetic typography, and buttery 60 fps scroll narratives — because premium positioning demands a premium digital experience.",
-  },
-  {
-    number: "04",
-    title: "Launch, Monitor & Scale",
-    description:
-      "We deploy with analytics, error budgets, and automated alerting from day one. Post-launch, we iterate on conversion data and scale the AI agents as your lead volume compounds.",
-  },
-];
-
-/* ─────────────────────────────────────────────────────────────────────────────
    STEP CARD — reveals as the scroll line reaches it
    ───────────────────────────────────────────────────────────────────────────── */
 function StepCard({
   step,
   index,
 }: {
-  step: (typeof steps)[number];
+  step: (typeof PROCESS.steps)[number];
   index: number;
 }) {
   return (
@@ -81,6 +60,10 @@ function StepCard({
         </h3>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           {step.description}
+        </p>
+        <p className="mt-4 border-t border-border-subtle pt-4 text-sm">
+          <span className="font-semibold text-foreground">You end with:</span>{" "}
+          <span className="text-muted-foreground">{step.outcome}</span>
         </p>
       </div>
     </motion.article>
@@ -152,7 +135,7 @@ function ScrollLine() {
    ───────────────────────────────────────────────────────────────────────────── */
 export function ProcessTimeline() {
   return (
-    <section id="process" className="border-t border-border-subtle bg-background py-24 lg:py-32">
+    <section id="process" className="scroll-mt-24 border-t border-border-subtle bg-background py-24 lg:py-32">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         {/* Section header with stagger */}
         <motion.div
@@ -163,17 +146,16 @@ export function ProcessTimeline() {
           className="mx-auto max-w-2xl text-center"
         >
           <motion.p variants={fadeUp} className="text-sm font-medium text-primary">
-            Our Process
+            {PROCESS.eyebrow}
           </motion.p>
           <motion.h2
             variants={fadeUp}
-            className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl"
+            className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
           >
-            Engineered like an elite product team.
+            {PROCESS.heading}
           </motion.h2>
           <motion.p variants={fadeUp} className="mt-4 text-muted-foreground">
-            Four phases. Zero ambiguity. From data strategy to launch-day
-            analytics — every sprint moves revenue closer.
+            {PROCESS.sub}
           </motion.p>
         </motion.div>
 
@@ -182,7 +164,7 @@ export function ProcessTimeline() {
           <ScrollLine />
 
           <div className="flex flex-col gap-10">
-            {steps.map((step, index) => (
+            {PROCESS.steps.map((step, index) => (
               <StepCard key={step.number} step={step} index={index} />
             ))}
           </div>

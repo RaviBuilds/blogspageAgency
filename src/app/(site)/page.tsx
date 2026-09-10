@@ -7,6 +7,7 @@ import { SupportingWork } from "@/components/home/supporting-work";
 import { BentoGrid } from "@/components/home/bento-grid";
 import { DeliveryModels } from "@/components/home/delivery-models";
 import { ProcessTimeline } from "@/components/home/process-timeline";
+import { Testimonials } from "@/components/home/testimonials";
 import { LatestBlogs } from "@/components/home/latest-blogs";
 import { CtaSection } from "@/components/home/cta-section";
 import { ContactForm } from "@/components/home/contact-form";
@@ -53,6 +54,7 @@ export default function HomePage() {
       <BentoGrid />
       <ProcessTimeline />
       <DeliveryModels />
+      <Testimonials />
       <LatestBlogs />
       <CtaSection />
       <ContactForm />

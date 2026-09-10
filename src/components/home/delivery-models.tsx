@@ -10,6 +10,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { TRUST } from "@/lib/homepage-data";
+
+/**
+ * MOVEMENT 5 — Trust: engagement models (Blueprint §16).
+ *
+ * The section framing is homepage-local (TRUST in `homepage-data.ts`), but
+ * `DELIVERY_MODELS` itself is untouched: `/about` imports this export and
+ * both surfaces must stay character-identical. Preserved contract:
+ * `id="models"` (blueprint-mandated anchor).
+ */
 
 /**
  * The two delivery-model entries. Exported so `/about` (Requirement 8.4) can
@@ -37,15 +47,15 @@ export const DELIVERY_MODELS = [
 
 export function DeliveryModels() {
   return (
-    <section id="models" className="border-t border-border-subtle bg-background-subtle py-24 lg:py-32">
+    <section id="models" className="scroll-mt-24 border-t border-border-subtle bg-background-subtle py-24 lg:py-32">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium text-primary">Delivery Models</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-            How we work with you.
+          <p className="text-sm font-medium text-primary">How we work</p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+            {TRUST.heading}
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Choose the engagement that matches your risk, timeline, and business model.
+            {TRUST.sub}
           </p>
         </div>
 
@@ -93,6 +103,23 @@ export function DeliveryModels() {
                 </Button>
               </CardFooter>
             </Card>
+          ))}
+        </div>
+
+        {/* Expectations · ownership · communication (Blueprint §16) */}
+        <div className="mt-12 grid gap-4 sm:grid-cols-3">
+          {TRUST.assurances.map((assurance) => (
+            <div
+              key={assurance.title}
+              className="rounded-2xl border border-border bg-card p-5"
+            >
+              <h3 className="text-sm font-semibold tracking-tight text-foreground">
+                {assurance.title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {assurance.detail}
+              </p>
+            </div>
           ))}
         </div>
       </div>
