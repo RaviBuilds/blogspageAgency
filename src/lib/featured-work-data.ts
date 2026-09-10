@@ -34,6 +34,17 @@ export type FeaturedProject = {
   metrics: ProjectMetric[];
   accent: string;
   gradient: string;
+  /**
+   * V2.0 story frame (Blueprint §13) — the one-line "why this project
+   * existed" sentence. Optional so supporting cards may omit it.
+   */
+  storyFrame?: string;
+  /**
+   * V2.0 visual sequence (Blueprint §13) — the problem → build → system
+   * narrative steps, rendered as chips. Every step must describe structure
+   * that already exists in `description`; never a result or outcome claim.
+   */
+  visualSequence?: string[];
 };
 
 export const projects: FeaturedProject[] = [
@@ -44,6 +55,8 @@ export const projects: FeaturedProject[] = [
     headline: "Phixl AI - Photo Restoration Platform",
     description:
       "A fully monetized generative AI platform that breathes new life into damaged photographs. Features a scalable user credit system with free-tier onboarding, seamless Razorpay checkout for credit top-ups, and instant, high-fidelity image processing.",
+    storyFrame: "A product built around AI.",
+    visualSequence: ["Upload", "Processing", "Result", "Account", "Payment"],
     tech: ["Next.js", "Replicate AI", "Supabase", "TypeScript", "Tailwind", "Razorpay"],
     metrics: [
       { label: "Manual restoration time saved", value: "~80%", basis: "estimated" },
@@ -58,6 +71,8 @@ export const projects: FeaturedProject[] = [
     headline: "NextInn Booking & Operations",
     description:
       "A secure, all-in-one hotel platform designed to drive direct reservations. Guests can seamlessly check real-time availability and book rooms, while hotel staff and ownership utilize dedicated admin dashboards to control daily operations, handle reviews, and oversee high-level business performance.",
+    storyFrame: "A hospitality platform built around direct bookings.",
+    visualSequence: ["Guest", "Availability", "Booking", "Staff dashboards", "Reviews"],
     tech: ["React", "Redux", "MongoDB", "Express", "Node", "Tailwind"],
     metrics: [
       { label: "OTA commission avoided on direct bookings", value: "25%", basis: "estimated" },
@@ -72,6 +87,8 @@ export const projects: FeaturedProject[] = [
     headline: "ArogyaDiet Ecosystem",
     description:
       "A complete end-to-end food delivery and subscription platform. Features interconnected portals for Customers to manage meal plans, a native Rider app for live delivery tracking, and powerful Master Admin & Franchise dashboards to seamlessly oversee all daily operations and logistics.",
+    storyFrame: "A business that needed its operations connected.",
+    visualSequence: ["Customer", "Rider", "Franchise", "Admin", "Payments", "Delivery"],
     tech: ["Next.js", "Stripe", "TypeScript", "Tailwind", "Supabase"],
     metrics: [
       { label: "Manual dispatch coordination time cut", value: "~30%", basis: "estimated" },
