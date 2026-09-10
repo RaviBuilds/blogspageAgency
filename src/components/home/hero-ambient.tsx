@@ -5,18 +5,7 @@ import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trackEvent } from "@/lib/analytics";
-
-const trustedLogos = ["OpenAI", "Vercel", "Supabase", "Next.js", "Stripe"];
-
-// TASK H2 — sectors genuinely shipped, substantiated by the four entries in
-// `featured-work-data.ts` (phixl-ai → AI SaaS, arogyadiet → subscription
-// delivery, nextinn → hospitality, best100movies → content & SEO platform).
-const sectorsShipped = [
-  "AI SaaS",
-  "Subscription delivery",
-  "Hospitality",
-  "Content & SEO platforms",
-];
+import { PROOF_STRIP } from "@/lib/homepage-data";
 
 // Premium spring from the design system (§5 Motion Physics).
 const SPRING = {
@@ -137,9 +126,9 @@ export function HeroGradients() {
 
 /**
  * Client-side ambience for the hero: the scroll-revealed proof strip
- * (TASK H2, renamed from `HeroTrustStrip`). Two rows — sectors genuinely
- * shipped, then the underlying technology — plus a data-derived project
- * count so the number can never drift from `featured-work-data.ts`.
+ * (Blueprint §8). Two layers — the sectors genuinely shipped (each
+ * substantiated by a project in `featured-work-data.ts`), then technology as
+ * one restrained text line rather than a logo wall.
  *
  * `useReducedMotion()` gates the entrance animation: when the visitor has
  * requested reduced motion, `initial` matches the `show` variant state so
@@ -161,10 +150,10 @@ export function HeroProofStrip() {
         variants={fadeUp}
         className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground"
       >
-        Systems shipped across
+        {PROOF_STRIP.label}
       </motion.p>
       <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {sectorsShipped.map((sector) => (
+        {PROOF_STRIP.sectors.map((sector) => (
           <motion.li
             key={sector}
             variants={fadeUp}
@@ -177,21 +166,10 @@ export function HeroProofStrip() {
 
       <motion.p
         variants={fadeUp}
-        className="mt-6 text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground"
+        className="mt-6 border-t border-white/[0.06] pt-4 text-xs tracking-wide text-muted-foreground"
       >
-        Built with
+        {PROOF_STRIP.techLine}
       </motion.p>
-      <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
-        {trustedLogos.map((logo) => (
-          <motion.li
-            key={logo}
-            variants={fadeUp}
-            className="flex h-12 items-center justify-center rounded-xl border border-white/[0.08] bg-white/2.5 px-3 text-sm font-semibold tracking-tight text-muted-foreground grayscale transition-colors hover:text-foreground"
-          >
-            {logo}
-          </motion.li>
-        ))}
-      </ul>
     </motion.div>
   );
 }

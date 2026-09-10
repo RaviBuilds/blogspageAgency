@@ -5,11 +5,9 @@ import {
   HeroProofStrip,
 } from "@/components/home/hero-ambient";
 import { HeroSystemVisual } from "@/components/home/hero-system";
+import { HERO } from "@/lib/homepage-data";
 
-const HEADLINE_LINES = [
-  "We Engineer the Digital Systems",
-  "Behind Your Business.",
-];
+const HEADLINE_LINES = HERO.headlineLines;
 
 /**
  * Renders a headline as plain server-rendered text, one `<span>` per word.
@@ -28,7 +26,7 @@ function KineticHeadline({
   lines,
   className,
 }: {
-  lines: string[];
+  lines: readonly string[];
   className?: string;
 }) {
   let wordIndex = 0;
@@ -105,7 +103,7 @@ export function Hero() {
           <div className="lg:col-span-7 lg:col-start-1">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/4 px-4 py-1.5 text-xs text-muted-foreground shadow-2xl shadow-indigo-500/10 backdrop-blur lg:mb-8">
               <Sparkles className="size-3.5 text-primary" />
-              Hyderabad-based digital systems and product engineering
+              {HERO.eyebrow}
             </div>
 
             {/*
@@ -134,13 +132,11 @@ export function Hero() {
             </h1>
 
             <p className="mt-8 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Websites, web apps, SaaS and AI-powered automation built around
-              how your business actually works — not another disconnected
-              collection of tools.
+              {HERO.subcopy}
             </p>
 
             <p className="mt-4 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground sm:text-sm">
-              Websites · Software · AI · Automation
+              {HERO.capabilityLine}
             </p>
 
             <HeroCtas />
