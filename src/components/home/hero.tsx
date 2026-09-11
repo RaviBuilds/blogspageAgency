@@ -2,7 +2,7 @@ import {
   HeroConnector,
   HeroCtas,
   HeroGradients,
-  HeroProofStrip,
+  HeroJourneyProof,
 } from "@/components/home/hero-ambient";
 import { HeroSystemVisual } from "@/components/home/hero-system";
 import { HERO } from "@/lib/homepage-data";
@@ -159,6 +159,13 @@ export function Hero() {
         tightens the lower rhythm so the connector thread lands nearer the proof
         strip and the seam reads as an authored hand-off, not an unfinished page.
         The hero still breathes; it just no longer trails off.
+
+        R2.2: the bottom band got lighter, not just tighter. The technical
+        proof card left the hero entirely and the business-journey proof line
+        that replaced it is a few lines of quiet text, so the composition now
+        closes on the story (Brand → Website → Enquiries → Operations →
+        Automation) instead of a second competing element. Same vertical
+        budget — the lighter content is what makes the hero breathe.
       */}
       <div className="mx-auto max-w-7xl px-6 pb-16 pt-24 lg:px-8 lg:pb-24 lg:pt-32">
         {/*
@@ -308,8 +315,15 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Proof strip — client-animated scroll reveal. */}
-        <HeroProofStrip />
+        {/*
+          Business-journey proof (R2.2) — client-animated scroll reveal. The
+          quiet, editorial replacement for R2.1's technical proof card: one
+          micro-label and one chain of words, secondary to the H1 and the
+          system visual, with "Website" carrying the signal cyan that echoes
+          both the light website surface above and the website-first emphasis
+          of the section the connector leads into.
+        */}
+        <HeroJourneyProof />
       </div>
 
       {/*

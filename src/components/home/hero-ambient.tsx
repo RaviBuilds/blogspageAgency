@@ -5,7 +5,7 @@ import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trackEvent } from "@/lib/analytics";
-import { PROOF_STRIP } from "@/lib/homepage-data";
+import { HERO_JOURNEY } from "@/lib/homepage-data";
 
 // Premium spring from the design system (§5 Motion Physics).
 const SPRING = {
@@ -111,7 +111,13 @@ export function HeroConnector() {
         AudiencePathways receives it unchanged.
       */}
       <span className="size-1.5 rounded-full bg-[linear-gradient(135deg,#67E8F9,#828FFF,#A78BFA)] shadow-[0_0_10px_rgba(130,143,255,0.6)]" />
-      <div className="mt-1 h-20 w-px bg-gradient-to-b from-[#828FFF]/60 via-[#828FFF]/22 to-transparent md:h-28" />
+      {/*
+        R2.2 polish: the filament's origin is now website cyan, easing into
+        the signal blue — the hero's Website concept visibly continues down
+        into "Where are you right now?" instead of the thread starting from a
+        generic triad glow. Same geometry, same zero-JS CSS.
+      */}
+      <div className="mt-1 h-20 w-px bg-gradient-to-b from-[#67E8F9]/55 via-[#828FFF]/22 to-transparent md:h-28" />
     </div>
   );
 }
@@ -178,17 +184,26 @@ export function HeroGradients() {
 }
 
 /**
- * Client-side ambience for the hero: the scroll-revealed proof strip
- * (Blueprint §8). Two layers — the sectors genuinely shipped (each
- * substantiated by a project in `featured-work-data.ts`), then technology as
- * one restrained text line rather than a logo wall.
+ * Client-side ambience for the hero: the business-journey proof line (R2.2).
+ *
+ * Replaces R2.1's "Systems shipped across" card, which competed with the H1
+ * and the system visual for attention and read as the hero's second-strongest
+ * element. The replacement is deliberately quiet and editorial — no bordered
+ * container, no grid, no technology names. One micro-label, one hairline, one
+ * chain of words naming the journey the system visual beside them animates:
+ * Brand → Website → Enquiries → Operations → Automation.
+ *
+ * "Website" carries the signal cyan so the proof line and the light website
+ * surface speak the same hue, and so the hero's last beat before the connector
+ * hands off to "Where are you right now?" is already website-shaped — the
+ * scroll reads as one continuing narrative rather than two unrelated sections.
  *
  * `useReducedMotion()` gates the entrance animation: when the visitor has
  * requested reduced motion, `initial` matches the `show` variant state so
  * the strip mounts fully visible with no transform or fade, satisfying the
  * same guarantee `.hero-word`'s media-query guard gives the headline.
  */
-export function HeroProofStrip() {
+export function HeroJourneyProof() {
   const shouldReduceMotion = useReducedMotion();
 
   return (
@@ -196,32 +211,54 @@ export function HeroProofStrip() {
       variants={container}
       initial={shouldReduceMotion ? "show" : "hidden"}
       whileInView="show"
-      viewport={{ once: true, margin: "-100px" }}
-      className="mt-16 max-w-3xl rounded-2xl border border-white/[0.08] bg-white/2.5 px-5 py-5 backdrop-blur lg:mt-20"
+      viewport={{ once: true, margin: "-80px" }}
+      className="mt-10 lg:mt-12"
     >
       <motion.p
         variants={fadeUp}
-        className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground"
+        className="flex items-center gap-3 text-[0.6875rem] font-medium uppercase tracking-[0.24em] text-muted-foreground"
       >
-        {PROOF_STRIP.label}
+        {/*
+          R2.2 polish: the hairline is the signal line — it starts in the
+          website cyan the light surface above speaks and settles to neutral,
+          so the proof reads as the same story the system is animating rather
+          than a caption tacked on underneath it.
+        */}
+        <span
+          aria-hidden
+          className="h-px w-8 shrink-0 bg-[linear-gradient(90deg,rgba(103,232,249,0.55),rgba(255,255,255,0.15))]"
+        />
+        {HERO_JOURNEY.label}
       </motion.p>
-      <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {PROOF_STRIP.sectors.map((sector) => (
-          <motion.li
-            key={sector}
-            variants={fadeUp}
-            className="flex h-12 items-center justify-center rounded-xl border border-white/[0.08] bg-white/2.5 px-3 text-center text-sm font-semibold tracking-tight text-muted-foreground transition-colors hover:text-foreground"
-          >
-            {sector}
-          </motion.li>
-        ))}
-      </ul>
 
       <motion.p
         variants={fadeUp}
-        className="mt-6 border-t border-white/[0.06] pt-4 text-xs tracking-wide text-muted-foreground"
+        className="mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-sm tracking-tight text-muted-foreground"
       >
-        {PROOF_STRIP.techLine}
+        {HERO_JOURNEY.steps.map((step, i) => (
+          <span key={step} className="flex items-center gap-x-2.5">
+            {i > 0 && (
+              <ArrowRight
+                aria-hidden
+                strokeWidth={1.5}
+                className="size-3 text-white/25"
+              />
+            )}
+            {step === HERO_JOURNEY.highlight ? (
+              <span className="flex items-center gap-1.5 font-medium text-[#67E8F9]">
+                {/* The journey's current point: the same signal dot the
+                    connector drops from the hero's bottom edge, one hue. */}
+                <span
+                  aria-hidden
+                  className="size-1 rounded-full bg-[#67E8F9] shadow-[0_0_6px_rgba(103,232,249,0.7)]"
+                />
+                {step}
+              </span>
+            ) : (
+              <span>{step}</span>
+            )}
+          </span>
+        ))}
       </motion.p>
     </motion.div>
   );

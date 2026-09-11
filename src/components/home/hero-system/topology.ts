@@ -148,7 +148,9 @@ export interface Topology {
 //   rail        col 1                 col 2
 //   ┌──┐   ┌─────────────┐      ┌─────────────┐
 //   │  ├──▶│   WEBSITE   ├─────▶│ YOUR BUSINESS│◀─┐
-//   └──┘   └─────────────┘      └──────┬──────┘  │
+//   └──┘   │  (light UI) │      └──────┬──────┘  │
+//          │             │             │         │
+//          └─────────────┘             │         │
 //          ┌─────────────┐             │         │
 //          │  CUSTOMERS  │◀────────────┘         │
 //          └──┬───────┬──┘      ┌─────────────┐  │
@@ -164,8 +166,15 @@ export interface Topology {
 // R2.1: the same graph, read as a business becoming digitally connected —
 // customers arrive from the left rail, meet the WEBSITE, reach the business,
 // and the later layers (AI, automation, software) appear as the system's
-// deeper machinery. Ids, geometry, edges and routes are unchanged; only the
-// displayed vocabulary moved from engineering nouns to business nouns.
+// deeper machinery. Ids, edges and routes are unchanged; only the displayed
+// vocabulary moved from engineering nouns to business nouns.
+//
+// R2.2 composition: the WEBSITE is promoted to the visual's dominant surface —
+// taller than every dark module, sitting above the column rhythm it used to
+// share with YOUR BUSINESS. It is the one surface that renders as a light
+// product UI (see `module-card.tsx`), so the front door reads before the
+// machinery behind it does: a visitor sees a business experience first and
+// discovers the engineering depth second.
 // ---------------------------------------------------------------------------
 
 const DESKTOP_W = 540;
@@ -206,6 +215,27 @@ const OPS_H = 54;
 /** The feedback edge's return lane, in the gutter right of column two. */
 const FEEDBACK_X = 528;
 
+/**
+ * R2.2: the WEBSITE surface's promoted geometry. It breaks the column's shared
+ * row rhythm deliberately — starting near the top of the frame and running
+ * taller than any dark module — so the hierarchy reads in one glance:
+ * website first, business and its machinery behind it. Its mid-line is what
+ * the ingress rail, E1 and E2 anchor to; the gutter lane between the columns
+ * carries E2 down to YOUR BUSINESS's own mid-line without a diagonal.
+ *
+ * R2.2 polish: +12 units of height (24→18 top, 136→148 tall). The mid-line is
+ * held at exactly 92 by construction, so the rail, E1 and E2 need no changes —
+ * the surface simply grows upward and downward around the anchor the wiring
+ * already shares. Rendered, that is ~5px more air above and below the light
+ * UI at hero scale: enough to make the front door measurably more
+ * authoritative without disturbing the column rhythm beneath it.
+ */
+const SITE_Y = 18;
+const SITE_H = 148;
+const SITE_MID = SITE_Y + SITE_H / 2; // 92
+/** Vertical lane in the column gutter, shared by E2's drop into row one. */
+const GUTTER_LANE_X = 298;
+
 export const DESKTOP_TOPOLOGY: Topology = {
   id: "desktop",
   width: DESKTOP_W,
@@ -214,14 +244,14 @@ export const DESKTOP_TOPOLOGY: Topology = {
   rail: {
     x: 58,
     spine: [
-      [58, 88],
-      [58, 136],
+      [58, SITE_MID - 24],
+      [58, SITE_MID],
     ],
     labelRight: 50,
     ticks: [
-      { id: "web", label: "WEB", y: 88 },
-      { id: "mobile", label: "MOBILE", y: 112 },
-      { id: "inbound", label: "INBOUND", y: 136 },
+      { id: "web", label: "WEB", y: SITE_MID - 24 },
+      { id: "mobile", label: "MOBILE", y: SITE_MID - 12 },
+      { id: "inbound", label: "INBOUND", y: SITE_MID },
     ],
   },
   modules: [
@@ -233,9 +263,9 @@ export const DESKTOP_TOPOLOGY: Topology = {
       signal: "cyan",
       entry: true,
       x: COL_1_X,
-      y: ROW_1_Y,
+      y: SITE_Y,
       w: COL_W,
-      h: CARD_H,
+      h: SITE_H,
       depth: 1,
     },
     {
@@ -306,8 +336,8 @@ export const DESKTOP_TOPOLOGY: Topology = {
       from: INGRESS_ID,
       to: "interface",
       points: [
-        [58, ROW_1_MID],
-        [COL_1_X, ROW_1_MID],
+        [58, SITE_MID],
+        [COL_1_X, SITE_MID],
       ],
     },
     {
@@ -315,7 +345,9 @@ export const DESKTOP_TOPOLOGY: Topology = {
       from: "interface",
       to: "core",
       points: [
-        [COL_1_X + COL_W, ROW_1_MID],
+        [COL_1_X + COL_W, SITE_MID],
+        [GUTTER_LANE_X, SITE_MID],
+        [GUTTER_LANE_X, ROW_1_MID],
         [COL_2_X, ROW_1_MID],
       ],
     },

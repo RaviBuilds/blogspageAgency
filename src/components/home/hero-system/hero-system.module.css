@@ -267,6 +267,181 @@
   margin-top: 0;
 }
 
+/* --- R2.2: the light website surface -------------------------------------- */
+
+/*
+ * The single light product UI in the composition. Everything here is scoped to
+ * `.card[data-entry="true"]` — the WEBSITE node — so no dark card is touched
+ * and the global token surface stays untouched (this module exists precisely
+ * to keep those edits out of `globals.css`).
+ *
+ * The colours are literals on purpose: this surface represents the *customer's*
+ * web experience, so it deliberately leaves the dark system palette for a
+ * near-white editorial paper. The card keeps its mono header + LED + stage row,
+ * so despite the lighter skin it still reads as a node of the same graph.
+ */
+.card[data-entry="true"] {
+  background: linear-gradient(180deg, #fbfcfe 0%, #eef1f6 100%);
+  border-color: rgba(14, 116, 144, 0.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 0 0 1px rgba(103, 232, 249, 0.1),
+    0 26px 56px -26px rgba(0, 0, 0, 0.95);
+  backdrop-filter: none;
+}
+
+/* The mono system header stays, in dark-on-light. */
+.card[data-entry="true"] .label {
+  color: #3c4356;
+}
+
+/* Cyan LED on paper: same engine writes, darker cyan family for contrast. */
+.card[data-entry="true"] .pulse {
+  --sys-accent: #0e7490;
+  box-shadow: 0 0 6px color-mix(in oklab, #0e7490 55%, transparent);
+}
+
+.card[data-entry="true"] .stageToken {
+  color: rgba(40, 48, 68, 0.5);
+}
+
+.card[data-entry="true"] .stageToken[data-active="true"] {
+  color: #0e7490;
+  text-shadow: none;
+}
+
+/*
+ * The light surface has no vertical room for the hover caption line — its
+ * header, chrome and stage row already carry the same information (same
+ * precedent as the row-layout cards, which also hide it). `display: none`
+ * rather than `opacity: 0` so it never costs layout height in the compact
+ * mobile strip; the engine's reference to it stays harmless either way.
+ */
+.card[data-entry="true"] .caption {
+  display: none;
+}
+
+.siteChrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-width: 0;
+  border-bottom: 1px solid rgba(13, 18, 32, 0.08);
+  padding-bottom: 0.3rem;
+}
+
+.siteUrl {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.4375rem;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  color: #5b6478;
+  white-space: nowrap;
+}
+
+/* The small business identity element: the canonical Blogspage signal triad. */
+.siteMark {
+  flex-shrink: 0;
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 0.09375rem;
+  background: linear-gradient(135deg, #0891b2, #4353c9, #7c3aed);
+}
+
+.siteNav {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.375rem;
+  line-height: 1.2;
+  letter-spacing: 0.12em;
+  color: rgba(40, 48, 68, 0.55);
+  white-space: nowrap;
+}
+
+.siteNavSep {
+  padding: 0 0.25rem;
+  color: rgba(40, 48, 68, 0.3);
+}
+
+.siteBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-height: 0;
+}
+
+/* Mobile compact variant: headline and enquiry action share one row. */
+.siteBodyCompact {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.siteHead {
+  margin: 0;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  /* R2.2 polish: one step larger than the mono micro-labels so the surface's
+     internal hierarchy reads headline-first, like a real site. */
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: #141a26;
+  min-width: 0;
+}
+
+.siteBodyCompact .siteHead {
+  flex: 1 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Neutral content preview — structure, never invented copy. */
+.siteLines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.siteLines span {
+  display: block;
+  height: 0.1875rem;
+  border-radius: 9999px;
+  background: rgba(13, 18, 32, 0.12);
+}
+
+/*
+ * The one brand-colour moment on the light surface: the enquiry action.
+ * Cyan is the site's "presence / incoming enquiry" signal, so the front door's
+ * CTA carries exactly that hue — a small dark-cyan chip, readable, not neon.
+ * R2.2 polish: a step larger and a touch firmer so the action reads at a
+ * glance as the surface's one interactive element.
+ */
+.siteCta {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.4375rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f0fbfd;
+  background: linear-gradient(135deg, #0891b2, #0e7490);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 2px 5px rgba(8, 51, 68, 0.4);
+}
+
 /* --- Internal state ------------------------------------------------------- */
 
 /*
@@ -450,8 +625,31 @@
  */
 .packetCore {
   filter: drop-shadow(
-    0 0 5px color-mix(in oklab, var(--packet-hue, var(--sys-violet-lit)) 55%, transparent)
+    /* R2.2 polish: one step firmer (5px/55% → 6px/62%) so the in-flight
+       transaction reads as light, not a dot — the enquiry story's carrier
+       becomes the clearest moving thing in the scene without growing the
+       bloom into glow. */
+    0 0 6px color-mix(in oklab, var(--packet-hue, var(--sys-violet-lit)) 62%, transparent)
   );
+}
+
+/* --- Node weight hierarchy (R2.2 polish) ---------------------------------- */
+
+/*
+ * The graph reads better when the eye is given an order rather than six
+ * equals. The enquiry story's surfaces carry the weight: CUSTOMERS joins
+ * WEBSITE as a primary node with a faint accent edge, while the machinery the
+ * story ends in — AI ASSISTANT and AUTOMATION — recedes one step via a
+ * softened border. No geometry, ids, edges or routes change; this is emphasis
+ * only, and both rules sit before the focus rules, so hovering still wins.
+ */
+.card[data-module="data"] {
+  border-color: color-mix(in oklab, var(--sys-accent) 20%, var(--sys-border));
+}
+
+.card[data-module="ai"],
+.card[data-module="automation"] {
+  border-color: color-mix(in oklab, var(--sys-border) 68%, transparent);
 }
 
 /* --- The entry edge ------------------------------------------------------- */
@@ -462,8 +660,13 @@
  * node with a slightly clearer active edge" refinement: the entry point reads
  * before any interaction, without promoting any other surface. Placed before
  * the focus rules so hovering the card still wins the cascade.
+ *
+ * R2.2 polish: the light website surface declares its own edge (a dark-cyan
+ * tint that belongs to its paper), so this dark-surface mix is scoped to any
+ * entry node that is not the light surface. Placed before the focus rules so
+ * hovering the card still wins the cascade.
  */
-.card[data-entry="true"] {
+.card[data-entry="true"]:not(:has(.siteChrome)) {
   border-color: color-mix(in oklab, var(--sys-accent) 30%, var(--sys-border));
 }
 

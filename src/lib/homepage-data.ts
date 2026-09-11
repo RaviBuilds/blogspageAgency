@@ -39,6 +39,12 @@ export const HERO = {
  * Immediate proof (Blueprint §8): business/sector proof first, technology as
  * a restrained single line — never a logo wall that dominates the strip.
  * Every sector is substantiated by a project in `featured-work-data.ts`.
+ *
+ * R2.2: this strip no longer renders in the hero — the sectors + tech line
+ * competed with the H1 and the system visual for attention, and the technology
+ * stack is reserved for the planned engineering-credibility scene ("The stack
+ * follows the problem"). The data stays exported here so that future section
+ * can consume it without re-authoring the substantiated sector list.
  */
 export const PROOF_STRIP = {
   label: "Systems shipped across",
@@ -49,6 +55,22 @@ export const PROOF_STRIP = {
     "Content & SEO platforms",
   ],
   techLine: "Built with Next.js · TypeScript · Supabase · Stripe · Vercel",
+} as const;
+
+/**
+ * R2.2 hero proof — the business journey, replacing the technical proof strip
+ * as the hero's supporting proof element. Deliberately quiet and editorial:
+ * one micro-label, one chain of words. It names the journey the system visual
+ * animates (Brand → Website → Enquiries → Operations → Automation) so the
+ * proof and the picture tell the same story, and "Website" carries the cyan
+ * signal — the same hue the light website surface and the enquiry packet
+ * speak — to prepare the website-first emphasis of the section that follows
+ * ("Where are you right now?").
+ */
+export const HERO_JOURNEY = {
+  label: "One business. One digital journey.",
+  steps: ["Brand", "Website", "Enquiries", "Operations", "Automation"],
+  highlight: "Website",
 } as const;
 
 /* ─────────────────────────────────────────────────────────────────────────────
