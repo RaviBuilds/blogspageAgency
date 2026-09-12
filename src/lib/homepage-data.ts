@@ -14,10 +14,11 @@
  * ## Evidence gates honoured by this module
  *
  * - `FLAGSHIP_PROJECT_IDS` / `SUPPORTING_PROJECT_IDS` reference **only** ids
- *   that already exist in `featured-work-data.ts`. NeoDent and the gym/dental
- *   builds are owner-confirmed real work but have no repository evidence
- *   record (asset + approved copy); they are added the moment that record
- *   exists — never before.
+ *   that already exist in `featured-work-data.ts` with a real owner-supplied
+ *   asset in `/public`. NeoDent joined at R6 once its evidence record existed
+ *   (owner screenshot `/Neodent.jpg` + approved neutral copy). The gym/dental
+ *   builds still have no repository evidence record; they are added the
+ *   moment that record exists — never before.
  * - No metric, ranking, revenue, conversion or client-quote claim appears in
  *   this file. Outcome figures live only in `featured-work-data.ts` and keep
  *   their `basis: "estimated"` disclosure.
@@ -150,15 +151,17 @@ export const PRESENCE_STORY = {
    ───────────────────────────────────────────────────────────────────────────── */
 
 /**
- * Which `featured-work-data.ts` projects carry the flagship story treatment.
+ * Which `featured-work-data.ts` projects carry the flagship story treatment,
+ * in homepage order: ArogyaDiet (R6 story 01, Applications & Business
+ * Software), Phixl AI (story 02, AI & Automation), NeoDent (story 03,
+ * Brand & Digital Presence).
  *
- * OWNER-EVIDENCE GATE: NeoDent is owner-confirmed real work with **no
- * repository evidence record yet** (asset + approved copy). Add it here only
- * after its entry exists in `featured-work-data.ts` with an image in
- * `/public`. The flagship list renders whatever it resolves — it never
- * renders a placeholder or an invented card.
+ * EVIDENCE GATE (R6): NeoDent's record now exists in `featured-work-data.ts`
+ * with the owner-supplied asset `/Neodent.jpg` and approved neutral copy, so
+ * the gate is satisfied. The flagship list still renders whatever it
+ * resolves — it never renders a placeholder or an invented card.
  */
-export const FLAGSHIP_PROJECT_IDS = ["arogyadiet", "phixl-ai"] as const;
+export const FLAGSHIP_PROJECT_IDS = ["arogyadiet", "phixl-ai", "neodent"] as const;
 
 /** Quieter supporting field (Blueprint §14). Same evidence gate applies. */
 export const SUPPORTING_PROJECT_IDS = ["nextinn", "best100movies"] as const;
