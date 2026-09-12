@@ -74,7 +74,8 @@ export const HOME_VERTICALS: readonly HomeVertical[] = [
     proofProjectId: "best100movies",
     proofDetail: "a Sanity-backed content platform with programmatic routes.",
     proofDestination: "#more-work",
-    accent: "139,92,246", // violet
+    // R5 color system: cyan = presence / website / incoming attention.
+    accent: "14,116,144", // --accent-cyan
   },
   {
     id: "applications-software",
@@ -99,7 +100,8 @@ export const HOME_VERTICALS: readonly HomeVertical[] = [
     proofDetail:
       "customer, rider, franchise and master-admin portals on shared data.",
     proofDestination: "#work",
-    accent: "16,185,129", // emerald
+    // R5 color system: blue = business / customer / software.
+    accent: "67,83,201", // --accent-blue
   },
   {
     id: "ai-automation",
@@ -123,7 +125,8 @@ export const HOME_VERTICALS: readonly HomeVertical[] = [
     proofDetail:
       "AI image restoration with credits, checkout and processing pipeline.",
     proofDestination: "#work",
-    accent: "99,102,241", // indigo
+    // R5 color system: violet = AI / automation / intelligence.
+    accent: "124,58,237", // --accent-violet
   },
 ];
 

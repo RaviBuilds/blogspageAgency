@@ -22,6 +22,30 @@ import { DigitalHomeVisual } from "./digital-home-visual";
    — the headline, lead and benefits carry the meaning as real text.
    ───────────────────────────────────────────────────────────────────────────── */
 
+/**
+ * R5.2 brand text treatment — the section heading's meaningful phrase
+ * ("That's okay.") carries the same restrained cyan → blue → violet sweep as
+ * the Hero and the R5 section heading ("Build from there."): same inline
+ * background-clip mechanism and the same light-signal values, declared inline
+ * because the locked `.text-gradient` island override still points the class
+ * at the legacy near-white gradient. No data change — the phrase is sliced
+ * from the existing `PRESENCE_STORY.heading` string, with a safe fallback.
+ */
+const HEADING_ACCENT = "That's okay.";
+const HEADING_MAIN = PRESENCE_STORY.heading.endsWith(HEADING_ACCENT)
+  ? PRESENCE_STORY.heading.slice(
+      0,
+      PRESENCE_STORY.heading.length - HEADING_ACCENT.length,
+    )
+  : "";
+const BRAND_TEXT_GRADIENT = {
+  backgroundImage:
+    "linear-gradient(90deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)",
+  WebkitBackgroundClip: "text" as const,
+  backgroundClip: "text",
+  color: "transparent",
+} as const;
+
 const SPRING = {
   type: "spring",
   stiffness: 100,
@@ -62,7 +86,10 @@ export function DigitalPresenceStory() {
             variants={fadeUp}
             className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
           >
-            {PRESENCE_STORY.heading}
+            {HEADING_MAIN || PRESENCE_STORY.heading}
+            {HEADING_MAIN && (
+              <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>
+            )}
           </motion.h2>
           <motion.p variants={fadeUp} className="mt-4 text-muted-foreground">
             {PRESENCE_STORY.lead}
