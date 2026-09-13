@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { Fragment } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
@@ -97,5 +99,45 @@ export function IndustryStoryStrip({ labels, accent }: IndustryStoryStripProps) 
         </Fragment>
       ))}
     </div>
+  );
+}
+/**
+ * R7.1 — RealWorkVisual: the verified owner-supplied project screenshot,
+ * rendered authentically in a restrained browser-chrome frame. Never
+ * recolored, cropped or stylized — it IS the proof (the matching proof chip
+ * renders directly beneath it in the panel). Natural aspect ratio preserved
+ * via explicit intrinsic dimensions (no distortion, no CLS).
+ */
+export function RealWorkVisual({
+  image,
+  alt,
+  width,
+  height,
+}: {
+  image: string;
+  alt: string;
+  width: number;
+  height: number;
+}) {
+  return (
+    <figure className="overflow-hidden rounded-xl border border-border bg-card">
+      <div
+        aria-hidden
+        className="flex items-center gap-1.5 border-b border-border-subtle bg-background-subtle px-3 py-2"
+      >
+        <span className="size-2 rounded-full bg-muted" />
+        <span className="size-2 rounded-full bg-muted" />
+        <span className="size-2 rounded-full bg-muted" />
+        <span className="ml-2 h-3.5 flex-1 rounded-full border border-border-subtle bg-card" />
+      </div>
+      <Image
+        src={image}
+        alt={alt}
+        width={width}
+        height={height}
+        sizes="(min-width: 1024px) 480px, (min-width: 768px) 640px, 100vw"
+        className="h-auto w-full"
+      />
+    </figure>
   );
 }
