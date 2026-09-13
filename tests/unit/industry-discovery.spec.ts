@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 
 import { projects } from "@/lib/featured-work-data";
 import {
@@ -6,28 +6,26 @@ import {
   INDUSTRY_STORIES,
   getIndustryStory,
 } from "@/lib/industry-discovery";
-import { HOME_VERTICALS } from "@/lib/homepage-verticals";
 import { NICHES } from "@/lib/niches";
 import { solutionRoutes } from "@/lib/routes";
 
 /**
- * R7 — Industry Solution Discovery: presentation-map integrity.
+ * R7 -- Industry Solution Discovery: presentation-map integrity.
  *
- * The homepage industry section is a presentation + internal-linking layer
- * over the existing programmatic-SEO catalog. These tests pin the contracts
- * the plan commits to:
- *
- * 1. the map covers every `NICHES` entry (no industry silently dropped),
- * 2. every rendered industry link is a real, served solution route (never
- *    an invented URL),
- * 3. proof references point at real featured-work projects,
- * 4. capability keys are real `HomeVerticalId`s (drift-proof single source),
- * 5. micro-stories stay three-node, short-label chains,
- * 6. the lookup fails safe for unknown ids.
+ * R7.1: the capability-column treatment was removed (owner decision); the
+ * map now carries the system flow plus the panel visual discriminator:
+ * verified real screenshots ONLY for the three proof-backed industries,
+ * conceptual product visuals for the rest (never implying client work).
  */
 
-const verticalIds = new Set(HOME_VERTICALS.map((vertical) => vertical.id));
 const projectIds = new Set(projects.map((project) => project.id));
+
+/** The only verified project->industry proof relationships (R6/R7). */
+const VERIFIED_PROOF: Record<string, string> = {
+  "online-delivery": "arogyadiet",
+  "hotel-booking": "nextinn",
+  "dental-medical": "neodent",
+};
 
 describe("R7 industry discovery map coverage", () => {
   it("covers every niche exactly once", () => {
@@ -55,32 +53,55 @@ describe("R7 proof references", () => {
     }
   });
 
-  it("carries no proof for industries without a verified project", () => {
-    // Verified relationships only: arogyadiet→delivery, nextinn→hotel,
-    // neodent→dental. Gym & Fitness has no real project — no proof.
-    expect(INDUSTRY_STORIES["gym-fitness"]?.proofProjectId).toBeUndefined();
-    expect(INDUSTRY_STORIES["dental-medical"]?.proofProjectId).toBe("neodent");
-    expect(INDUSTRY_STORIES["hotel-booking"]?.proofProjectId).toBe("nextinn");
-    expect(
-      INDUSTRY_STORIES["online-delivery"]?.proofProjectId,
-    ).toBe("arogyadiet");
+  it("carries proof exactly for the verified relationships and nowhere else", () => {
+    for (const [id, expectedProject] of Object.entries(VERIFIED_PROOF)) {
+      expect(INDUSTRY_STORIES[id]?.proofProjectId, id).toBe(expectedProject);
+    }
+    for (const [id, story] of Object.entries(INDUSTRY_STORIES)) {
+      if (!(id in VERIFIED_PROOF)) {
+        expect(story.proofProjectId, id).toBeUndefined();
+      }
+    }
   });
 });
 
-describe("R7 capability connection", () => {
-  it("uses only real HomeVerticalIds as capability keys", () => {
-    for (const [id, story] of Object.entries(INDUSTRY_STORIES)) {
-      for (const key of Object.keys(story.capabilities)) {
-        expect(verticalIds.has(key as never), `${id}:${key}`).toBe(true);
+describe("R7.1 visual mapping", () => {
+  it("gives every niche a visual", () => {
+    for (const niche of NICHES) {
+      expect(INDUSTRY_STORIES[niche.id]?.visual, niche.id).toBeDefined();
+    }
+  });
+
+  it("uses verified real screenshots only for the three proof-backed industries", () => {
+    const realIds = Object.entries(INDUSTRY_STORIES)
+      .filter(([, story]) => story.visual.kind === "real")
+      .map(([id]) => id)
+      .sort();
+    expect(realIds).toEqual(["dental-medical", "hotel-booking", "online-delivery"]);
+  });
+
+  it("binds each real visual to its own verified project asset", () => {
+    const expected: Record<string, { image: string; project: string }> = {
+      "online-delivery": { image: "/ArogyaDiet.jpg", project: "arogyadiet" },
+      "hotel-booking": { image: "/NextInn.jpg", project: "nextinn" },
+      "dental-medical": { image: "/Neodent.jpg", project: "neodent" },
+    };
+    for (const [id, expectedFor] of Object.entries(expected)) {
+      const story = INDUSTRY_STORIES[id];
+      expect(story?.visual.kind, id).toBe("real");
+      if (story?.visual.kind === "real") {
+        expect(story.visual.image, id).toBe(expectedFor.image);
+        expect(story.proofProjectId, id).toBe(expectedFor.project);
+        expect(story.visual.width, id).toBeGreaterThan(0);
+        expect(story.visual.height, id).toBeGreaterThan(0);
+        expect(story.visual.alt, id).toContain("Real work");
       }
     }
   });
 
-  it("gives every capability chip a fallback (plainPromise) path", () => {
-    // Every vertical has a plainPromise, so an absent per-industry line
-    // always resolves at render time.
-    for (const vertical of HOME_VERTICALS) {
-      expect(vertical.plainPromise.length).toBeGreaterThan(0);
+  it("keeps conceptual visuals for industries without verified client work", () => {
+    for (const id of ["pet-care", "consulting", "education", "gym-fitness", "ecommerce", "saas-platform", "seo-blogs"]) {
+      expect(INDUSTRY_STORIES[id]?.visual.kind, id).toBe("concept");
     }
   });
 });

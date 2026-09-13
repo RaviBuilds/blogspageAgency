@@ -1,52 +1,53 @@
-/**
- * R7 — Industry Solution Discovery: presentation-layer story map.
+﻿/**
+ * R7 -- Industry Solution Discovery: presentation-layer story map.
  *
- * The smallest possible presentation mapping for the homepage's industry
- * discovery section (`BentoGrid`). This module deliberately holds **no**
- * routes, no slugs, no city data, no SEO copy and no niche descriptions —
- * everything that identifies a business stays owned by `src/lib/niches.ts`
- * (the programmatic-SEO Service_Catalog). This map only adds:
+ * R7.1 (owner-approved): the repeated three-column capability treatment is
+ * REMOVED. Each industry now owns:
  *
- * - a three-node conceptual micro-story per industry (supplementary visual
- *   device; the business title remains the primary recognition element),
- * - how each of the three R5 capabilities applies to that business, keyed by
- *   `HomeVerticalId`. Absent keys fall back to that vertical's approved
- *   `plainPromise` at render time, so nothing is claimed that the verified
- *   solution data does not support,
- * - the verified project→industry proof relationship (`featured-work-data.ts`
- *   id), only where one actually exists. Gym & Fitness has no real project,
- *   so it carries no proof — never an invented association,
- * - the stage accent (`r,g,b`) reusing the R6 project accents for continuity;
- *   industries without one stay on the neutral blue default.
+ * - a three-node system flow (supplementary; the panel renders it as the
+ *   Website -> Process -> Outcome row),
+ * - a visual discriminator: `kind: "real"` for the three industries with
+ *   VERIFIED owner-supplied project screenshots (rendered as authentic
+ *   proof -- never recolored or restyled), `kind: "concept"` for the seven
+ *   industries whose visuals are clearly conceptual product/system
+ *   representations (they must never imply client work),
+ * - the verified project->industry proof relationship, only where one
+ *   exists. Gym & Fitness has no real project, so it carries no proof.
  *
- * `[OWNER APPROVAL REQUIRED]` — the micro-story labels and per-industry
- * capability lines below are new presentation copy, paraphrased from each
- * niche's verified `solution.capabilities` / dashboards in `niches.ts`. The
- * section heading/eyebrow/sub remain the canonically approved Blueprint §15
- * wording (Master Blueprint v2.0 §15) — this module does not touch them.
+ * All business copy (problem eyebrow, outcome headline, description) is NOT
+ * stored here: it renders straight from the verified `NICHES` catalog
+ * (`focus`, `hero.headline`, `description`) so no second source of truth and
+ * no generic fallback copy can exist.
  *
+ * This module holds no routes, no slugs, no city data, no SEO copy.
  * Pure module: no I/O, no React, no framework imports.
  */
 
-import type { HomeVerticalId } from "@/lib/homepage-verticals";
+export type IndustryVisual =
+  | {
+      /** Verified owner-supplied project screenshot (authentic proof). */
+      kind: "real";
+      image: string;
+      alt: string;
+      width: number;
+      height: number;
+    }
+  | {
+      /** Conceptual product/system representation (not client work). */
+      kind: "concept";
+    };
 
 export type IndustryStory = {
-  /** Three-node conceptual chain rendered as a decorative strip. */
+  /** Three-node conceptual chain rendered as the system flow row. */
   story: readonly [string, string, string];
-  /**
-   * How each capability applies to this business. Keys are `HomeVerticalId`s;
-   * a missing key falls back to that vertical's approved `plainPromise`.
-   */
-  capabilities: Partial<Record<HomeVerticalId, string>>;
+  /** The panel's main visual artifact. */
+  visual: IndustryVisual;
   /**
    * Verified `featured-work-data.ts` project id used as the proof line.
    * Omitted when no real project supports the industry (never invented).
    */
   proofProjectId?: string;
-  /**
-   * Raw `r,g,b` stage accent for the selected-state wash and signal line.
-   * Omitted → `DEFAULT_INDUSTRY_ACCENT` (neutral blue).
-   */
+  /** Raw `r,g,b` stage accent; omitted -> DEFAULT_INDUSTRY_ACCENT. */
   accent?: string;
 };
 
@@ -56,101 +57,67 @@ export const DEFAULT_INDUSTRY_ACCENT = "67,83,201"; // --accent-blue
 export const INDUSTRY_STORIES: Readonly<Record<string, IndustryStory>> = {
   "online-delivery": {
     story: ["Website", "Order", "Dispatch"],
-    capabilities: {
-      "brand-digital-presence":
-        "A white-label ordering experience your customers belong to.",
-      "applications-software":
-        "Direct checkout and a real-time dispatch map you fully own.",
+    visual: {
+      kind: "real",
+      image: "/ArogyaDiet.jpg",
+      alt: "Real work: ArogyaDiet Ecosystem -- customer ordering, rider tracking and admin dashboards.",
+      width: 1263,
+      height: 935,
     },
     proofProjectId: "arogyadiet",
     accent: "16,185,129",
   },
   "hotel-booking": {
     story: ["Website", "Room", "Booking"],
-    capabilities: {
-      "brand-digital-presence":
-        "A site that wins direct bookings instead of OTA traffic.",
-      "applications-software":
-        "A live room matrix and role-based dashboards for every tier of staff.",
+    visual: {
+      kind: "real",
+      image: "/NextInn.jpg",
+      alt: "Real work: NextInn Booking & Operations -- direct booking with staff dashboards.",
+      width: 1263,
+      height: 923,
     },
     proofProjectId: "nextinn",
     accent: "56,189,248",
   },
   "pet-care": {
     story: ["Pet profile", "Booking", "Reminders"],
-    capabilities: {
-      "applications-software":
-        "One reservation wizard for every service, on a shared pet profile.",
-      "ai-automation":
-        "Automated reminders that keep booked slots from turning into no-shows.",
-    },
+    visual: { kind: "concept" },
   },
   consulting: {
     story: ["Authority", "ROI tool", "Discovery call"],
-    capabilities: {
-      "brand-digital-presence":
-        "An authority-first content architecture for high-value inbound.",
-      "applications-software":
-        "An embedded ROI calculator wired straight into your call pipeline.",
-    },
+    visual: { kind: "concept" },
   },
   education: {
     story: ["Lessons", "Progress", "Completion"],
-    capabilities: {
-      "applications-software":
-        "A syllabus builder and progressive player that keep momentum high.",
-      "ai-automation":
-        "Progress tracking that flags at-risk learners before they drop off.",
-    },
+    visual: { kind: "concept" },
   },
   "gym-fitness": {
     story: ["Member", "Pause-credit", "Retention"],
-    capabilities: {
-      "brand-digital-presence":
-        "A high-conversion front door that turns interest into sign-ups.",
-      "applications-software":
-        "A pause-credit ledger and live occupancy dashboards for owners.",
-      "ai-automation":
-        "Re-engagement alerts that reach members before they lapse.",
-    },
+    visual: { kind: "concept" },
   },
   "dental-medical": {
     story: ["Website", "Appointment", "Patient"],
-    capabilities: {
-      "brand-digital-presence":
-        "A premium presence that builds trust and ranks locally.",
-      "applications-software":
-        "Online booking and a command centre your front desk runs on.",
-      "ai-automation":
-        "Automated reminders and instant answers that cut no-shows.",
+    visual: {
+      kind: "real",
+      image: "/Neodent.jpg",
+      alt: "Real work: NeoDent Dental Hospitals -- brand presence and patient enquiry website.",
+      width: 1261,
+      height: 834,
     },
     proofProjectId: "neodent",
     accent: "14,116,144",
   },
   ecommerce: {
     story: ["Storefront", "Checkout", "Order"],
-    capabilities: {
-      "brand-digital-presence":
-        "A fast, image-optimized storefront tuned for Core Web Vitals.",
-      "applications-software":
-        "Payments and fulfillment running in one pipeline.",
-    },
+    visual: { kind: "concept" },
   },
   "saas-platform": {
     story: ["Product", "Tiers", "Subscribers"],
-    capabilities: {
-      "applications-software":
-        "Tiered pricing toggles and a transparent metered-usage simulator.",
-    },
+    visual: { kind: "concept" },
   },
   "seo-blogs": {
     story: ["Content", "Edge delivery", "Search"],
-    capabilities: {
-      "brand-digital-presence":
-        "An edge-cached reading canvas tuned for Core Web Vitals.",
-      "applications-software":
-        "A headless backend and a statically-fast publishing catalog.",
-    },
+    visual: { kind: "concept" },
   },
 };
 
