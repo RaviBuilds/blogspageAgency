@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useRef } from "react";
 import {
@@ -300,12 +300,17 @@ export function ProcessTimeline() {
 
         {/* Journey: the transformation canvas beside the typographic stage
             list, framed by the business-problem and live-business nodes. */}
-        <div className="mt-16 grid items-start gap-12 lg:mt-20 lg:grid-cols-12">
-          <div className="order-1 lg:col-span-5">
-            <TransformationCanvas progress={scrollYProgress} />
+        <div className="mt-16 lg:mt-20 lg:grid lg:grid-cols-12 lg:items-start lg:gap-12">
+          {/* Mobile: the canvas becomes a compact sticky strip (Blueprint
+              Section 14) -- normal flow, morphing while the stages scroll
+              past. Tablet/desktop: the canvas is the journey's left column. */}
+          <div className="max-lg:sticky max-lg:top-16 max-lg:z-10 max-lg:-mx-6 max-lg:border-b max-lg:border-border-subtle max-lg:bg-background/95 max-lg:px-6 max-lg:py-3 max-lg:backdrop-blur-sm lg:col-span-5">
+            <div className="[&_svg]:max-lg:mx-auto [&_svg]:max-lg:h-24 [&_svg]:max-lg:w-auto">
+              <TransformationCanvas progress={scrollYProgress} />
+            </div>
           </div>
 
-          <div className="relative order-2 lg:col-span-7">
+          <div className="relative mt-10 max-lg:mt-6 lg:col-span-7 lg:mt-0">
             <JourneySpine monotonic={monotonic} />
             <div className="flex flex-col gap-10">
               <EntryFrame />
