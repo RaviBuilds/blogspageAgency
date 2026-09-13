@@ -13,13 +13,13 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { NICHES } from "@/lib/niches";
 import { trackEvent } from "@/lib/analytics";
 import { BRIDGE, FLAGSHIP_PROJECT_IDS } from "@/lib/homepage-data";
-import { HOME_VERTICALS } from "@/lib/homepage-verticals";
 import { projects } from "@/lib/featured-work-data";
 import {
   DEFAULT_INDUSTRY_ACCENT,
   getIndustryStory,
 } from "@/lib/industry-discovery";
-import { IndustryStoryStrip } from "@/components/home/industry-visual";
+import { IndustryStoryStrip, RealWorkVisual } from "@/components/home/industry-visual";
+import { ConceptVisual } from "@/components/home/industry-system-visuals";
 import { cn } from "@/lib/utils";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -273,38 +273,33 @@ export function BentoGrid() {
                       {selected.hero.headline}
                     </h3>
                     <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                      {selected.hero.subhead}
+                      {selected.description}
                     </p>
                   </div>
 
+                  {/* R7.1 -- the industry's main visual artifact: a verified
+                      project screenshot rendered as authentic proof, or a
+                      clearly conceptual product/system representation for
+                      industries without verified client work. */}
+                  <div className="relative mt-6">
+                    {story?.visual.kind === "real" ? (
+                      <RealWorkVisual
+                        image={story.visual.image}
+                        alt={story.visual.alt}
+                        width={story.visual.width}
+                        height={story.visual.height}
+                      />
+                    ) : (
+                      <ConceptVisual id={selected.id} />
+                    )}
+                  </div>
+
+                  {/* System flow: the journey the digital system enables. */}
                   {story && (
-                    <div className="relative mt-6">
+                    <div className="relative mt-5">
                       <IndustryStoryStrip labels={story.story} accent={accent} />
                     </div>
                   )}
-
-                  {/* Capability connection — R5's three verticals, answered
-                      for THIS business (not a repeat of R5). */}
-                  <div className="relative mt-6 grid gap-4 border-t border-border-subtle pt-6 sm:grid-cols-3">
-                    {HOME_VERTICALS.map((vertical) => (
-                      <div key={vertical.id} className="flex flex-col gap-1.5">
-                        <span className="flex items-center gap-2 text-xs font-semibold text-foreground">
-                          <span
-                            aria-hidden
-                            className="size-1.5 shrink-0 rounded-full"
-                            style={{
-                              backgroundColor: `rgb(${vertical.accent})`,
-                            }}
-                          />
-                          {vertical.title}
-                        </span>
-                        <span className="text-xs leading-relaxed text-muted-foreground">
-                          {story?.capabilities[vertical.id] ??
-                            vertical.plainPromise}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
 
                   <div className="relative mt-auto flex flex-wrap items-center gap-x-6 gap-y-3 pt-8">
                     {/* Small proof reference — project evidence, never a
