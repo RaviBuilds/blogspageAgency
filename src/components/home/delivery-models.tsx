@@ -45,6 +45,26 @@ export const DELIVERY_MODELS = [
   },
 ];
 
+/**
+ * Section heading treatment — parity with the other homepage sections: the
+ * neutral headline stays neutral; the meaningful opening phrase carries the
+ * restrained brand text sweep. No data change — the phrase is sliced from
+ * the existing `TRUST.heading` string, with a safe whole-heading fallback.
+ */
+const HEADING_TEXT = TRUST.heading;
+const HEADING_ACCENT = "Two ways";
+const HEADING_MAIN = HEADING_TEXT.startsWith(HEADING_ACCENT)
+  ? HEADING_TEXT.slice(HEADING_ACCENT.length)
+  : "";
+
+const BRAND_TEXT_GRADIENT = {
+  backgroundImage:
+    "linear-gradient(90deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)",
+  WebkitBackgroundClip: "text" as const,
+  backgroundClip: "text",
+  color: "transparent",
+} as const;
+
 export function DeliveryModels() {
   return (
     <section id="models" className="scroll-mt-24 border-t border-border-subtle bg-background-subtle py-24 lg:py-32">
@@ -52,7 +72,14 @@ export function DeliveryModels() {
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-medium text-primary">How we work</p>
           <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-            {TRUST.heading}
+            {HEADING_MAIN ? (
+              <>
+                <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>
+                {HEADING_MAIN}
+              </>
+            ) : (
+              TRUST.heading
+            )}
           </h2>
           <p className="mt-4 text-muted-foreground">
             {TRUST.sub}

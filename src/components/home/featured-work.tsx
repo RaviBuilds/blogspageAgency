@@ -56,6 +56,29 @@ const fadeUp: Variants = {
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
+/**
+ * R6.1 heading treatment — parity with the other homepage sections: the
+ * neutral headline stays neutral; the meaningful final phrase carries the
+ * brand text sweep. This section is dark-surface, so the sweep uses the
+ * Hero's light-signal gradient (the same values the dark Hero uses), not
+ * the darker light-surface triad. No data change — the phrase is sliced
+ * from the existing `PROOF.heading` string, with a safe whole-heading
+ * fallback if the data ever drifts.
+ */
+const HEADING_TEXT = PROOF.heading;
+const HEADING_ACCENT = "the back office.";
+const HEADING_MAIN = HEADING_TEXT.endsWith(HEADING_ACCENT)
+  ? HEADING_TEXT.slice(0, HEADING_TEXT.length - HEADING_ACCENT.length)
+  : "";
+
+const BRAND_TEXT_GRADIENT = {
+  backgroundImage:
+    "linear-gradient(94deg, #67E8F9 0%, #828FFF 48%, #A78BFA 100%)",
+  WebkitBackgroundClip: "text" as const,
+  backgroundClip: "text",
+  color: "transparent",
+} as const;
+
 /* R6 story choreography. The article staggers its direct motion children in
    DOM order, which is deliberately the narrative order: the real screenshot
    enters before the system flow connects, and evidence/CTA resolve last. */
@@ -558,7 +581,10 @@ export function FeaturedProof() {
             variants={fadeUp}
             className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
           >
-            {PROOF.heading}
+            {HEADING_MAIN || PROOF.heading}
+            {HEADING_MAIN && (
+              <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>
+            )}
           </motion.h2>
           <motion.p variants={fadeUp} className="mt-4 text-muted-foreground">
             {PROOF.sub}

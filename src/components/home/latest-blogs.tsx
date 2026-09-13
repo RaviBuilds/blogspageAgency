@@ -11,6 +11,26 @@ const formatDate = (iso: string) =>
     day: "numeric",
   });
 
+/**
+ * Section heading treatment — parity with the other homepage sections: the
+ * neutral headline stays neutral; the meaningful final phrase carries the
+ * restrained brand text sweep. Sliced from the hardcoded heading with a
+ * safe whole-heading fallback.
+ */
+const HEADING_TEXT = "From the journal";
+const HEADING_ACCENT = "the journal";
+const HEADING_MAIN = HEADING_TEXT.endsWith(HEADING_ACCENT)
+  ? HEADING_TEXT.slice(0, HEADING_TEXT.length - HEADING_ACCENT.length)
+  : "";
+
+const BRAND_TEXT_GRADIENT = {
+  backgroundImage:
+    "linear-gradient(90deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)",
+  WebkitBackgroundClip: "text" as const,
+  backgroundClip: "text",
+  color: "transparent",
+} as const;
+
 async function getLatestPosts(): Promise<LatestPost[]> {
   return client.fetch<LatestPost[]>(LATEST_POSTS_QUERY);
 }
@@ -29,7 +49,10 @@ export async function LatestBlogs() {
           <div>
             <p className="text-sm font-medium text-primary">Journal</p>
             <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-              From the journal
+              {HEADING_MAIN || HEADING_TEXT}
+              {HEADING_MAIN && (
+                <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>
+              )}
             </h2>
             <p className="mt-3 max-w-xl text-muted-foreground">
               Engineering deep-dives, local SEO playbooks, and the systems behind

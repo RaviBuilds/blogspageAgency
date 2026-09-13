@@ -38,6 +38,26 @@ const fadeUp: Variants = {
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
+/**
+ * Section heading treatment — parity with the other homepage sections: the
+ * neutral headline stays neutral; the meaningful final phrase carries the
+ * restrained brand text sweep. No data change — the phrase is sliced from
+ * the existing `FINAL_CTA.heading` string, with a safe whole-heading fallback.
+ */
+const HEADING_TEXT = FINAL_CTA.heading;
+const HEADING_ACCENT = "your business to go.";
+const HEADING_MAIN = HEADING_TEXT.endsWith(HEADING_ACCENT)
+  ? HEADING_TEXT.slice(0, HEADING_TEXT.length - HEADING_ACCENT.length)
+  : "";
+
+const BRAND_TEXT_GRADIENT = {
+  backgroundImage:
+    "linear-gradient(90deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)",
+  WebkitBackgroundClip: "text" as const,
+  backgroundClip: "text",
+  color: "transparent",
+} as const;
+
 export function FinalCTA() {
   const shouldReduceMotion = useReducedMotion();
 
@@ -58,7 +78,10 @@ export function FinalCTA() {
           variants={fadeUp}
           className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl lg:text-5xl"
         >
-          {FINAL_CTA.heading}
+          {HEADING_MAIN || FINAL_CTA.heading}
+          {HEADING_MAIN && (
+            <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>
+          )}
         </motion.h2>
 
         <motion.p
