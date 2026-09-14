@@ -13,5 +13,7 @@ export const DENTAL_PACKAGES_HEADINGS = [
   "AI that answers, books, and follows up.",
   "Optional add-ons.",
   "Simple payment terms.",
+  "From your first website to a full AI practice.",
+  "Dental website FAQs.",
   "Not sure which plan fits your clinic?",
 ] as const;

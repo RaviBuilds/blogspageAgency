@@ -20,6 +20,8 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { BookingCta } from "@/components/booking/booking-cta";
 import { FadeUp } from "@/components/solutions/fade-up";
+import { PACKAGE_FAQS } from "@/components/solutions/dental-packages-faqs";
+import type { FaqPair } from "@/lib/structured-data";
 
 /* -------------------------------------------------------------------------- */
 /*  Motion primitives — design system §5 (mirrors dental-solution-landing)     */
@@ -667,6 +669,49 @@ const PAYMENT_TERMS = [
 /* -------------------------------------------------------------------------- */
 /*  Small building blocks                                                     */
 /* -------------------------------------------------------------------------- */
+
+function FaqItem({
+  item,
+  defaultOpen = false,
+}: {
+  item: FaqPair;
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="border-b border-border-subtle last:border-b-0">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-start justify-between gap-4 py-5 text-left"
+      >
+        <span className="font-medium text-foreground">{item.question}</span>
+        <ChevronDown
+          className={`mt-1 size-4 shrink-0 text-muted-foreground transition-transform duration-200 ${
+            open ? "rotate-180" : ""
+          }`}
+          aria-hidden
+        />
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: EASE }}
+            className="overflow-hidden"
+          >
+            <p className="pb-5 text-sm leading-relaxed text-muted-foreground">
+              {item.answer}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 function FeatureList({ group }: { group: FeatureGroup }) {
   return (
@@ -1393,7 +1438,80 @@ export function DentalPackagesLanding({
         </div>
       </section>
 
-      {/* SECTION 8: FINAL CTA */}
+      {/* SECTION 8: UPGRADE PATH */}
+      <section className="border-t border-border-subtle py-20 lg:py-24">
+        <div className="mx-auto max-w-6xl px-6 lg:px-8">
+          <FadeUp>
+            <div className="max-w-2xl">
+              <p className="text-sm font-medium text-primary">Upgrade path</p>
+              <h2
+                id={headingIds["From your first website to a full AI practice."]}
+                className="mt-3 text-3xl font-semibold tracking-tight"
+              >
+                From your first website to a full AI practice.
+              </h2>
+              <p className="mt-4 text-muted-foreground">
+                The plans build on each other on purpose. Launch gives you a
+                premium single-page site; Essential adds dedicated treatment
+                and about pages with local SEO switched on; Premium Practice
+                adds online booking; Practice Growth adds a page for every
+                treatment you want to rank for plus a blog engine; Signature AI
+                Practice runs the front desk for you with AI. You can start
+                small and move up as the practice grows — additional pages
+                (₹2,500 each) and add-ons bolt onto any plan, before or after
+                launch.
+              </p>
+            </div>
+          </FadeUp>
+          <FadeUp delay={0.08}>
+            <div className="mt-8 rounded-2xl border border-primary/25 bg-primary/[0.04] p-7">
+              <p className="font-medium tracking-tight">
+                When a package isn&apos;t enough
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                If you run a dental hospital or a larger multi-specialty
+                practice — multiple doctors, several locations, treatments
+                across specialities — the better fit is the full dental digital
+                system: treatment architecture, doctor credential presentation,
+                press and testimonial sections, booking pathways per location,
+                and the AI layer.{" "}
+                <Link
+                  href={solutionPath}
+                  className="font-medium text-primary transition-colors hover:text-foreground"
+                >
+                  See the full dental hospital &amp; practice solution
+                </Link>
+                .
+              </p>
+            </div>
+          </FadeUp>
+        </div>
+      </section>
+
+      {/* SECTION 9: FAQ */}
+      <section className="border-t border-border-subtle py-20 lg:py-24">
+        <div className="mx-auto max-w-3xl px-6 lg:px-8">
+          <FadeUp>
+            <h2
+              id={headingIds["Dental website FAQs."]}
+              className="text-3xl font-semibold tracking-tight"
+            >
+              Dental website FAQs.
+            </h2>
+            <div className="mt-8">
+              {PACKAGE_FAQS.map((item, i) => (
+                <FaqItem
+                  key={item.question}
+                  item={item}
+                  defaultOpen={i === 0}
+                />
+              ))}
+            </div>
+          </FadeUp>
+        </div>
+      </section>
+
+      {/* SECTION 10: FINAL CTA */}
       <section className="border-t border-border-subtle py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <FadeUp>
