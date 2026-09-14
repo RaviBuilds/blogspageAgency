@@ -10,14 +10,16 @@
  * rationale.
  */
 export const DENTAL_LANDING_HEADINGS = [
+  "From single-chair clinics to multi-specialty dental hospitals.",
   "Your clinic is invisible to the patients searching for you.",
   "From invisible to fully booked.",
   "Everything a premium dental clinic needs online.",
   "The interface your patients and team actually use.",
-  "How a 4-chair clinic in Jubilee Hills went from 12 to 45 enquiries per week",
-  "One new patient per week pays for everything.",
+  "How a patient finds you, trusts you, and books.",
+  "A real client. A real transformation.",
+  "Content and local SEO foundations, built in.",
   "Packages that fit your clinic and your budget.",
-  "Live in 14 days. Hands-off for you.",
+  "Live in as little as 3–5 working days. Hands-off for you.",
   "Questions dental clinics ask before starting.",
   "Ready to become the most visible dental clinic in Hyderabad?",
   "Related reading",
