@@ -539,7 +539,7 @@ const NICHE_SEEDS: NicheSeed[] = [
     title: "Dental & Medical",
     focus: "Frictionless patient pipeline",
     description:
-      "A HIPAA-aligned calendar orchestration view that removes friction from the patient booking pipeline.",
+      "Dental clinic and hospital websites with treatment pages, doctor profiles, online booking, and patient-growth systems.",
     icon: Stethoscope,
     slugTemplate: "dental-hospital-business-solution-website-at-[city]",
     seoLabel:
@@ -548,7 +548,7 @@ const NICHE_SEEDS: NicheSeed[] = [
     hero: {
       headline: "Get more patients walking through your door.",
       subhead:
-        "A premium digital presence that builds trust, ranks on Google, and books appointments around the clock for dental clinics in Hyderabad.",
+        "Websites and digital systems for dental hospitals and multi-specialty clinics — treatment pages, doctor profiles, online booking, and AI-assisted patient communication.",
     },
     problem: {
       heading: "Your clinic is invisible to the patients searching for you.",
@@ -568,7 +568,7 @@ const NICHE_SEEDS: NicheSeed[] = [
         "Premium website that positions your clinic as the trusted, modern choice.",
         "Online booking that fills your calendar while you sleep.",
         "Google-optimized pages that rank for 'dentist in your area'.",
-        "Automated WhatsApp and SMS reminders that cut no-shows by up to 40%.",
+        "Automated WhatsApp and SMS reminders that reduce missed appointments.",
         "Patient review system that builds your Google reputation.",
         "Analytics dashboard showing exactly where patients come from.",
         "AI chatbot answering common patient questions instantly.",
@@ -590,7 +590,7 @@ const NICHE_SEEDS: NicheSeed[] = [
       {
         question: "How much does a dental clinic website cost?",
         answer:
-          "Every clinic is different — a 2-chair practice has different needs than a multi-specialty clinic. Typical dental projects fall between ₹1.5L and ₹3.5L depending on scope, integrations, and the number of practitioners. We scope everything on a discovery call before quoting. The ROI math is simple: if your site generates even 2–3 extra patients per week, the investment pays for itself in the first month.",
+          "Every clinic is different — a 2-chair practice has different needs than a multi-specialty hospital. Fixed-scope website packages run from ₹14,900 to ₹49,900 depending on pages, booking, and SEO scope, and the Signature AI Practice system starts from ₹1,25,000. The full package breakdown is on our dental website packages page. We confirm exact scope on a discovery call before quoting — no surprises.",
       },
       {
         question: "I already have a website. Why do I need a new one?",
@@ -615,7 +615,7 @@ const NICHE_SEEDS: NicheSeed[] = [
       {
         question: "How is this different from a ₹15,000 WordPress site?",
         answer:
-          "A template WordPress site loads in 4–6 seconds, looks like every other dental site, has zero SEO engineering, and breaks every time a plugin updates. What we build loads in under 1.2 seconds, is custom-designed for your brand, is engineered for Google rankings from the architecture up, and requires zero plugin maintenance.",
+          "A template WordPress site looks like every other dental site, carries little SEO engineering, and needs constant plugin maintenance. What we build is custom-designed for your brand, engineered for fast load times and Google rankings from the architecture up, and requires no plugin maintenance.",
       },
       {
         question: "What if it doesn't work? What's my risk?",
@@ -935,10 +935,9 @@ const NICHE_ENRICHMENT: Record<
   },
   "dental-medical": {
     metrics: [
-      { value: "3x", label: "More patient enquiries" },
-      { value: "40%", label: "Fewer no-shows" },
-      { value: "24/7", label: "Online booking" },
-      { value: "14", label: "Days to launch" },
+      { value: "24/7", label: "Online booking availability" },
+      { value: "↓", label: "Missed appointments via automated reminders" },
+      { value: "AI", label: "Front-desk automation with Signature AI Practice" },
     ],
     launchSchedule: [
       { window: "Days 1-2", title: "Discovery & clinic audit", detail: "A 45-minute call to learn your clinic, services, target patients, and competitive landscape." },
@@ -997,16 +996,27 @@ const NICHE_ENRICHMENT: Record<
  * one; the rest render without a case-study section.
  */
 const NICHE_CASE_STUDIES: Record<string, CaseStudy> = {
+  /*
+   * Real client record (owner-supplied facts only — see
+   * docs/canonical/BLOGSPAGE_AI_DENTAL_SOLUTIONS_PAGES_REFINEMENT_BLUEPRINT_v1.0.md).
+   * Deliberately NO stack list and NO outcome metrics: no verified stack
+   * record or outcome figures exist, and nothing may be invented. The dental
+   * route renders its own NeoDent case-study component, so this record is the
+   * catalog-level source of truth for the same facts.
+   */
   "dental-medical": {
-    title: "How a 4-chair clinic in Jubilee Hills went from 12 to 45 enquiries per week",
-    stack: ["Next.js", "Vercel", "Supabase", "WhatsApp Business API"],
+    title: "NeoDent Dental Hospitals — 30 years of clinical authority, brought online",
+    stack: [],
     narrative:
-      "A multi-specialty dental clinic in Jubilee Hills had been open for three years with excellent care but a 5-year-old WordPress template invisible on Google and phone-only booking. Within 60 days of launching their new platform, organic search enquiries tripled and no-shows dropped by 38% through automated WhatsApp reminders.",
+      "NeoDent Dental Hospitals was founded in 1994 by Dr. Mohd. Siraj Ur Rahman and serves patients from two Hyderabad locations — Mehdipatnam and Nampally — with specialist-led care across prosthodontics, implants, and restorative dentistry. More than three decades of reputation, credentials, and press presence were not reflected by the hospital's previous digital presence. Blogspage rebuilt it around a stronger brand identity: doctor credentials surfaced clearly, treatment and service presentation with dedicated treatment pages, a press and media section, patient testimonials, appointment booking pathways, and location presentation.",
     outcomes: [
-      "3.7x increase in weekly patient enquiries (12 → 45).",
-      "Page 1 Google ranking for 5 target keywords within 60 days.",
-      "38% reduction in no-shows via automated reminders.",
-      "24/7 online booking generating 30% of new appointments.",
+      "Stronger brand identity across the website.",
+      "Doctor credentials surfaced clearly.",
+      "Treatment and service presentation with dedicated treatment pages.",
+      "Press and media section showcasing the hospital's coverage.",
+      "Patient testimonial section.",
+      "Appointment booking pathways for patients.",
+      "Location presentation for Mehdipatnam and Nampally.",
     ],
   },
   "hotel-booking": {
