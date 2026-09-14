@@ -12,6 +12,7 @@ import {
 
 import { PROCESS } from "@/lib/homepage-data";
 import {
+  CanvasStateCaption,
   STAGE_ACCENTS,
   STAGE_WINDOWS,
   TransformationCanvas,
@@ -304,13 +305,31 @@ export function ProcessTimeline() {
           {/* Mobile: the canvas becomes a compact sticky strip (Blueprint
               Section 14) -- normal flow, morphing while the stages scroll
               past. Tablet/desktop: the canvas is the journey's left column. */}
-          <div className="max-lg:sticky max-lg:top-16 max-lg:z-10 max-lg:-mx-6 max-lg:border-b max-lg:border-border-subtle max-lg:bg-background/95 max-lg:px-6 max-lg:py-3 max-lg:backdrop-blur-sm lg:col-span-5">
-            <div className="[&_svg]:max-lg:mx-auto [&_svg]:max-lg:h-24 [&_svg]:max-lg:w-auto">
+          {/* R8.1 presentation surface: an unboxed, ruled sheet for the evolving
+              artifact -- corner registration ticks + baseline rule, no card
+              chrome (the artifact itself is the subject). Mobile: the same
+              surface becomes the compact sticky strip (Blueprint Section 14),
+              carrying the inline editorial state caption. */}
+          <div className="relative max-lg:sticky max-lg:top-16 max-lg:z-10 max-lg:-mx-6 max-lg:border-b max-lg:border-border-subtle max-lg:bg-background/95 max-lg:px-6 max-lg:pb-4 max-lg:pt-3 max-lg:backdrop-blur-sm lg:col-span-6">
+            <span aria-hidden className="pointer-events-none absolute left-0 top-0 hidden size-3 border-l border-t border-border lg:block" />
+            <span aria-hidden className="pointer-events-none absolute right-0 top-0 hidden size-3 border-r border-t border-border lg:block" />
+            <span aria-hidden className="pointer-events-none absolute bottom-0 left-0 hidden size-3 border-b border-l border-border lg:block" />
+            <span aria-hidden className="pointer-events-none absolute bottom-0 right-0 hidden size-3 border-b border-r border-border lg:block" />
+            <div className="[&_svg]:max-lg:mx-auto [&_svg]:max-lg:h-28 [&_svg]:max-lg:w-auto lg:mx-auto lg:max-w-md lg:pt-4">
               <TransformationCanvas progress={scrollYProgress} />
+            </div>
+            {/* Baseline rule + editorial state caption (desktop/tablet). */}
+            <div aria-hidden className="mt-4 hidden items-center gap-3 lg:flex">
+              <span className="h-px flex-1 bg-border-subtle" />
+              <CanvasStateCaption monotonic={monotonic} />
+            </div>
+            {/* Inline state caption inside the mobile strip. */}
+            <div aria-hidden className="mt-3 flex items-center justify-center lg:hidden">
+              <CanvasStateCaption monotonic={monotonic} />
             </div>
           </div>
 
-          <div className="relative mt-10 max-lg:mt-6 lg:col-span-7 lg:mt-0">
+          <div className="relative mt-10 max-lg:mt-6 lg:col-span-6 lg:mt-0">
             <JourneySpine monotonic={monotonic} />
             <div className="flex flex-col gap-10">
               <EntryFrame />
