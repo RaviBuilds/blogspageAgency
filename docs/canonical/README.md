@@ -54,6 +54,18 @@ Use it to understand:
 
 SEO infrastructure must not be changed casually during homepage work.
 
+### 7. BLOGSPAGE_AI_DENTAL_SOLUTIONS_PAGES_REFINEMENT_BLUEPRINT_v1.0.md
+
+Primary authority for the two dental solution pages
+(`/solutions/dental-hospital-business-solution-website-at-hyderabad` and
+`/solutions/dental-clinic-website-packages`): page roles and search intent,
+information architecture, claims policy (no fabricated metrics, testimonials,
+or client outcomes), the NeoDent case-study rules, pricing truth source,
+FAQ/structured-data guidance, and validation for those two routes.
+
+Supersedes the historical `docs/dental/` planning documents for content on
+these two pages only.
+
 ## Scope rules
 
 For homepage work:
