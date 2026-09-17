@@ -92,6 +92,11 @@ type Plan = {
   /** Rendered as a headline card; the rest live in the accordion. */
   featured?: boolean;
   popular?: boolean;
+  /**
+   * Proposal-only tier: defined here so internal quotes can reference it, but
+   * filtered out of every public surface (cards, accordion, comparison table).
+   */
+  internalOnly?: boolean;
 };
 
 const PLANS: Plan[] = [
@@ -166,6 +171,12 @@ const PLANS: Plan[] = [
   {
     id: "essential",
     name: "Essential",
+    /**
+     * Proposal-only tier (₹19,900): kept for internal quotes but no longer
+     * published on public pages — do not render it in cards, accordion, or
+     * the comparison table. See PUBLIC_PLANS below.
+     */
+    internalOnly: true,
     icon: Zap,
     tagline:
       "Room for your treatments and your story across dedicated pages, with local SEO switched on.",
@@ -224,6 +235,8 @@ const PLANS: Plan[] = [
     tagline:
       "A high-end, conversion-engineered practice website built to win the patient before the first call.",
     price: "₹29,900",
+    priceNote:
+      "No dedicated treatment pages at this tier — see Practice Growth.",
     delivery: "7–10 working days",
     websiteType: "Premium multi-page website",
     pageCount: "Up to 5 premium pages",
@@ -249,7 +262,7 @@ const PLANS: Plan[] = [
         ],
       },
     ],
-    inherits: "Essential",
+    inherits: "Launch",
     featured: true,
     popular: true,
     groups: [
@@ -263,6 +276,22 @@ const PLANS: Plan[] = [
           "Before & after gallery",
           "Awards & certifications",
           "Doctor experience showcase",
+        ],
+      },
+      {
+        label: "Dedicated Doctor Profile Page",
+        description:
+          "A dedicated page built around the doctor's name, credentials, and clinical focus — giving Google a clear, unambiguous page to associate with their name and photo.",
+        items: [
+          "Own photo, bio, and credentials",
+          "Clinical focus section",
+          "Person schema markup",
+        ],
+      },
+      {
+        label: "Citations & local presence",
+        items: [
+          "Citation setup/cleanup — up to 5 relevant directories (Justdial, Practo, Sulekha, Lybrate, + one local health directory)",
         ],
       },
       {
@@ -319,7 +348,7 @@ const PLANS: Plan[] = [
     tagline:
       "A dedicated page for every treatment you want to rank for, plus a blog engine to compound it.",
     price: "₹49,900",
-    delivery: "10–14 working days",
+    delivery: "14–21 working days",
     websiteType: "SEO-led multi-page website",
     pageCount: "Up to 12 premium pages",
     structure: [
@@ -367,11 +396,25 @@ const PLANS: Plan[] = [
         ],
       },
       {
+        label: "AI FAQ Assistant",
+        description:
+          "Answers static patient questions — clinic timings, location/parking, insurance accepted, and general treatment overviews. Does not book appointments: if a patient wants to book, it triggers a WhatsApp redirect with a pre-filled message.",
+        items: [
+          "Clinic timings, location & parking answers",
+          "Insurance accepted",
+          "General treatment overviews",
+          "WhatsApp redirect with a pre-filled message for booking requests",
+          "Note: the AI Chatbot (₹15,000+) and AI Receptionist (₹40,000+) remain separate add-ons",
+        ],
+      },
+      {
         label: "Marketing",
         items: [
           "Blog CMS",
           "Google Reviews integration",
-          "Local SEO optimization",
+          "Advanced local SEO optimization",
+          "Google Business Profile for up to 2 locations",
+          "Citations across up to 8 directories (setup and submission handled by us; listing placement on third-party directories is not guaranteed)",
           "Conversion tracking",
         ],
       },
@@ -441,24 +484,25 @@ const PLANS: Plan[] = [
   },
 ];
 
-const FEATURED_PLANS = PLANS.filter((plan) => plan.featured);
-const OTHER_PLANS = PLANS.filter((plan) => !plan.featured);
+/** Public-facing plans only — internal/proposal-only tiers are filtered out. */
+const PUBLIC_PLANS = PLANS.filter((plan) => !plan.internalOnly);
+const FEATURED_PLANS = PUBLIC_PLANS.filter((plan) => plan.featured);
+const OTHER_PLANS = PUBLIC_PLANS.filter((plan) => !plan.featured);
 
 /* Comparison table: one row per capability, one value per plan, in PLANS order. */
 const COMPARISON_ROWS: { label: string; values: string[] }[] = [
   {
     label: "Investment",
-    values: ["₹14,900", "₹19,900", "₹29,900", "₹49,900", "From ₹1,25,000"],
+    values: ["₹14,900", "₹29,900", "₹49,900", "From ₹1,25,000"],
   },
   {
     label: "Delivery",
-    values: ["3–5 days", "5–7 days", "7–10 days", "10–14 days", "3–6 weeks"],
+    values: ["3–5 days", "7–10 days", "14–21 days", "3–6 weeks"],
   },
   {
     label: "Website type",
     values: [
       "Single-page storytelling",
-      "Multi-page",
       "Premium multi-page",
       "SEO-led multi-page",
       "Custom architecture",
@@ -466,32 +510,30 @@ const COMPARISON_ROWS: { label: string; values: string[] }[] = [
   },
   {
     label: "Page count",
-    values: ["1 page", "Up to 3", "Up to 5", "Up to 12", "Unlimited / custom"],
+    values: ["1 page", "Up to 5", "Up to 12", "Unlimited / custom"],
   },
   {
     label: "Treatment SEO pages",
-    values: ["—", "—", "—", "7 pages", "7+ pages"],
+    values: ["—", "—", "7 pages", "7+ pages"],
   },
   {
     label: "Local SEO & Google Business",
-    values: ["Basic", "Yes", "Yes", "Advanced", "Advanced"],
+    values: ["Basic", "Yes", "Advanced", "Advanced"],
   },
   {
     label: "Gallery & social proof",
     values: [
       "Testimonials",
-      "+ Clinic gallery",
       "+ Before & after",
       "+ Google Reviews",
       "+ Review automation",
     ],
   },
-  { label: "Blog CMS", values: ["—", "—", "—", "Yes", "Yes"] },
+  { label: "Blog CMS", values: ["—", "—", "Yes", "Yes"] },
   {
     label: "Online appointment booking",
     values: [
       "—",
-      "Optional",
       "Included",
       "Included",
       "Included + AI assisted",
@@ -499,21 +541,20 @@ const COMPARISON_ROWS: { label: string; values: string[] }[] = [
   },
   {
     label: "Appointment automation",
-    values: ["—", "—", "—", "Basic", "AI powered"],
+    values: ["—", "—", "Basic", "AI powered"],
   },
   {
     label: "AI chatbot",
-    values: ["Add-on", "Add-on", "Add-on", "Add-on", "Included"],
+    values: ["Add-on", "Add-on", "Add-on", "Included"],
   },
   {
     label: "AI receptionist",
-    values: ["Add-on", "Add-on", "Add-on", "Add-on", "Included"],
+    values: ["Add-on", "Add-on", "Add-on", "Included"],
   },
   {
     label: "Support",
     values: [
       "1 month",
-      "2 months",
       "3 months",
       "3 months + SEO guidance",
       "Ongoing",
@@ -521,7 +562,7 @@ const COMPARISON_ROWS: { label: string; values: string[] }[] = [
   },
   {
     label: "Design revisions",
-    values: ["Minor changes", "2", "3", "3", "Custom scope"],
+    values: ["Minor changes", "3", "3", "Custom scope"],
   },
 ];
 
@@ -644,7 +685,16 @@ const ADD_ONS = [
   { service: "Professional content writing", price: "₹6,000" },
   { service: "Blog setup", price: "₹7,500" },
   { service: "Google Business Profile optimization", price: "₹5,000" },
-  { service: "Monthly SEO", price: "₹12,000–₹20,000 / month" },
+  {
+    service:
+      "Monthly SEO — Local SEO, 1 location (GBP posts/updates, citation monitoring, minor page updates, review monitoring, monthly report)",
+    price: "₹7,000 / month",
+  },
+  {
+    service:
+      "Monthly SEO — 2 locations / Growth-tier sites (same scope, doubled for a second GBP profile and more content to maintain)",
+    price: "₹12,000 / month",
+  },
   { service: "AI chatbot", price: "Starting from ₹15,000" },
   { service: "AI receptionist", price: "Starting from ₹40,000+" },
   { service: "WhatsApp automation", price: "₹10,000" },
@@ -997,7 +1047,7 @@ export function DentalPackagesLanding({
               Three ways to start. One goal: more patients.
             </h2>
             <p className="mt-4 max-w-2xl text-muted-foreground">
-              Most clinics pick one of these three. Two more plans sit between
+              Most clinics pick one of these three. One more plan sits between
               them if you need a different fit.
             </p>
           </FadeUp>
@@ -1100,14 +1150,14 @@ export function DentalPackagesLanding({
           <FadeUp>
             <p className="text-sm font-medium text-primary">Explore all plans</p>
             <h2
-              id={headingIds["Explore all five plans."]}
+              id={headingIds["Explore all four packages."]}
               className="mt-3 text-3xl font-semibold tracking-tight"
             >
-              Explore all five plans.
+              Explore all four packages.
             </h2>
             <p className="mt-4 max-w-2xl text-muted-foreground">
-              Essential and Practice Growth sit between the headline three.
-              Expand either one for the full scope.
+              Practice Growth sits between the headline three. Expand it for
+              the full scope.
             </p>
           </FadeUp>
           <div className="mt-10 grid gap-3">
@@ -1147,7 +1197,7 @@ export function DentalPackagesLanding({
                     >
                       Feature
                     </th>
-                    {PLANS.map((plan) => (
+                    {PUBLIC_PLANS.map((plan) => (
                       <th
                         scope="col"
                         key={plan.id}
@@ -1177,7 +1227,7 @@ export function DentalPackagesLanding({
                       </th>
                       {row.values.map((value, i) => (
                         <td
-                          key={`${row.label}-${PLANS[i].id}`}
+                          key={`${row.label}-${PUBLIC_PLANS[i].id}`}
                           className={`px-5 py-4 ${
                             value === "—"
                               ? "text-muted-foreground/40"
@@ -1452,14 +1502,15 @@ export function DentalPackagesLanding({
               </h2>
               <p className="mt-4 text-muted-foreground">
                 The plans build on each other on purpose. Launch gives you a
-                premium single-page site; Essential adds dedicated treatment
-                and about pages with local SEO switched on; Premium Practice
-                adds online booking; Practice Growth adds a page for every
+                premium single-page site; Premium Practice adds premium
+                multi-page design, a dedicated doctor profile page, and 24/7
+                online booking; Practice Growth adds a page for every
                 treatment you want to rank for plus a blog engine; Signature AI
-                Practice runs the front desk for you with AI. You can start
-                small and move up as the practice grows — additional pages
-                (₹2,500 each) and add-ons bolt onto any plan, before or after
-                launch.
+                Practice runs the front desk for you with AI. Your build is
+                structured with an upgrade path in mind, so moving to a larger
+                package can extend the existing foundation rather than starting
+                over — additional pages (₹2,500 each) and add-ons bolt onto any
+                plan, before or after launch.
               </p>
             </div>
           </FadeUp>

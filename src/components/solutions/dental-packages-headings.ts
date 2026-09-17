@@ -8,7 +8,7 @@
  */
 export const DENTAL_PACKAGES_HEADINGS = [
   "Three ways to start. One goal: more patients.",
-  "Explore all five plans.",
+  "Explore all four packages.",
   "Compare every plan side by side.",
   "AI that answers, books, and follows up.",
   "Optional add-ons.",

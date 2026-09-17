@@ -154,7 +154,7 @@ const WHO_THIS_IS_FOR = [
     icon: Building2,
     title: "Growing multi-chair practices",
     body: "You have several doctors and a wider treatment mix. You need dedicated treatment pages, doctor profiles, online booking, and the local-SEO foundations that make each speciality findable.",
-    startingPoint: "Typical starting point: the Essential or Premium Practice packages.",
+    startingPoint: "Typical starting point: the Premium Practice package.",
   },
   {
     icon: Hospital,
@@ -470,7 +470,7 @@ export function DentalSolutionLanding({ cityLabel, faq = [], headingIds, related
           <FadeUp>
             <p className="text-sm font-medium text-primary">Pricing &amp; Packages</p>
             <h2 id={headingIds["Packages that fit your clinic and your budget."]} className="mt-3 text-3xl font-semibold tracking-tight">Packages that fit your clinic and your budget.</h2>
-            <p className="mt-4 max-w-2xl text-muted-foreground">Five plans, from a premium storytelling landing page to a fully automated AI practice. Here are the three clinics most often start with.</p>
+            <p className="mt-4 max-w-2xl text-muted-foreground">Four packages, from a premium storytelling landing page to a fully automated AI practice. Here are the three clinics most often start with.</p>
           </FadeUp>
           <motion.div variants={staggerParent} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} className="mt-12 grid items-start gap-4 lg:grid-cols-3">
             {PACKAGE_TEASERS.map((pkg) => (

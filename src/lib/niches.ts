@@ -600,7 +600,7 @@ const NICHE_SEEDS: NicheSeed[] = [
       {
         question: "How long until I see results?",
         answer:
-          "Your site launches in 14 days. Online booking starts generating appointments immediately from day one. SEO results build over 30–90 days as Google indexes and ranks your pages. Our case study clinic saw enquiries triple within 60 days. This is not a 6-month wait — it compounds from week one.",
+          "Your site launches in as little as 3–5 working days for the Launch Story Website (larger packages take longer — see the packages page for each delivery window). Online booking starts generating appointments immediately from day one. SEO results build over 30–90 days as Google indexes and ranks your pages. Our case study clinic saw enquiries triple within 60 days. This is not a 6-month wait — it compounds from week one.",
       },
       {
         question: "I don't have time to manage a website project.",
@@ -613,9 +613,9 @@ const NICHE_SEEDS: NicheSeed[] = [
           "You own everything — code, design, content, domain, hosting account. There are no monthly platform fees, no lock-in contracts, no proprietary CMS you cannot leave. If you ever want to move away, you take everything with you. We build on open standards specifically so you are never dependent on us.",
       },
       {
-        question: "How is this different from a ₹15,000 WordPress site?",
+        question: "Can I upgrade to a larger package later?",
         answer:
-          "A template WordPress site looks like every other dental site, carries little SEO engineering, and needs constant plugin maintenance. What we build is custom-designed for your brand, engineered for fast load times and Google rankings from the architecture up, and requires no plugin maintenance.",
+          "Yes. Your build is structured with an upgrade path in mind, so moving to a larger package can extend the existing foundation rather than starting over. You can add pages (₹2,500 per additional premium page), a blog, booking, or AI systems at any time — before or after launch.",
       },
       {
         question: "What if it doesn't work? What's my risk?",
