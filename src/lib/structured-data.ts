@@ -35,6 +35,7 @@ import {
   LOCALE,
   NAP,
   OPENING_HOURS,
+  SITE_NAME,
   SITE_URL,
   SOCIAL_PROFILES,
 } from "@/lib/site";
@@ -132,7 +133,7 @@ export const MIN_SOLUTION_FAQ_PAIRS = 3;
  * of shipping an invalid node.
  */
 export const ORGANIZATION_DESCRIPTION =
-  "Blogspage is a senior product-engineering agency in Hyderabad, India, building AI automation, AI sales agents, custom SaaS platforms, and programmatic SEO systems for founders, with production-grade launches shipped in a focused 10 to 15 day window.";
+  "Blogspage AI (Blogspage) builds websites, brand identity, business software, and AI automation for growing businesses, based in Hyderabad, India.";
 
 /** Absolute URL of the brand logo asset in `public/`. */
 export const ORGANIZATION_LOGO_URL = `${SITE_URL}/blogspage-logo.png`;
@@ -296,9 +297,11 @@ function reportBound(message: string): void {
 /**
  * The site-wide `Organization` node (Requirements 5.1, 5.2).
  *
- * `name` is `NAP.legalName` and `sameAs` is exactly the three profile URLs the
- * footer renders, both read from `src/lib/site.ts`, so the identity claims in
- * Requirements 5.2 and 8.5 hold by construction.
+ * `name` is {@link SITE_NAME} ("Blogspage AI"), the public brand; `alternateName`
+ * carries `NAP.legalName` ("Blogspage") so the same entity resolves for either
+ * name. `sameAs` is exactly the three profile URLs the footer renders, both
+ * read from `src/lib/site.ts`, so the identity claims in Requirements 5.2 and
+ * 8.5 hold by construction.
  *
  * `foundingDate` is deliberately absent: `FOUNDING_YEAR` is still an
  * unconfirmed placeholder, and a guessed founding date in structured data is a
@@ -309,7 +312,8 @@ export function organizationNode(): JsonLdNode {
     "@context": SCHEMA_CONTEXT,
     "@type": "Organization",
     "@id": organizationId(),
-    name: NAP.legalName,
+    name: SITE_NAME,
+    alternateName: NAP.legalName,
     url: SITE_URL,
     logo: ORGANIZATION_LOGO_URL,
     description: ORGANIZATION_DESCRIPTION,
@@ -342,7 +346,7 @@ export function webSiteNode(): JsonLdNode {
     "@context": SCHEMA_CONTEXT,
     "@type": "WebSite",
     "@id": mintId("/", "website"),
-    name: NAP.legalName,
+    name: SITE_NAME,
     url: SITE_URL,
     description: ORGANIZATION_DESCRIPTION,
     inLanguage: LOCALE.html,

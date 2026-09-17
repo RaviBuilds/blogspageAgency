@@ -82,11 +82,13 @@ describe("KEYWORD_MAP Service_Catalog coverage (Requirement 12.2)", () => {
 
 describe("findKeywordPhrase", () => {
   it("resolves a mapped route through canonicalisation", () => {
-    expect(findKeywordPhrase("/")).toBe("ai automation agency");
-    expect(findKeywordPhrase("/blogs")).toBe("ai automation blog");
-    expect(findKeywordPhrase("/Blogs/")).toBe("ai automation blog");
+    expect(findKeywordPhrase("/")).toBe(
+      "digital build partner for growing businesses",
+    );
+    expect(findKeywordPhrase("/blogs")).toBe("websites, software, and ai");
+    expect(findKeywordPhrase("/Blogs/")).toBe("websites, software, and ai");
     expect(findKeywordPhrase("https://www.blogspage.com/blogs?x=1")).toBe(
-      "ai automation blog",
+      "websites, software, and ai",
     );
   });
 
@@ -113,12 +115,12 @@ describe("buildMetadata keyword wiring (Requirement 12.5)", () => {
       });
       const dropped = errors.filter((line) => line.includes("keyword phrase"));
       expect(dropped).toHaveLength(1);
-      expect(dropped[0]).toContain("ai automation blog");
+      expect(dropped[0]).toContain("websites, software, and ai");
 
       errors.length = 0;
       buildMetadata({
         path: "/blogs",
-        title: "The ai automation blog for operators and founders",
+        title: "Insights on websites, software, and ai for operators",
         description: "x".repeat(140),
       });
       expect(errors.filter((line) => line.includes("keyword phrase"))).toEqual(

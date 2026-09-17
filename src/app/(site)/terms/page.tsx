@@ -32,9 +32,9 @@ export default function TermsPage() {
             These Terms of Service (&quot;Terms&quot;) constitute a legally
             binding agreement between you (&quot;Client,&quot;
             &quot;you&quot;) and Blogspage (&quot;Agency,&quot; &quot;we,&quot;
-            &quot;us&quot;), a product engineering and AI automation agency
-            located at Ayodhya Nagar Colony, Mehdipatnam, Hyderabad, Telangana
-            500028, India.
+            &quot;us&quot;), a branding, website, software, and AI automation
+            agency located at Ayodhya Nagar Colony, Mehdipatnam, Hyderabad,
+            Telangana 500028, India.
           </p>
           <p>
             By engaging our services, submitting a project brief, or using our
@@ -49,9 +49,10 @@ export default function TermsPage() {
           </h2>
           <p>Blogspage provides the following services:</p>
           <ul className="list-disc space-y-1 pl-5">
+            <li>Brand identity and website design and development.</li>
             <li>
-              Custom SaaS application development (design, engineering,
-              deployment).
+              Custom software and SaaS application development (design,
+              engineering, deployment).
             </li>
             <li>
               AI automation and conversational agent development (LLM-powered

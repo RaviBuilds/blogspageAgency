@@ -15,10 +15,10 @@ export const PAGE_SIZE = 12;
 
 export const metadata: Metadata = buildMetadata({
   path: "/blogs",
-  title: "Insights & Engineering: the ai automation blog",
+  title: "Insights & Engineering: websites, software, and ai",
   description:
-    "Technical deep-dives, engineering playbooks, and field notes on AI automation and web architecture from the team building high-conversion business platforms.",
-  keywordPhrase: "ai automation blog",
+    "Technical deep-dives, engineering playbooks, and field notes on websites, software, and AI automation from the team building high-conversion business platforms.",
+  keywordPhrase: "websites, software, and ai",
   // Requirement 6.8: reference the feed route from the document head as an
   // alternate link carrying its absolute URL and an XML feed content type.
   extra: {

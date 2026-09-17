@@ -77,9 +77,9 @@ type KeywordSeed = Omit<KeywordAssignment, "absoluteUrl">;
  * Routes that exist at the audited commit, in the order the report lists them.
  */
 const EXISTING_ROUTE_SEEDS: readonly KeywordSeed[] = [
-  { path: "/", phrase: "ai automation agency" },
-  { path: "/blogs", phrase: "ai automation blog" },
-  { path: "/contact", phrase: "hire an ai agency in hyderabad" },
+  { path: "/", phrase: "digital build partner for growing businesses" },
+  { path: "/blogs", phrase: "websites, software, and ai" },
+  { path: "/contact", phrase: "hire a digital agency" },
   { path: "/privacy", phrase: "blogspage privacy policy" },
   { path: "/terms", phrase: "blogspage terms of service" },
   {
@@ -142,7 +142,7 @@ const EXISTING_ROUTE_SEEDS: readonly KeywordSeed[] = [
  * later.
  */
 const PLANNED_ROUTE_SEEDS: readonly KeywordSeed[] = [
-  { path: "/about", phrase: "about blogspage ai agency" },
+  { path: "/about", phrase: "a digital partner for businesses" },
   { path: "/solutions", phrase: "ai business solutions by industry" },
   { path: "/services/ai-automation", phrase: "ai workflow automation services" },
   { path: "/services/ai-sales-agents", phrase: "ai sales agent development" },

@@ -623,9 +623,9 @@ One primary keyword phrase per indexable route: 2 to 8 words, 60 characters or f
 
 | Route | Absolute URL | Primary keyword phrase | Words | Chars |
 |---|---|---|---|---|
-| `/` | `https://blogspage.com` | ai automation agency | 3 | 20 |
-| `/blogs` | `https://blogspage.com/blogs` | ai automation blog | 3 | 18 |
-| `/contact` | `https://blogspage.com/contact` | hire an ai agency in hyderabad | 6 | 30 |
+| `/` | `https://blogspage.com` | digital build partner for growing businesses | 6 | 44 |
+| `/blogs` | `https://blogspage.com/blogs` | websites, software, and ai | 4 | 26 |
+| `/contact` | `https://blogspage.com/contact` | hire a digital agency | 4 | 21 |
 | `/privacy` | `https://blogspage.com/privacy` | blogspage privacy policy | 3 | 24 |
 | `/terms` | `https://blogspage.com/terms` | blogspage terms of service | 4 | 26 |
 | `/solutions/online-delivery-business-solution-website-at-hyderabad` | `https://blogspage.com/solutions/online-delivery-business-solution-website-at-hyderabad` | online delivery app development hyderabad | 5 | 41 |
@@ -648,7 +648,7 @@ Listed here so the map is complete once those routes exist. They are not indexab
 
 | Planned route | Absolute URL | Primary keyword phrase | Words | Chars |
 |---|---|---|---|---|
-| `/about` | `https://blogspage.com/about` | about blogspage ai agency | 4 | 25 |
+| `/about` | `https://blogspage.com/about` | a digital partner for businesses | 5 | 32 |
 | `/solutions` | `https://blogspage.com/solutions` | ai business solutions by industry | 5 | 32 |
 | `/services/ai-automation` | `https://blogspage.com/services/ai-automation` | ai workflow automation services | 4 | 31 |
 | `/services/ai-sales-agents` | `https://blogspage.com/services/ai-sales-agents` | ai sales agent development | 4 | 26 |

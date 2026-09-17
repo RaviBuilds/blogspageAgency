@@ -29,7 +29,7 @@ import { KEYWORD_MAP } from "@/lib/keyword-map";
 /* -------------------------------------------------------------------------- */
 
 /**
- * Suffix the root title template (`"%s | Blogspage"`) appends to every
+ * Suffix the root title template (`"%s | Blogspage AI"`) appends to every
  * non-absolute route title. Requirement 4.4 bounds the *rendered* `<title>`,
  * measured after the template is applied, so the dev-time check has to add
  * this back to the pre-template string it is handed.
@@ -257,7 +257,7 @@ export type BuildMetadataInput = {
   /**
    * Pre-template title. Must contain the route's assigned keyword phrase
    * verbatim (Requirement 12.5) and land inside Requirement 4.4's bounds once
-   * the root template's `" | Blogspage"` suffix is applied.
+   * the root template's `" | Blogspage AI"` suffix is applied.
    */
   title: string;
   /** 120-160 characters (Requirement 4.5). Run body-derived text through {@link clampDescription} first. */

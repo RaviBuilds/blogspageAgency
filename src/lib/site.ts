@@ -12,7 +12,15 @@
  */
 
 export const SITE_URL = "https://www.blogspage.com";
-export const SITE_NAME = "Blogspage";
+/**
+ * The public-facing brand name, rendered in the `<title>` template suffix,
+ * Open Graph `siteName`, and the `Organization`/`WebSite` JSON-LD `name`
+ * fields. "Blogspage" (see `NAP.legalName` below) remains the legal entity
+ * name and is carried as `Organization.alternateName` and in the
+ * `LocalBusiness` node, so a bare "Blogspage" search still resolves to the
+ * same entity.
+ */
+export const SITE_NAME = "Blogspage AI";
 
 /**
  * Locale, in the two spellings the platform needs: the Open Graph
@@ -42,8 +50,9 @@ export const FOUNDING_YEAR = 2024;
  * migrated to this shape in task 7.2.
  *
  * `legalName` is "Blogspage", the name `/privacy` and `/terms` both render
- * above their address blocks. The footer's copyright line reads "Blogspage
- * Agency"; that is a copyright notice, not a NAP name, and is left alone.
+ * above their address blocks, and the name the footer's copyright line
+ * uses. The public brand ({@link SITE_NAME}, "Blogspage AI") is a distinct,
+ * broader-facing name for the same entity.
  */
 export const NAP = {
   legalName: "Blogspage",

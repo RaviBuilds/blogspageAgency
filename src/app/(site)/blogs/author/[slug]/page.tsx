@@ -100,7 +100,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!author) {
     return {
-      title: "Author Not Found | Blogspage",
+      title: "Author Not Found | Blogspage AI",
       robots: { index: false, follow: false },
     };
   }

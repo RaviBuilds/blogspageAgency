@@ -24,8 +24,8 @@ const svg = `
   <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#bg)" />
   <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#glow)" />
   <rect x="0" y="0" width="${WIDTH}" height="${HEIGHT}" fill="none" stroke="#27272a" stroke-width="2" />
-  <text x="90" y="330" font-family="Arial, Helvetica, sans-serif" font-size="96" font-weight="700" fill="#f5f5f7">Blogspage</text>
-  <text x="90" y="400" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="500" fill="#a1a1aa" letter-spacing="2">AI AGENCY</text>
+  <text x="90" y="330" font-family="Arial, Helvetica, sans-serif" font-size="80" font-weight="700" fill="#f5f5f7">Blogspage AI</text>
+  <text x="90" y="400" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="500" fill="#a1a1aa" letter-spacing="2">DIGITAL SYSTEMS</text>
   <text x="90" y="560" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" fill="#71717a">blogspage.com</text>
 </svg>
 `;

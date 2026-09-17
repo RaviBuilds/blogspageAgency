@@ -150,7 +150,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-border-subtle pt-8 sm:flex-row">
           <p className="text-xs text-text-subtle">
-            © {new Date().getFullYear()} Blogspage Agency. All rights reserved.
+            © {new Date().getFullYear()} Blogspage. All rights reserved.
           </p>
           <p className="text-xs text-text-subtle">
             Designed &amp; engineered with obsessive attention to detail.

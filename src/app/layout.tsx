@@ -25,22 +25,22 @@ export const metadata: Metadata = {
     // way every other route's title carries its phrase (Requirement 12.5).
     // `titleAbsolute` means no template suffix is appended, so these 45
     // characters are the whole rendered title (Requirement 4.4).
-    title: "Blogspage: ai automation agency & SaaS studio",
+    title: "Blogspage AI: digital build partner for growing businesses",
     description:
-      "Blogspage builds production-grade SaaS, digital systems, and AI workflows for ambitious founders. We turn product ideas into scalable, revenue-ready platforms.",
+      "Blogspage AI builds websites, brand identity, business software, and AI automation for growing businesses that need a stronger digital presence.",
     type: "website",
     titleAbsolute: true,
-    keywordPhrase: "ai automation agency",
+    keywordPhrase: "digital build partner for growing businesses",
     // `keywords` carries near-zero SEO weight with modern crawlers, but the
     // original list is preserved here via `extra` rather than dropped, since
     // `BuildMetadataInput` has no dedicated field for it.
     extra: {
       keywords: [
-        "SaaS agency",
+        "website design",
+        "branding",
+        "business software",
         "AI automation",
         "digital systems",
-        "AI workflows",
-        "product engineering",
         "web development",
       ],
     },

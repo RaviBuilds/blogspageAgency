@@ -68,7 +68,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!author || page === null) {
     return {
-      title: "Author Not Found | Blogspage",
+      title: "Author Not Found | Blogspage AI",
       robots: { index: false, follow: false },
     };
   }

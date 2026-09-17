@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return buildMetadata({
     path: `/blogs/category/${slug}`,
-    title: `${title} Articles: AI Agency Insights`,
+    title: `${title} Articles: Blogspage AI Insights`,
     description: `Browse ${title} articles on the Blogspage blog: hands-on engineering guides, AI automation playbooks, and field notes for growing businesses.`,
   });
 }

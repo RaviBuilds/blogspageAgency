@@ -29,7 +29,7 @@ export const runtime = "edge";
 const WIDTH = 1200;
 const HEIGHT = 630;
 const TIMEOUT_MS = 1800;
-const DEFAULT_TITLE = "Blogspage";
+const DEFAULT_TITLE = "Blogspage AI";
 
 const TIMEOUT = Symbol("og-timeout");
 

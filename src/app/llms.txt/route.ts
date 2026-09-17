@@ -29,7 +29,7 @@ export const revalidate = false;
  * Word count (split on whitespace): 24 words, one sentence, one period.
  */
 const DESCRIPTION =
-  "Blogspage is an AI agency in Hyderabad, India that builds AI automation, AI sales agents, custom SaaS platforms, and programmatic SEO systems for founders.";
+  "Blogspage AI is a digital agency in Hyderabad, India that builds websites, brand identity, business software, and AI automation for growing businesses.";
 
 /**
  * `STATIC_ROUTES` carries `/about` in addition to the six Routes this file

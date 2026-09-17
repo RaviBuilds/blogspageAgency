@@ -14,10 +14,10 @@ const OPENING_HOURS_COPY = "Mon-Sun, 10:00 AM - 7:00 PM IST";
 
 export const metadata: Metadata = buildMetadata({
   path: "/contact",
-  title: "Contact Blogspage: hire an ai agency in hyderabad",
+  title: "Contact Blogspage AI: hire a digital agency",
   description:
-    "Contact Blogspage, the AI automation and product engineering agency based in Hyderabad, India, to discuss your project, timeline, and next steps directly.",
-  keywordPhrase: "hire an ai agency in hyderabad",
+    "Contact Blogspage AI, the digital agency in Hyderabad, India building websites, brand identity, business software, and AI automation, to discuss your project and timeline.",
+  keywordPhrase: "hire a digital agency",
 });
 
 const details = [

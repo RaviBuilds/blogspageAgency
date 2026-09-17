@@ -43,8 +43,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return buildMetadata({
     path: `/blogs/page/${page}`,
-    title: `Insights & Engineering: the ai automation blog — Page ${page}`,
-    description: `Technical deep-dives, engineering playbooks, and field notes on AI automation and web architecture. Page ${page} of the Blogspage journal archive.`,
+    title: `Insights & Engineering: websites, software, and ai — Page ${page}`,
+    description: `Technical deep-dives, engineering playbooks, and field notes on websites, software, and AI automation. Page ${page} of the Blogspage journal archive.`,
     index: false,
   });
 }

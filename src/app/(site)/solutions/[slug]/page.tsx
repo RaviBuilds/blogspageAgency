@@ -65,8 +65,8 @@ export function generateStaticParams() {
 
 /**
  * Characters available to a pre-template title before the root template's
- * `" | Blogspage"` suffix pushes the rendered `<title>` past Requirement 4.4's
- * upper bound.
+ * `" | Blogspage AI"` suffix pushes the rendered `<title>` past Requirement
+ * 4.4's upper bound.
  */
 const TITLE_BUDGET = TITLE_MAX - TITLE_TEMPLATE_SUFFIX.length;
 
@@ -115,7 +115,7 @@ export async function generateMetadata({
 
   if (!resolved) {
     return {
-      title: "Solution Not Found | Blogspage",
+      title: "Solution Not Found | Blogspage AI",
       robots: { index: false, follow: false },
     };
   }

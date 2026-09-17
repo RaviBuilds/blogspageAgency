@@ -30,7 +30,7 @@ export async function generateMetadata({
 
   if (!route) {
     return {
-      title: "Service Not Found | Blogspage",
+      title: "Service Not Found | Blogspage AI",
       robots: { index: false, follow: false },
     };
   }

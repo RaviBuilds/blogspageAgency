@@ -2,17 +2,16 @@ import type { Metadata } from "next";
 
 import { buildMetadata } from "@/lib/seo";
 import { Breadcrumb } from "@/components/seo/breadcrumb";
-import { FOUNDING_YEAR } from "@/lib/site";
 import { NICHES } from "@/lib/niches";
 import { DELIVERY_MODELS } from "@/components/home/delivery-models";
 import { projects } from "@/lib/featured-work-data";
 
 export const metadata: Metadata = buildMetadata({
   path: "/about",
-  title: "About Blogspage: about blogspage ai agency",
+  title: "About Blogspage AI: a digital partner for businesses",
   description:
-    "Blogspage is an AI agency founded in 2024, delivering automation, custom SaaS platforms, and programmatic SEO systems for founders who need shipped software.",
-  keywordPhrase: "about blogspage ai agency",
+    "Blogspage AI is a digital partner for growing businesses, building websites, brand identity, business software, and AI automation for founders who need working systems, not slide decks.",
+  keywordPhrase: "a digital partner for businesses",
 });
 
 // At least three of the four real project cards in featured-work.tsx,
@@ -31,12 +30,12 @@ export default function AboutPage() {
       {/* Hero / intro */}
       <p className="mt-6 text-sm font-medium text-primary">About</p>
       <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
-        Blogspage is an AI agency built to ship, not just advise.
+        Blogspage AI is a digital partner built to ship, not just advise.
       </h1>
       <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-        Founded in {FOUNDING_YEAR}, Blogspage designs and ships AI
-        automation, custom SaaS platforms, and programmatic SEO systems for
-        founders who need working software, not slide decks.
+        Blogspage AI designs and ships websites, brand identity, business
+        software, and AI automation for growing businesses that need working
+        systems, not slide decks.
       </p>
 
       {/* Service categories */}
