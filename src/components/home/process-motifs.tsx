@@ -8,24 +8,33 @@ import {
   useTransform,
   type MotionValue,
 } from "framer-motion";
+import { Check } from "lucide-react";
+import { Fragment, type ReactNode } from "react";
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   R8 — TRANSFORMATION CANVAS (Blueprint: R8 How We Work Experience v1.0 §6-8)
+   R9 — PROCESS ARTIFACTS (refinement of the R8 How We Work Experience)
 
-   One continuous visual subject -- a plain business brief -- morphs through
-   five canonical states as the visitor moves through the four stages:
+   One presentation surface, four realistic project artifacts. As the visitor
+   scrolls the journey the work becomes visibly more concrete at each phase:
 
-     BRIEF (problem) -> UNDERSTOOD -> SHAPED -> BUILT -> LIVE
+     PROJECT BRIEF -> SYSTEM DIRECTION -> BUILD PROGRESS -> LIVE SYSTEM
 
-   The sheet primitives persist across every state so the continuity of the
-   transformation is visible; per-state elements emerge inside their stage's
-   progress window and persist once reached (monotonic progress -- no reverse
-   churn on fast scroll). The whole canvas is decorative (aria-hidden): the
-   stage copy in `process-timeline.tsx` carries all meaning on its own.
+   The artifacts are assembled from the same UI primitives a client would
+   plausibly receive during a real engagement — a discovery brief, a system
+   direction map, a reviewable build status and a launch checklist running
+   in production. No stock imagery, no fake product screenshots: just the
+   existing surface/border/type tokens and the approved stage accents.
 
-   Progress contract: the parent owns ONE section-level scrollYProgress
-   (MotionValue 0..1) and passes it down; every visual here derives from that
-   single value (Blueprint §8: never independent animations).
+   Progress contract (unchanged from R8): the parent owns ONE section-level
+   scrollYProgress (MotionValue 0..1) and passes it down; every opacity here
+   derives from that single monotonic value across the STAGE_WINDOWS
+   boundaries — the same boundaries `process-timeline.tsx` uses for the spine
+   fill and stage emphasis — so artifact, spine and stage state can never
+   disagree.
+
+   All artifact copy is illustrative sample data. The artifacts are
+   decorative (aria-hidden): the phase copy in `process-timeline.tsx`
+   carries the meaning; the artifacts show what each deliverable feels like.
    ─────────────────────────────────────────────────────────────────────────── */
 
 /* Approved accent triplets (globals.css tokens; Blueprint §17). */
@@ -52,7 +61,7 @@ export const STAGE_WINDOWS = {
 
 /**
  * Monotonic progress: clamps to the highest value reached so states persist
- * once shown (Blueprint §8/§10 -- no reverse churn on fast scroll). Under
+ * once shown (Blueprint §8/§10 — no reverse churn on fast scroll). Under
  * reduced motion the caller settles this to 1 immediately.
  */
 export function useMonotonicProgress(
@@ -89,185 +98,381 @@ export function useReached(
   });
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   TRANSFORMATION CANVAS
-   One SVG composition; five state-groups layered over persistent sheet
-   primitives. Each state fades in inside its stage window (monotonic) and
-   persists. Decorative: the root is aria-hidden and every shape inherits it.
-   ─────────────────────────────────────────────────────────────────────────── */
-
 const CYAN = STAGE_ACCENTS.cyan;
 const BLUE = STAGE_ACCENTS.blue;
 const VIOLET = STAGE_ACCENTS.violet;
-const INK = "var(--border-strong)";
-const HAIR = "var(--border-subtle)";
 
-export function TransformationCanvas({
-  progress,
+/*
+ * Crossfade boundaries — each artifact hands over to the next across the
+ * stage boundary it belongs to (understand|shape = 0.28, shape|build = 0.5,
+ * build|launch = 0.74), so the active artifact always matches the active
+ * timeline stage. The values sit just inside those boundaries on purpose.
+ */
+const FADE = {
+  briefOut: [0.25, 0.31],
+  shapeIn: [0.25, 0.31],
+  shapeOut: [0.47, 0.53],
+  buildIn: [0.47, 0.53],
+  buildOut: [0.71, 0.77],
+  launchIn: [0.71, 0.77],
+} as const;
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ARTIFACT SHELL — the shared window chrome (header band, body, status
+   footer) that makes all four artifacts read as one family of real project
+   documents rather than four unrelated illustrations.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+type ArtifactShellProps = {
+  label: string;
+  accent: string;
+  meta?: string;
+  footer: ReactNode;
+  children: ReactNode;
+};
+
+function ArtifactShell({ label, accent, meta, footer, children }: ArtifactShellProps) {
+  return (
+    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card">
+      <div className="flex items-center justify-between gap-2 border-b border-border-subtle bg-background-subtle px-4 py-2.5">
+        <span className="flex min-w-0 items-center gap-2">
+          <span
+            aria-hidden
+            className="size-1.5 shrink-0 rounded-full"
+            style={{ backgroundColor: "rgba(" + accent + ", 0.9)" }}
+          />
+          <span className="truncate text-[11px] font-semibold uppercase tracking-[0.16em] text-text-subtle">
+            {label}
+          </span>
+        </span>
+        {meta ? (
+          <span className="shrink-0 text-[10px] uppercase tracking-[0.14em] text-text-disabled">
+            {meta}
+          </span>
+        ) : null}
+      </div>
+      <div className="flex flex-1 flex-col justify-center gap-3 px-4 py-4">{children}</div>
+      <div className="flex items-center justify-between gap-3 border-t border-border-subtle px-4 py-2.5">
+        {footer}
+      </div>
+    </div>
+  );
+}
+
+function ArtifactFooter({
+  accent,
+  pulse = false,
+  left,
+  right,
 }: {
-  progress: MotionValue<number>;
+  accent?: string;
+  pulse?: boolean;
+  left: string;
+  right?: string;
 }) {
+  return (
+    <>
+      <span className="flex min-w-0 items-center gap-2 text-[11px] text-text-subtle">
+        {pulse ? (
+          <span
+            aria-hidden
+            className="size-1.5 shrink-0 animate-pulse rounded-full motion-reduce:animate-none"
+            style={
+              accent ? { backgroundColor: "rgba(" + accent + ", 0.9)" } : undefined
+            }
+          />
+        ) : null}
+        <span className="truncate">{left}</span>
+      </span>
+      {right ? (
+        <span className="shrink-0 text-[10px] uppercase tracking-[0.14em] text-text-disabled">
+          {right}
+        </span>
+      ) : null}
+    </>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   PHASE 01 — UNDERSTAND · PROJECT BRIEF
+   "We understood the business before writing code." A discovery document:
+   the goal, the customer, the problem, the requirements, the success
+   criteria — the artifact a real client receives from this phase.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+const BRIEF_ROWS = [
+  { label: "Goal", value: "More quote-ready enquiries every month" },
+  { label: "Customer", value: "Local business owners, mostly on mobile" },
+  {
+    label: "Problem",
+    value: "Enquiries get lost between WhatsApp, calls and email",
+  },
+  { label: "Needs", value: "Website, booking flow, automatic follow-up" },
+  { label: "Success", value: "Every enquiry answered the same day" },
+] as const;
+
+export function BriefArtifact() {
+  return (
+    <ArtifactShell
+      label="Project brief"
+      accent={CYAN}
+      meta="Phase 01"
+      footer={<ArtifactFooter left="Scope v1 · agreed with you" />}
+    >
+      {BRIEF_ROWS.map((row) => (
+        <div
+          key={row.label}
+          className="grid grid-cols-[4.5rem_1fr] gap-3 sm:grid-cols-[5.5rem_1fr]"
+        >
+          <span className="pt-0.5 text-[10px] font-medium uppercase leading-relaxed tracking-[0.12em] text-text-subtle">
+            {row.label}
+          </span>
+          <span className="text-xs leading-snug text-foreground sm:text-[13px]">
+            {row.value}
+          </span>
+        </div>
+      ))}
+    </ArtifactShell>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   PHASE 02 — SHAPE · SYSTEM DIRECTION
+   The solution is shaped before development begins: the connected layers
+   of the system, each with the job it does, agreed before code is written.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+const STRUCTURE_NODES = [
+  { name: "Website", detail: "How customers find you" },
+  { name: "Business system", detail: "Bookings, enquiries, follow-ups" },
+  { name: "AI & automation", detail: "Replies and reminders, handled" },
+  { name: "Dashboard", detail: "Everything, in one view" },
+] as const;
+
+export function StructureArtifact() {
+  return (
+    <ArtifactShell
+      label="System direction"
+      accent={BLUE}
+      meta="Phase 02"
+      footer={<ArtifactFooter left="Direction v1 · approved before build" />}
+    >
+      {STRUCTURE_NODES.map((node, index) => (
+        <Fragment key={node.name}>
+          {index > 0 ? (
+            <span
+              aria-hidden
+              className="mx-auto h-2.5 w-px"
+              style={{ backgroundColor: "rgba(" + BLUE + ", 0.35)" }}
+            />
+          ) : null}
+          <div className="flex items-center justify-between gap-3 rounded-lg border border-border-subtle bg-background px-3 py-2.5">
+            <span className="text-xs font-medium text-foreground sm:text-[13px]">
+              {node.name}
+            </span>
+            <span className="truncate text-[11px] text-muted-foreground">
+              {node.detail}
+            </span>
+          </div>
+        </Fragment>
+      ))}
+    </ArtifactShell>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   PHASE 03 — BUILD · BUILD PROGRESS
+   "You see the product taking shape before the project is finished." A
+   lightweight reviewable status surface: sprint progress plus per-area
+   state, shared for review as each increment lands.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+const BUILD_ITEMS = [
+  { name: "Homepage", tag: "Done", state: "done" },
+  { name: "Authentication", tag: "Done", state: "done" },
+  { name: "Dashboard", tag: "Done", state: "done" },
+  { name: "Automation", tag: "In progress", state: "active" },
+  { name: "Payments", tag: "Next", state: "next" },
+] as const;
+
+type BuildState = (typeof BUILD_ITEMS)[number]["state"];
+
+function BuildStatusGlyph({ state }: { state: BuildState }) {
+  if (state === "done") {
+    return (
+      <Check
+        aria-hidden
+        className="size-3.5"
+        strokeWidth={2.5}
+        style={{ color: "rgb(" + VIOLET + ")" }}
+      />
+    );
+  }
+  if (state === "active") {
+    return (
+      <span
+        aria-hidden
+        className="size-2 animate-pulse rounded-full motion-reduce:animate-none"
+        style={{ backgroundColor: "rgb(" + VIOLET + ")" }}
+      />
+    );
+  }
+  return (
+    <span
+      aria-hidden
+      className="size-2 rounded-full border-[1.5px]"
+      style={{ borderColor: "var(--border-strong)" }}
+    />
+  );
+}
+
+export function BuildArtifact() {
+  return (
+    <ArtifactShell
+      label="Build progress"
+      accent={VIOLET}
+      meta="Phase 03"
+      footer={<ArtifactFooter left="Increment 3 · shared for your review" />}
+    >
+      <div>
+        <div className="flex items-baseline justify-between">
+          <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-text-subtle">
+            Sprint 3 of 4
+          </span>
+          <span className="text-[11px] font-medium text-foreground">60%</span>
+        </div>
+        <div className="mt-2 h-1 overflow-hidden rounded-full bg-background-subtle">
+          <div
+            className="h-full w-3/5 rounded-full"
+            style={{ backgroundColor: "rgba(" + VIOLET + ", 0.8)" }}
+          />
+        </div>
+      </div>
+      {BUILD_ITEMS.map((item) => (
+        <div key={item.name} className="flex items-center justify-between gap-3">
+          <span className="text-xs text-foreground sm:text-[13px]">{item.name}</span>
+          <span className="flex shrink-0 items-center gap-1.5">
+            <BuildStatusGlyph state={item.state} />
+            <span className="text-[10px] uppercase tracking-[0.14em] text-text-subtle">
+              {item.tag}
+            </span>
+          </span>
+        </div>
+      ))}
+    </ArtifactShell>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   PHASE 04 — LAUNCH · LAUNCH CHECKLIST
+   "Then make the visual feel complete and live": every launch item checked,
+   the status footer running in production. The end state of the journey.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+const LAUNCH_ITEMS = ["Production", "Domain", "Analytics", "Handover"] as const;
+
+export function LaunchArtifact() {
+  return (
+    <ArtifactShell
+      label="Launch checklist"
+      accent={CYAN}
+      meta="Phase 04"
+      footer={
+        <ArtifactFooter
+          pulse
+          accent={CYAN}
+          left="Live · yourbusiness.com"
+          right="In production"
+        />
+      }
+    >
+      {LAUNCH_ITEMS.map((name) => (
+        <div key={name} className="flex items-center justify-between gap-3">
+          <span className="text-xs text-foreground sm:text-[13px]">{name}</span>
+          <span className="flex shrink-0 items-center gap-1.5">
+            <Check
+              aria-hidden
+              className="size-3.5"
+              strokeWidth={2.5}
+              style={{ color: "rgb(" + CYAN + ")" }}
+            />
+            <span className="text-[10px] uppercase tracking-[0.14em] text-text-subtle">
+              Done
+            </span>
+          </span>
+        </div>
+      ))}
+    </ArtifactShell>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   PHASE ARTIFACT PANEL — the crossfading stack. Each artifact is always
+   mounted (stable DOM, no scroll-time re-renders); only opacity and an 8px
+   drift are animated, derived from the SAME monotonic progress as the spine
+   and stage emphasis. Reduced motion settles everything to the final LIVE
+   artifact (the stage copy carries the full process in text either way).
+   ─────────────────────────────────────────────────────────────────────────── */
+
+export function PhaseArtifactPanel({ progress }: { progress: MotionValue<number> }) {
   const shouldReduceMotion = Boolean(useReducedMotion());
   const mono = useMonotonicProgress(progress, shouldReduceMotion);
 
-  /* Dominant-state contrast (R8.1): each state rises inside its stage
-     window, then settles to a faint TRACE when the next state completes --
-     except LIVE (full) and the BUILT interface (near-full, it is LIVE's
-     substrate). At any scroll position exactly ONE state is the figure;
-     history is a ghost. Monotonic input = no reverse churn. */
-  const understoodOpacity = useTransform(
+  const briefOpacity = useTransform(mono, [...FADE.briefOut], [1, 0], { clamp: true });
+  const briefY = useTransform(mono, [...FADE.briefOut], [0, -8], { clamp: true });
+  const shapeOpacity = useTransform(
     mono,
-    [0.1, 0.16, 0.32, 0.38],
-    [0, 1, 1, 0.22],
+    [...FADE.shapeIn, ...FADE.shapeOut],
+    [0, 1, 1, 0],
     { clamp: true },
   );
-  const shapedOpacity = useTransform(
+  const shapeY = useTransform(
     mono,
-    [0.32, 0.38, 0.54, 0.6],
-    [0, 1, 1, 0.22],
+    [...FADE.shapeIn, ...FADE.shapeOut],
+    [8, 0, 0, -8],
     { clamp: true },
   );
-  const builtOpacity = useTransform(
+  const buildOpacity = useTransform(
     mono,
-    [0.54, 0.6, 0.9, 0.96],
-    [0, 1, 1, 0.9],
+    [...FADE.buildIn, ...FADE.buildOut],
+    [0, 1, 1, 0],
     { clamp: true },
   );
-  const liveOpacity = useTransform(mono, [0.76, 0.82], [0, 1], { clamp: true });
-  const ringOpacity = useReached(mono, 0.9, 0.1);
-
-  /* The BRIEF notes resolve (dim) as SHAPE brings order. */
-  const scatterOpacity = useTransform(mono, [0.32, 0.44], [1, 0.22], {
-    clamp: true,
-  });
-
-  /* One shared sheet transform across the whole journey -- the continuity
-     cue (strengthened in R8.1 so it is actually perceptible). */
-  const sheetY = useTransform(mono, [0, 1], [0, -10]);
-  const sheetRotate = useTransform(mono, [0, 1], [0, -1.5]);
-
-  /* LIVE details: border tint on the sheet + customer dot travel. */
-  const liveBorder = useReached(mono, 0.9, 0.1);
-  const dotX = useTransform(mono, [0.8, 0.98], [236, 322]);
+  const buildY = useTransform(
+    mono,
+    [...FADE.buildIn, ...FADE.buildOut],
+    [8, 0, 0, -8],
+    { clamp: true },
+  );
+  const launchOpacity = useTransform(mono, [...FADE.launchIn], [0, 1], { clamp: true });
+  const launchY = useTransform(mono, [...FADE.launchIn], [8, 0], { clamp: true });
 
   return (
-    <div aria-hidden className="relative">
-      <svg
-        viewBox="0 0 400 360"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-auto w-full"
-        focusable="false"
+    <div aria-hidden className="relative h-[22rem] sm:h-[24rem] lg:h-[25rem]">
+      <motion.div
+        className="pointer-events-none absolute inset-0"
+        style={{ opacity: briefOpacity, y: briefY }}
       >
-        {/* Persistent sheet -- the business brief. The one subject that never
-            changes identity across states. */}
-        <motion.g style={{ y: sheetY, rotate: sheetRotate }}>
-          <rect
-            x="60"
-            y="48"
-            width="280"
-            height="264"
-            rx="14"
-            style={{ fill: "var(--card)", stroke: "var(--border)" }}
-            strokeWidth="1.5"
-          />
-          {/* LIVE border tint: the artifact itself goes live. */}
-          <motion.rect
-            x="60"
-            y="48"
-            width="280"
-            height="264"
-            rx="14"
-            style={{
-              stroke: "rgba(" + CYAN + ", 0.45)",
-              opacity: liveBorder,
-            }}
-            strokeWidth="1.5"
-          />
-          {/* Document header band (sheet furniture, always present). */}
-          <rect x="60" y="48" width="280" height="20" rx="14" style={{ fill: "var(--background-subtle)" }} />
-        </motion.g>
-
-        {/* BRIEF -- a real, dense business brief: title, notes, margins. */}
-        <motion.g style={{ opacity: scatterOpacity }}>
-          <line x1="84" y1="92" x2="210" y2="92" style={{ stroke: INK }} strokeWidth="3" strokeLinecap="round" />
-          <line x1="84" y1="116" x2="196" y2="116" style={{ stroke: HAIR }} strokeWidth="2.5" strokeLinecap="round" />
-          <line x1="84" y1="136" x2="252" y2="136" style={{ stroke: HAIR }} strokeWidth="2.5" strokeLinecap="round" />
-          <line x1="84" y1="156" x2="228" y2="156" style={{ stroke: HAIR }} strokeWidth="2.5" strokeLinecap="round" />
-          <line x1="84" y1="176" x2="264" y2="176" style={{ stroke: HAIR }} strokeWidth="2.5" strokeLinecap="round" />
-          <line x1="84" y1="196" x2="188" y2="196" style={{ stroke: HAIR }} strokeWidth="2.5" strokeLinecap="round" />
-          <line x1="84" y1="216" x2="240" y2="216" style={{ stroke: HAIR }} strokeWidth="2.5" strokeLinecap="round" />
-          <line x1="322" y1="116" x2="322" y2="132" style={{ stroke: HAIR }} strokeWidth="2" strokeLinecap="round" />
-          <line x1="322" y1="156" x2="322" y2="168" style={{ stroke: HAIR }} strokeWidth="2" strokeLinecap="round" />
-        </motion.g>
-
-        {/* UNDERSTOOD (cyan) -- signals organized: highlights, brackets and
-            customer relationships drawn onto the same brief. */}
-        <motion.g style={{ opacity: understoodOpacity }}>
-          <path d="M78 108 h-8 v40 h8" style={{ stroke: CYAN + "0.55)" }} strokeWidth="1.5" strokeLinecap="round" />
-          <rect x="84" y="121" width="64" height="6" rx="3" style={{ fill: CYAN + "0.18)" }} />
-          <rect x="84" y="141" width="84" height="6" rx="3" style={{ fill: CYAN + "0.14)" }} />
-          <circle cx="298" cy="120" r="4" style={{ fill: CYAN + "0.75)" }} />
-          <circle cx="284" cy="144" r="4" style={{ fill: CYAN + "0.55)" }} />
-          <circle cx="308" cy="164" r="4" style={{ fill: CYAN + "0.65)" }} />
-          <path d="M298 124 Q306 140 288 148" style={{ stroke: CYAN + "0.4)" }} strokeWidth="1.25" />
-          <path d="M316 118 l5 5 10 -11" style={{ stroke: CYAN + "0.8)" }} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-        </motion.g>
-
-
-        {/* SHAPED (blue) -- the notes snap onto a grid: structure emerging. */}
-        <motion.g style={{ opacity: shapedOpacity }}>
-          <line x1="140" y1="56" x2="140" y2="304" style={{ stroke: BLUE + "0.18)" }} strokeWidth="1" />
-          <line x1="200" y1="56" x2="200" y2="304" style={{ stroke: BLUE + "0.18)" }} strokeWidth="1" />
-          <line x1="260" y1="56" x2="260" y2="304" style={{ stroke: BLUE + "0.18)" }} strokeWidth="1" />
-          <rect x="84" y="96" width="112" height="22" rx="4" style={{ fill: BLUE + "0.12)", stroke: BLUE + "0.6)" }} strokeWidth="1.5" />
-          <rect x="84" y="130" width="152" height="22" rx="4" style={{ stroke: BLUE + "0.45)" }} strokeWidth="1.5" />
-          <rect x="84" y="164" width="92" height="22" rx="4" style={{ stroke: BLUE + "0.6)" }} strokeWidth="1.5" />
-          <path d="M74 90 v96 h10" style={{ stroke: BLUE + "0.35)" }} strokeWidth="1.5" strokeLinecap="round" />
-        </motion.g>
-
-        {/* BUILT (blue + violet) -- filled, layered interface surfaces: the
-            working product. Stays near-full as LIVE's substrate. */}
-        <motion.g style={{ opacity: builtOpacity }}>
-          <rect x="130" y="148" width="182" height="140" rx="10" style={{ stroke: HAIR }} strokeWidth="1" />
-          <rect x="122" y="140" width="182" height="140" rx="10" style={{ fill: VIOLET + "0.05)", stroke: VIOLET + "0.6)" }} strokeWidth="1.5" />
-          <rect x="122" y="140" width="182" height="26" rx="10" style={{ fill: VIOLET + "0.1)" }} />
-          <rect x="138" y="178" width="94" height="40" rx="4" style={{ fill: BLUE + "0.08)", stroke: BLUE + "0.45)" }} strokeWidth="1.25" />
-          <rect x="138" y="228" width="94" height="32" rx="4" style={{ fill: BLUE + "0.05)", stroke: BLUE + "0.35)" }} strokeWidth="1.25" />
-          <rect x="272" y="174" width="16" height="92" rx="4" style={{ stroke: VIOLET + "0.5)" }} strokeWidth="1.25" />
-          <line x1="138" y1="272" x2="240" y2="272" style={{ stroke: VIOLET + "0.55)" }} strokeWidth="2" strokeLinecap="round" />
-        </motion.g>
-
-        {/* LIVE (cyan + blue) -- visibly active: status, address bar, signal
-            ring completing, customer dot arriving. */}
-        <motion.g style={{ opacity: liveOpacity }}>
-          <circle cx="134" cy="153" r="3.5" style={{ fill: CYAN + "0.9)" }} />
-          <rect x="146" y="146" width="84" height="13" rx="6" style={{ fill: CYAN + "0.1)" }} />
-          <line x1="152" y1="152" x2="196" y2="152" style={{ stroke: CYAN + "0.5)" }} strokeWidth="1.5" strokeLinecap="round" />
-          <motion.circle
-            cx="296"
-            cy="180"
-            r="24"
-            style={{
-              stroke: CYAN + "0.6)",
-              scale: ringOpacity,
-              opacity: ringOpacity,
-            }}
-            strokeWidth="1.5"
-          />
-          <motion.circle
-            cx="0"
-            cy="180"
-            r="5"
-            style={{
-              x: dotX,
-              fill: CYAN + "0.85)",
-              opacity: liveOpacity,
-            }}
-          />
-          <line x1="138" y1="268" x2="214" y2="268" style={{ stroke: CYAN + "0.65)" }} strokeWidth="2" strokeLinecap="round" />
-        </motion.g>
-      </svg>
+        <BriefArtifact />
+      </motion.div>
+      <motion.div
+        className="pointer-events-none absolute inset-0"
+        style={{ opacity: shapeOpacity, y: shapeY }}
+      >
+        <StructureArtifact />
+      </motion.div>
+      <motion.div
+        className="pointer-events-none absolute inset-0"
+        style={{ opacity: buildOpacity, y: buildY }}
+      >
+        <BuildArtifact />
+      </motion.div>
+      <motion.div
+        className="pointer-events-none absolute inset-0"
+        style={{ opacity: launchOpacity, y: launchY }}
+      >
+        <LaunchArtifact />
+      </motion.div>
     </div>
   );
 }
@@ -275,9 +480,9 @@ export function TransformationCanvas({
 /* ─────────────────────────────────────────────────────────────────────────────
    STATE CAPTION — a small editorial status marker (figure-caption language:
    uppercase micro-label + accent dot, no pill/border/badge chrome). It is
-   decorative redundancy for the canvas state, aria-hidden, driven by the
-   SAME monotonic progress as the canvas and spine so they can never
-   disagree. Reduced motion resolves it to the LIVE caption.
+   decorative redundancy for the active artifact, aria-hidden, driven by the
+   SAME monotonic progress as the panel and spine so they can never
+   disagree. Reduced motion resolves it to the LIVE SYSTEM caption.
    ─────────────────────────────────────────────────────────────────────────── */
 export function CanvasStateCaption({
   monotonic,
@@ -287,52 +492,43 @@ export function CanvasStateCaption({
   const shouldReduceMotion = Boolean(useReducedMotion());
   const mono = useMonotonicProgress(monotonic, shouldReduceMotion);
 
-  const briefOpacity = useTransform(mono, [0.1, 0.16], [1, 0], { clamp: true });
-  const understandOpacity = useTransform(
-    mono,
-    [0.1, 0.16, 0.32, 0.38],
-    [0, 1, 1, 0],
-    { clamp: true },
-  );
+  const briefOpacity = useTransform(mono, [...FADE.briefOut], [1, 0], { clamp: true });
   const shapeOpacity = useTransform(
     mono,
-    [0.32, 0.38, 0.54, 0.6],
+    [...FADE.shapeIn, ...FADE.shapeOut],
     [0, 1, 1, 0],
     { clamp: true },
   );
   const buildOpacity = useTransform(
     mono,
-    [0.54, 0.6, 0.76, 0.82],
+    [...FADE.buildIn, ...FADE.buildOut],
     [0, 1, 1, 0],
     { clamp: true },
   );
-  const liveOpacity = useTransform(mono, [0.76, 0.82], [0, 1], { clamp: true });
+  const launchOpacity = useTransform(mono, [...FADE.launchIn], [0, 1], {
+    clamp: true,
+  });
 
   const states = [
     {
-      label: "Brief",
+      label: "Project brief",
       dot: "var(--border-strong)",
       opacity: briefOpacity,
     },
     {
-      label: "Understand",
-      dot: "rgb(" + STAGE_ACCENTS.cyan + ")",
-      opacity: understandOpacity,
-    },
-    {
-      label: "Shape",
+      label: "System direction",
       dot: "rgb(" + STAGE_ACCENTS.blue + ")",
       opacity: shapeOpacity,
     },
     {
-      label: "Build",
+      label: "Build progress",
       dot: "rgb(" + STAGE_ACCENTS.violet + ")",
       opacity: buildOpacity,
     },
     {
-      label: "Live",
+      label: "Live system",
       dot: "rgb(" + STAGE_ACCENTS.cyan + ")",
-      opacity: liveOpacity,
+      opacity: launchOpacity,
     },
   ];
 

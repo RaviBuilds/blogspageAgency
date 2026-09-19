@@ -12,34 +12,42 @@ import {
 
 import { PROCESS } from "@/lib/homepage-data";
 import {
+  BriefArtifact,
+  BuildArtifact,
   CanvasStateCaption,
+  LaunchArtifact,
+  PhaseArtifactPanel,
   STAGE_ACCENTS,
   STAGE_WINDOWS,
-  TransformationCanvas,
+  StructureArtifact,
   useMonotonicProgress,
   useReached,
 } from "@/components/home/process-motifs";
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   R8 — HOW WE WORK EXPERIENCE (Blueprint: R8 How We Work Experience v1.0)
+   R9 — HOW WE WORK EXPERIENCE (refinement of the R8 journey)
 
-   The four near-identical process cards become one continuous journey:
+   The journey spine, typographic stage entries and entry/terminal frames
+   stay exactly as R8 built them. The refinement upgrades the experience:
 
      YOUR BUSINESS -> UNDERSTAND -> SHAPE -> BUILD -> LAUNCH -> READY FOR
      YOUR CUSTOMERS
 
-   Visual architecture (Blueprint §6-8):
-   - ONE section-level scroll progress value drives everything: the
-     transformation canvas (a plain business brief morphing into a live
-     system), the spine fill, the traveling emphasis and each stage's
-     "reached" state.
-   - Stage entries are typographic (no card chrome) so the section reads as
-     one journey, not four tiles beside a line.
-   - Copy stays canonical: PROCESS (homepage-data.ts) renders verbatim;
-     heading keeps the established selective-gradient treatment.
-   - Preserved contracts: `id="process"` (navbar, footer, solution pages),
-     the `You end with:` outcome rows, §5 spring system, reduced-motion
-     full-static rendering, no analytics (none existed here).
+   - The abstract transformation canvas becomes four realistic project
+     artifacts (brief -> system direction -> build progress -> live system)
+     that become more concrete as each phase is reached — from the SAME
+     single section-level scroll progress that drives the spine and stage
+     emphasis, so the active artifact and active stage never disagree.
+   - Desktop (lg+): the artifact panel is a sticky left column, so the
+     evolving artifact stays in view while the stages scroll past.
+   - Mobile: no shrunken desktop layout — each stage carries its own
+     artifact inline, static and always readable.
+   - Each stage answers "You see:" alongside the established "You end
+     with:" outcome row; the journey closes with one quiet trust note.
+
+   Preserved contracts: `id="process"` (navbar, footer, solution pages),
+   the heading + selective-gradient treatment, the `You end with:` outcome
+   rows, §5 spring system, reduced-motion full-static rendering.
    ─────────────────────────────────────────────────────────────────────────── */
 const SPRING = { type: "spring", stiffness: 100, damping: 20, mass: 1 } as const;
 
@@ -79,6 +87,15 @@ const STAGE_META = [
   { accent: STAGE_ACCENTS.blue, ring: STAGE_ACCENTS.blue },
   { accent: STAGE_ACCENTS.violet, ring: STAGE_ACCENTS.violet },
   { accent: STAGE_ACCENTS.cyan, ring: STAGE_ACCENTS.blue },
+] as const;
+
+/* The artifact each phase carries — same order as PROCESS.steps, so the
+   inline mobile artifact is always the one the phase describes. */
+const PHASE_ARTIFACTS = [
+  BriefArtifact,
+  StructureArtifact,
+  BuildArtifact,
+  LaunchArtifact,
 ] as const;
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -135,7 +152,10 @@ function JourneySpine({ monotonic }: { monotonic: MotionValue<number> }) {
 /* ─────────────────────────────────────────────────────────────────────────────
    STAGE ROW — typographic entry (no card chrome). The spine node fills in
    the stage accent as the stage's progress window is reached; everything
-   else is static, readable document content.
+   else is static, readable document content. Each stage answers, in order:
+   what we do, what you see, what you end with. On mobile (<lg) the phase's
+   artifact renders inline below the copy — static and always readable, so
+   the mobile journey reads phase → artifact → phase → artifact.
    ─────────────────────────────────────────────────────────────────────────── */
 function StageRow({
   step,
@@ -148,6 +168,7 @@ function StageRow({
 }) {
   const meta = STAGE_META[index];
   const reached = useReached(monotonic, STAGE_WINDOWS["understand"][0] + index * 0.22);
+  const Artifact = PHASE_ARTIFACTS[index];
 
   return (
     <motion.article
@@ -191,10 +212,20 @@ function StageRow({
       <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
         {step.description}
       </p>
+      <p className="mt-3 max-w-xl text-sm">
+        <span className="font-medium text-foreground">You see:</span>{" "}
+        <span className="text-muted-foreground">{step.see}</span>
+      </p>
       <p className="mt-4 max-w-xl border-t border-border-subtle pt-3 text-sm">
         <span className="font-semibold text-foreground">You end with:</span>{" "}
         <span className="text-muted-foreground">{step.outcome}</span>
       </p>
+
+      {/* Mobile: this phase's artifact in normal flow (desktop shows the
+          synced crossfading panel in the sticky left column instead). */}
+      <div aria-hidden className="mt-6 lg:hidden">
+        <Artifact />
+      </div>
     </motion.article>
   );
 }
@@ -254,9 +285,9 @@ export function ProcessTimeline() {
   const shouldReduceMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
 
-  /* ONE section-level progress value drives canvas, spine and stage states
-     (Blueprint §8: the canvas state, spine fill and stage emphasis advance
-     together; monotonic clamping keeps reached states persistent). */
+  /* ONE section-level progress value drives the artifact panel, spine and
+      stage states (Blueprint §8: they advance together; monotonic clamping
+      keeps reached states persistent). */
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start 0.85", "end 0.5"],
@@ -274,7 +305,9 @@ export function ProcessTimeline() {
       className="scroll-mt-24 border-t border-border-subtle bg-background py-24 lg:py-32"
     >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-        {/* Section header — canonical copy, staggered once. */}
+        {/* Section header — canonical copy, staggered once. The scopeNote
+            keeps the process relevant to every kind of build without
+            becoming a second service list. */}
         <motion.div
           variants={container}
           initial="hidden"
@@ -297,35 +330,34 @@ export function ProcessTimeline() {
           <motion.p variants={fadeUp} className="mt-4 text-muted-foreground">
             {PROCESS.sub}
           </motion.p>
+          <motion.p variants={fadeUp} className="mt-3 text-sm text-text-subtle">
+            {PROCESS.scopeNote}
+          </motion.p>
         </motion.div>
 
-        {/* Journey: the transformation canvas beside the typographic stage
-            list, framed by the business-problem and live-business nodes. */}
+        {/* Journey: the evolving artifact beside the typographic stage list,
+            framed by the business-problem and live-business nodes. */}
         <div className="mt-16 lg:mt-20 lg:grid lg:grid-cols-12 lg:items-start lg:gap-12">
-          {/* Mobile: the canvas becomes a compact sticky strip (Blueprint
-              Section 14) -- normal flow, morphing while the stages scroll
-              past. Tablet/desktop: the canvas is the journey's left column. */}
-          {/* R8.1 presentation surface: an unboxed, ruled sheet for the evolving
-              artifact -- corner registration ticks + baseline rule, no card
-              chrome (the artifact itself is the subject). Mobile: the same
-              surface becomes the compact sticky strip (Blueprint Section 14),
-              carrying the inline editorial state caption. */}
-          <div className="relative max-lg:sticky max-lg:top-16 max-lg:z-10 max-lg:-mx-6 max-lg:border-b max-lg:border-border-subtle max-lg:bg-background/95 max-lg:px-6 max-lg:pb-4 max-lg:pt-3 max-lg:backdrop-blur-sm lg:col-span-6">
-            <span aria-hidden className="pointer-events-none absolute left-0 top-0 hidden size-3 border-l border-t border-border lg:block" />
-            <span aria-hidden className="pointer-events-none absolute right-0 top-0 hidden size-3 border-r border-t border-border lg:block" />
-            <span aria-hidden className="pointer-events-none absolute bottom-0 left-0 hidden size-3 border-b border-l border-border lg:block" />
-            <span aria-hidden className="pointer-events-none absolute bottom-0 right-0 hidden size-3 border-b border-r border-border lg:block" />
-            <div className="[&_svg]:max-lg:mx-auto [&_svg]:max-lg:h-28 [&_svg]:max-lg:w-auto lg:mx-auto lg:max-w-md lg:pt-4">
-              <TransformationCanvas progress={scrollYProgress} />
-            </div>
-            {/* Baseline rule + editorial state caption (desktop/tablet). */}
-            <div aria-hidden className="mt-4 hidden items-center gap-3 lg:flex">
-              <span className="h-px flex-1 bg-border-subtle" />
-              <CanvasStateCaption monotonic={monotonic} />
-            </div>
-            {/* Inline state caption inside the mobile strip. */}
-            <div aria-hidden className="mt-3 flex items-center justify-center lg:hidden">
-              <CanvasStateCaption monotonic={monotonic} />
+          {/* Desktop (lg+): the artifact panel is the journey's left column —
+              sticky, so the evolving artifact stays in view while the stages
+              scroll past, crossfading at each stage boundary in lockstep with
+              the active stage's emphasis. Mobile does not shrink this
+              layout: each stage carries its own artifact inline (StageRow). */}
+          <div className="hidden lg:sticky lg:top-24 lg:col-span-6 lg:block">
+            {/* R8.1 presentation surface: an unboxed, ruled frame for the
+                evolving artifact — corner registration ticks, no card chrome
+                (the artifact itself is the subject). */}
+            <div className="relative mx-auto max-w-md pt-1">
+              <span aria-hidden className="pointer-events-none absolute left-0 top-0 size-3 border-l border-t border-border" />
+              <span aria-hidden className="pointer-events-none absolute right-0 top-0 size-3 border-r border-t border-border" />
+              <span aria-hidden className="pointer-events-none absolute bottom-0 left-0 size-3 border-b border-l border-border" />
+              <span aria-hidden className="pointer-events-none absolute bottom-0 right-0 size-3 border-b border-r border-border" />
+              <PhaseArtifactPanel progress={scrollYProgress} />
+              {/* Baseline rule + editorial state caption. */}
+              <div aria-hidden className="mt-4 flex items-center gap-3">
+                <span className="h-px flex-1 bg-border-subtle" />
+                <CanvasStateCaption monotonic={monotonic} />
+              </div>
             </div>
           </div>
 
@@ -342,6 +374,11 @@ export function ProcessTimeline() {
                 />
               ))}
               <TerminalFrame monotonic={monotonic} />
+              {/* The section's single quiet trust signal: the client is never
+                  kept in the dark — work is reviewed before it advances. */}
+              <p className="pl-12 text-sm text-text-subtle md:pl-16">
+                {PROCESS.reviewNote}
+              </p>
             </div>
           </div>
         </div>

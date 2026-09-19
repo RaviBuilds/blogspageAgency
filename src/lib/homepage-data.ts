@@ -193,17 +193,28 @@ export const BRIDGE = {
    MOVEMENT 5 — Trust: process + expectations (Blueprint §16)
    ───────────────────────────────────────────────────────────────────────────── */
 
+/**
+ * R9 refinement: `sub` states the four-phase contract; each step gains a
+ * `see` row (what the client watches happen) beside the established
+ * `outcome` row (what they receive). `scopeNote` keeps the process relevant
+ * to every kind of Blogspage build; `reviewNote` is the section's single
+ * quiet trust signal. All wording stays plain-language and claim-free.
+ */
 export const PROCESS = {
   eyebrow: "What happens next",
   heading:
     "You don't need to know how to build it. You need to know what happens next.",
-  sub: "Four phases, explained in plain language — with something concrete delivered at the end of each one.",
+  sub: "Four clear phases. You know what we're doing, what you'll see, and what you get at every step.",
+  scopeNote:
+    "Whether it's a website, a SaaS product or an AI-powered business system, the process stays clear.",
+  reviewNote: "You review before we move forward.",
   steps: [
     {
       number: "01",
       title: "Understand",
       description:
         "We learn how your business works, who your customers are, and what's actually slowing you down. You explain the business — we translate it into a build plan.",
+      see: "A clear scope, agreed priorities and a system direction.",
       outcome: "a written scope, a system direction and a clear plan.",
     },
     {
@@ -211,6 +222,7 @@ export const PROCESS = {
       title: "Shape",
       description:
         "We design the screens, the content structure and the experience before any code is written, so you can see and approve what you're getting.",
+      see: "The product taking shape before code is written.",
       outcome:
         "defined screens, content structure and the experience we are actually going to build.",
     },
@@ -219,6 +231,7 @@ export const PROCESS = {
       title: "Build",
       description:
         "We build in reviewable increments, so you see real progress early and can course-correct while it's still cheap to do so.",
+      see: "A working product evolving in front of you.",
       outcome: "a working system you can use and review.",
     },
     {
@@ -226,6 +239,7 @@ export const PROCESS = {
       title: "Launch",
       description:
         "We deploy, hand over the keys and walk you through everything — then stay available for questions and improvements.",
+      see: "The finished system running in production.",
       outcome:
         "the live system, the accounts in your name, and a clear plan for what comes next.",
     },
