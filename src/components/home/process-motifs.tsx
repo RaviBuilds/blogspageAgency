@@ -9,33 +9,40 @@ import {
   type MotionValue,
 } from "framer-motion";
 import { Check } from "lucide-react";
-import { Fragment, type ReactNode } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   R9 — PROCESS ARTIFACTS (refinement of the R8 How We Work Experience)
+/* ────────────────────────────────────────────────────────────────────────────
+   R10 — PROCESS ARTIFACTS (refinement of the R9 How We Work Experience)
 
-   One presentation surface, four realistic project artifacts. As the visitor
-   scrolls the journey the work becomes visibly more concrete at each phase:
+   The four realistic project artifacts (brief -> system direction -> build
+   progress -> live system) and their scroll-driven crossfade are unchanged.
+   R10 adds the phase-ACTIVATION layer that makes the sticky panel feel like
+   a real artifact coming alive as the active phase advances:
 
-     PROJECT BRIEF -> SYSTEM DIRECTION -> BUILD PROGRESS -> LIVE SYSTEM
+   - PhaseArtifactPanel derives ONE discrete activePhase (0..3) from the SAME
+     monotonic section progress the spine and stage emphasis use (thresholds
+     = STAGE_WINDOWS starts), so artifact state and timeline state can never
+     disagree. It re-renders only at phase boundaries (<= 4 per pass).
+   - Each artifact receives `active`: undefined = static presentation
+     (inline/mobile — renders at rest, no motion); boolean = armed, and the
+     shell accent + one-shot inner motion play when the phase becomes active,
+     then SETTLE. Nothing loops (the old animate-pulse dots are now finite
+     3-cycle flickers / single pops).
+   - The accent "color transition" is the opacity of a pre-painted tinted
+     border layer — transform/opacity only, GPU-friendly; border-color itself
+     is never animated.
+   - The panel plays a single 0.985 -> 1 settle spring when the sticky
+     wrapper docks (settled comes from the timeline's one-shot dock check).
 
-   The artifacts are assembled from the same UI primitives a client would
-   plausibly receive during a real engagement — a discovery brief, a system
-   direction map, a reviewable build status and a launch checklist running
-   in production. No stock imagery, no fake product screenshots: just the
-   existing surface/border/type tokens and the approved stage accents.
+   Reduced motion: every new animation resolves instantly to its final value;
+   phase correctness is preserved (mono settles to 1 -> phase 04 at rest).
 
-   Progress contract (unchanged from R8): the parent owns ONE section-level
-   scrollYProgress (MotionValue 0..1) and passes it down; every opacity here
-   derives from that single monotonic value across the STAGE_WINDOWS
-   boundaries — the same boundaries `process-timeline.tsx` uses for the spine
-   fill and stage emphasis — so artifact, spine and stage state can never
-   disagree.
-
-   All artifact copy is illustrative sample data. The artifacts are
-   decorative (aria-hidden): the phase copy in `process-timeline.tsx`
-   carries the meaning; the artifacts show what each deliverable feels like.
-   ─────────────────────────────────────────────────────────────────────────── */
+   Progress contract (unchanged): the parent owns ONE section-level
+   scrollYProgress; every opacity here derives from that single monotonic
+   value across the STAGE_WINDOWS boundaries. All artifact copy is
+   illustrative sample data; the artifacts are decorative (aria-hidden) —
+   the phase copy in `process-timeline.tsx` carries the meaning.
+   ────────────────────────────────────────────────────────────────────────── */
 
 /* Approved accent triplets (globals.css tokens; Blueprint §17). */
 export const STAGE_ACCENTS = {
@@ -117,30 +124,100 @@ const FADE = {
   launchIn: [0.71, 0.77],
 } as const;
 
+/* Per-phase accent tint alphas for the activation border layer
+   (Blueprint §17: restrained, strokes stay <= 0.5). */
+const TINT_ALPHA = {
+  brief: 0.22,
+  shape: 0.32,
+  build: 0.42,
+  launch: 0.5,
+} as const;
+
+/**
+ * Shared activation state for one artifact:
+ *   armed    — this artifact lives inside the animated panel (desktop); when
+ *              `active` is undefined it renders fully at rest with no motion
+ *              (this is what keeps the inline/mobile artifacts static).
+ *   isActive — the artifact's phase is the currently active one.
+ *   reduce   — prefers-reduced-motion: every transition resolves instantly.
+ */
+function useActivation(active: boolean | undefined) {
+  const reduce = Boolean(useReducedMotion());
+  const armed = active !== undefined;
+  const isActive = armed ? Boolean(active) : true;
+  return { reduce, armed, isActive };
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
    ARTIFACT SHELL — the shared window chrome (header band, body, status
-   footer) that makes all four artifacts read as one family of real project
-   documents rather than four unrelated illustrations.
+   footer). R10: an accent activation layer (pre-painted tinted border whose
+   OPACITY animates) and a stacked header status dot (resting faint dot plus
+   an accent overlay that fades in and pops ONCE when the phase activates).
    ─────────────────────────────────────────────────────────────────────────── */
 
 type ArtifactShellProps = {
   label: string;
   accent: string;
   meta?: string;
+  tintAlpha: number;
+  active?: boolean;
   footer: ReactNode;
   children: ReactNode;
 };
 
-function ArtifactShell({ label, accent, meta, footer, children }: ArtifactShellProps) {
+function ArtifactShell({
+  label,
+  accent,
+  meta,
+  tintAlpha,
+  active,
+  footer,
+  children,
+}: ArtifactShellProps) {
+  const { reduce, armed, isActive } = useActivation(active);
+
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card">
+    <div className="relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card">
+      {/* Accent activation layer: pre-painted tinted border; only its opacity
+          animates (0 -> tintAlpha), one-shot, then it rests. */}
+      <motion.span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-xl"
+        style={{ border: "1.5px solid rgba(" + accent + ", " + tintAlpha + ")" }}
+        initial={false}
+        animate={{ opacity: armed && isActive ? 1 : 0 }}
+        transition={{
+          duration: reduce ? 0 : 0.5,
+          delay: armed && isActive ? 0.1 : 0,
+        }}
+      />
       <div className="flex items-center justify-between gap-2 border-b border-border-subtle bg-background-subtle px-4 py-2.5">
         <span className="flex min-w-0 items-center gap-2">
+          {/* Status dot activation: resting faint dot + accent overlay that
+              pops once (never pulses) when the phase becomes active. */}
           <span
             aria-hidden
-            className="size-1.5 shrink-0 rounded-full"
-            style={{ backgroundColor: "rgba(" + accent + ", 0.9)" }}
-          />
+            className="relative size-1.5 shrink-0 rounded-full"
+            style={{ backgroundColor: "rgba(" + accent + ", 0.35)" }}
+          >
+            <motion.span
+              className="absolute inset-0 rounded-full"
+              style={{ backgroundColor: "rgb(" + accent + ")" }}
+              initial={false}
+              animate={
+                armed
+                  ? {
+                      opacity: isActive ? 1 : 0,
+                      scale: isActive && !reduce ? [1, 1.4, 1] : 1,
+                    }
+                  : { opacity: 1, scale: 1 }
+              }
+              transition={{
+                duration: reduce ? 0 : 0.45,
+                delay: armed && isActive ? 0.1 : 0,
+              }}
+            />
+          </span>
           <span className="truncate text-[11px] font-semibold uppercase tracking-[0.16em] text-text-subtle">
             {label}
           </span>
@@ -164,23 +241,48 @@ function ArtifactFooter({
   pulse = false,
   left,
   right,
+  active,
 }: {
   accent?: string;
   pulse?: boolean;
   left: string;
   right?: string;
+  active?: boolean;
 }) {
+  const { reduce, armed, isActive } = useActivation(active);
+  const pop = Boolean(pulse && armed && isActive && !reduce);
+
   return (
     <>
       <span className="flex min-w-0 items-center gap-2 text-[11px] text-text-subtle">
         {pulse ? (
           <span
             aria-hidden
-            className="size-1.5 shrink-0 animate-pulse rounded-full motion-reduce:animate-none"
+            className="relative size-1.5 shrink-0 rounded-full"
             style={
-              accent ? { backgroundColor: "rgba(" + accent + ", 0.9)" } : undefined
+              accent ? { backgroundColor: "rgba(" + accent + ", 0.35)" } : undefined
             }
-          />
+          >
+            <motion.span
+              className="absolute inset-0 rounded-full"
+              style={
+                accent
+                  ? { backgroundColor: "rgb(" + accent + ")" }
+                  : { backgroundColor: "var(--border-strong)" }
+              }
+              initial={false}
+              animate={
+                pop
+                  ? { scale: [1, 1.5, 1], opacity: [0.6, 1, 1] }
+                  : { scale: 1, opacity: armed && !isActive ? 0 : 1 }
+              }
+              transition={
+                pop
+                  ? { duration: 0.5, delay: 0.4 }
+                  : { duration: reduce ? 0 : 0.3 }
+              }
+            />
+          </span>
         ) : null}
         <span className="truncate">{left}</span>
       </span>
@@ -195,9 +297,8 @@ function ArtifactFooter({
 
 /* ─────────────────────────────────────────────────────────────────────────────
    PHASE 01 — UNDERSTAND · PROJECT BRIEF
-   "We understood the business before writing code." A discovery document:
-   the goal, the customer, the problem, the requirements, the success
-   criteria — the artifact a real client receives from this phase.
+   Mostly neutral visual treatment: the activation is the subtle tint layer
+   and the header dot — the brief is already "clear" the moment it appears.
    ─────────────────────────────────────────────────────────────────────────── */
 
 const BRIEF_ROWS = [
@@ -211,12 +312,14 @@ const BRIEF_ROWS = [
   { label: "Success", value: "Every enquiry answered the same day" },
 ] as const;
 
-export function BriefArtifact() {
+export function BriefArtifact({ active }: { active?: boolean }) {
   return (
     <ArtifactShell
       label="Project brief"
       accent={CYAN}
       meta="Phase 01"
+      tintAlpha={TINT_ALPHA.brief}
+      active={active}
       footer={<ArtifactFooter left="Scope v1 · agreed with you" />}
     >
       {BRIEF_ROWS.map((row) => (
@@ -236,10 +339,11 @@ export function BriefArtifact() {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/* ────────────────────────────────────────────────────────────────────────────
    PHASE 02 — SHAPE · SYSTEM DIRECTION
-   The solution is shaped before development begins: the connected layers
-   of the system, each with the job it does, agreed before code is written.
+   Activation: the connectors between Website -> Business system ->
+   AI & automation -> Dashboard DRAW once (scaleY, origin top) as the phase
+   becomes active — "the solution becomes visible" — then rest.
    ─────────────────────────────────────────────────────────────────────────── */
 
 const STRUCTURE_NODES = [
@@ -249,21 +353,34 @@ const STRUCTURE_NODES = [
   { name: "Dashboard", detail: "Everything, in one view" },
 ] as const;
 
-export function StructureArtifact() {
+export function StructureArtifact({ active }: { active?: boolean }) {
+  const { reduce, armed, isActive } = useActivation(active);
+
   return (
     <ArtifactShell
       label="System direction"
       accent={BLUE}
       meta="Phase 02"
+      tintAlpha={TINT_ALPHA.shape}
+      active={active}
       footer={<ArtifactFooter left="Direction v1 · approved before build" />}
     >
       {STRUCTURE_NODES.map((node, index) => (
         <Fragment key={node.name}>
           {index > 0 ? (
-            <span
+            <motion.span
               aria-hidden
               className="mx-auto h-2.5 w-px"
-              style={{ backgroundColor: "rgba(" + BLUE + ", 0.35)" }}
+              style={{
+                backgroundColor: "rgba(" + BLUE + ", 0.35)",
+                transformOrigin: "top",
+              }}
+              initial={{ scaleY: armed ? 0 : 1 }}
+              animate={{ scaleY: !armed || isActive ? 1 : 0 }}
+              transition={{
+                duration: reduce ? 0 : 0.3,
+                delay: armed && isActive ? 0.2 + (index - 1) * 0.08 : 0,
+              }}
             />
           ) : null}
           <div className="flex items-center justify-between gap-3 rounded-lg border border-border-subtle bg-background px-3 py-2.5">
@@ -282,9 +399,9 @@ export function StructureArtifact() {
 
 /* ─────────────────────────────────────────────────────────────────────────────
    PHASE 03 — BUILD · BUILD PROGRESS
-   "You see the product taking shape before the project is finished." A
-   lightweight reviewable status surface: sprint progress plus per-area
-   state, shared for review as each increment lands.
+   Activation: the sprint bar fills (scaleX, origin left), the checklist rows
+   ease in with a short stagger, and the in-progress dot flickers a FINITE
+   three cycles (then rests) — activity, never a permanent pulse.
    ─────────────────────────────────────────────────────────────────────────── */
 
 const BUILD_ITEMS = [
@@ -297,7 +414,13 @@ const BUILD_ITEMS = [
 
 type BuildState = (typeof BUILD_ITEMS)[number]["state"];
 
-function BuildStatusGlyph({ state }: { state: BuildState }) {
+function BuildStatusGlyph({
+  state,
+  flicker,
+}: {
+  state: BuildState;
+  flicker: boolean;
+}) {
   if (state === "done") {
     return (
       <Check
@@ -310,10 +433,17 @@ function BuildStatusGlyph({ state }: { state: BuildState }) {
   }
   if (state === "active") {
     return (
-      <span
+      <motion.span
         aria-hidden
-        className="size-2 animate-pulse rounded-full motion-reduce:animate-none"
+        className="size-2 rounded-full"
         style={{ backgroundColor: "rgb(" + VIOLET + ")" }}
+        initial={false}
+        animate={flicker ? { opacity: [1, 0.3, 1, 0.3, 1] } : { opacity: 1 }}
+        transition={
+          flicker
+            ? { duration: 0.8, repeat: 2, repeatDelay: 0.25, delay: 0.45 }
+            : { duration: 0.3 }
+        }
       />
     );
   }
@@ -326,12 +456,17 @@ function BuildStatusGlyph({ state }: { state: BuildState }) {
   );
 }
 
-export function BuildArtifact() {
+export function BuildArtifact({ active }: { active?: boolean }) {
+  const { reduce, armed, isActive } = useActivation(active);
+  const flicker = armed && isActive && !reduce;
+
   return (
     <ArtifactShell
       label="Build progress"
       accent={VIOLET}
       meta="Phase 03"
+      tintAlpha={TINT_ALPHA.build}
+      active={active}
       footer={<ArtifactFooter left="Increment 3 · shared for your review" />}
     >
       <div>
@@ -342,22 +477,40 @@ export function BuildArtifact() {
           <span className="text-[11px] font-medium text-foreground">60%</span>
         </div>
         <div className="mt-2 h-1 overflow-hidden rounded-full bg-background-subtle">
-          <div
+          <motion.div
             className="h-full w-3/5 rounded-full"
-            style={{ backgroundColor: "rgba(" + VIOLET + ", 0.8)" }}
+            style={{
+              backgroundColor: "rgba(" + VIOLET + ", 0.8)",
+              transformOrigin: "left",
+            }}
+            initial={{ scaleX: armed ? 0 : 1 }}
+            animate={{ scaleX: !armed || isActive ? 1 : 0 }}
+            transition={{
+              duration: reduce ? 0 : 0.5,
+              delay: armed && isActive ? 0.25 : 0,
+            }}
           />
         </div>
       </div>
-      {BUILD_ITEMS.map((item) => (
-        <div key={item.name} className="flex items-center justify-between gap-3">
+      {BUILD_ITEMS.map((item, index) => (
+        <motion.div
+          key={item.name}
+          className="flex items-center justify-between gap-3"
+          initial={false}
+          animate={{ opacity: armed && !isActive ? 0.55 : 1 }}
+          transition={{
+            duration: reduce ? 0 : 0.35,
+            delay: armed && isActive ? 0.15 + index * 0.05 : 0,
+          }}
+        >
           <span className="text-xs text-foreground sm:text-[13px]">{item.name}</span>
           <span className="flex shrink-0 items-center gap-1.5">
-            <BuildStatusGlyph state={item.state} />
+            <BuildStatusGlyph state={item.state} flicker={flicker} />
             <span className="text-[10px] uppercase tracking-[0.14em] text-text-subtle">
               {item.tag}
             </span>
           </span>
-        </div>
+        </motion.div>
       ))}
     </ArtifactShell>
   );
@@ -365,31 +518,51 @@ export function BuildArtifact() {
 
 /* ─────────────────────────────────────────────────────────────────────────────
    PHASE 04 — LAUNCH · LAUNCH CHECKLIST
-   "Then make the visual feel complete and live": every launch item checked,
-   the status footer running in production. The end state of the journey.
+   Activation: each check springs in with a short stagger (the system becoming
+   ready), the live-status dot pops ONCE, and the shell keeps a persistent
+   (never looping) cyan tint — the completed state stays lit.
    ─────────────────────────────────────────────────────────────────────────── */
 
 const LAUNCH_ITEMS = ["Production", "Domain", "Analytics", "Handover"] as const;
 
-export function LaunchArtifact() {
+export function LaunchArtifact({ active }: { active?: boolean }) {
+  const { reduce, armed, isActive } = useActivation(active);
+  const on = !armed || isActive;
+  const stagger = armed && isActive && !reduce;
+
   return (
     <ArtifactShell
       label="Launch checklist"
       accent={CYAN}
       meta="Phase 04"
+      tintAlpha={TINT_ALPHA.launch}
+      active={active}
       footer={
         <ArtifactFooter
           pulse
           accent={CYAN}
+          active={active}
           left="Live · yourbusiness.com"
           right="In production"
         />
       }
     >
-      {LAUNCH_ITEMS.map((name) => (
+      {LAUNCH_ITEMS.map((name, index) => (
         <div key={name} className="flex items-center justify-between gap-3">
           <span className="text-xs text-foreground sm:text-[13px]">{name}</span>
-          <span className="flex shrink-0 items-center gap-1.5">
+          <motion.span
+            className="flex shrink-0 items-center gap-1.5"
+            initial={false}
+            animate={
+              stagger
+                ? { opacity: [0, 1], scale: [0.6, 1] }
+                : { opacity: on ? 1 : 0.55, scale: 1 }
+            }
+            transition={{
+              duration: reduce ? 0 : 0.32,
+              delay: stagger ? 0.18 + index * 0.07 : 0,
+            }}
+          >
             <Check
               aria-hidden
               className="size-3.5"
@@ -399,7 +572,7 @@ export function LaunchArtifact() {
             <span className="text-[10px] uppercase tracking-[0.14em] text-text-subtle">
               Done
             </span>
-          </span>
+          </motion.span>
         </div>
       ))}
     </ArtifactShell>
@@ -408,15 +581,51 @@ export function LaunchArtifact() {
 
 /* ─────────────────────────────────────────────────────────────────────────────
    PHASE ARTIFACT PANEL — the crossfading stack. Each artifact is always
-   mounted (stable DOM, no scroll-time re-renders); only opacity and an 8px
-   drift are animated, derived from the SAME monotonic progress as the spine
-   and stage emphasis. Reduced motion settles everything to the final LIVE
-   artifact (the stage copy carries the full process in text either way).
+   mounted (stable DOM, no scroll-time re-renders); opacity crossfades derive
+   from the SAME monotonic progress as the spine and stage emphasis.
+
+   R10 additions:
+   - activePhase: ONE discrete 0..3 state derived from that same monotonic
+     value at the STAGE_WINDOWS starts. Lazy-initialised from mono.get() so a
+     reduced-motion session (mono starts at 1) lands on phase 04 immediately.
+     Forward-only: phases never regress. Re-renders only at boundaries.
+   - Panel settle: a single 0.985 -> 1 / y 6 -> 0 / opacity 0.94 -> 1 spring
+     when the sticky wrapper docks (`settled`, one-shot from the timeline).
+     Under reduced motion the panel renders at rest immediately.
    ─────────────────────────────────────────────────────────────────────────── */
 
-export function PhaseArtifactPanel({ progress }: { progress: MotionValue<number> }) {
+function phaseFromProgress(value: number): number {
+  if (value >= STAGE_WINDOWS.launch[0]) return 3;
+  if (value >= STAGE_WINDOWS.build[0]) return 2;
+  if (value >= STAGE_WINDOWS.shape[0]) return 1;
+  return 0;
+}
+
+const SPRING_SETTLE = {
+  type: "spring",
+  stiffness: 120,
+  damping: 20,
+  mass: 1,
+} as const;
+
+export function PhaseArtifactPanel({
+  progress,
+  settled = false,
+}: {
+  progress: MotionValue<number>;
+  settled?: boolean;
+}) {
   const shouldReduceMotion = Boolean(useReducedMotion());
   const mono = useMonotonicProgress(progress, shouldReduceMotion);
+
+  const [activePhase, setActivePhase] = useState(() => phaseFromProgress(mono.get()));
+
+  useMotionValueEvent(mono, "change", (value) => {
+    setActivePhase((prev) => {
+      const next = phaseFromProgress(value);
+      return next > prev ? next : prev;
+    });
+  });
 
   const briefOpacity = useTransform(mono, [...FADE.briefOut], [1, 0], { clamp: true });
   const briefY = useTransform(mono, [...FADE.briefOut], [0, -8], { clamp: true });
@@ -449,29 +658,41 @@ export function PhaseArtifactPanel({ progress }: { progress: MotionValue<number>
 
   return (
     <div aria-hidden className="relative h-[22rem] sm:h-[24rem] lg:h-[25rem]">
+      {/* One-shot settle wrapper (R10): docks once, then rests. */}
       <motion.div
-        className="pointer-events-none absolute inset-0"
-        style={{ opacity: briefOpacity, y: briefY }}
+        className="absolute inset-0"
+        initial={false}
+        animate={
+          shouldReduceMotion || settled
+            ? { scale: 1, y: 0, opacity: 1 }
+            : { scale: 0.985, y: 6, opacity: 0.94 }
+        }
+        transition={shouldReduceMotion ? { duration: 0 } : SPRING_SETTLE}
       >
-        <BriefArtifact />
-      </motion.div>
-      <motion.div
-        className="pointer-events-none absolute inset-0"
-        style={{ opacity: shapeOpacity, y: shapeY }}
-      >
-        <StructureArtifact />
-      </motion.div>
-      <motion.div
-        className="pointer-events-none absolute inset-0"
-        style={{ opacity: buildOpacity, y: buildY }}
-      >
-        <BuildArtifact />
-      </motion.div>
-      <motion.div
-        className="pointer-events-none absolute inset-0"
-        style={{ opacity: launchOpacity, y: launchY }}
-      >
-        <LaunchArtifact />
+        <motion.div
+          className="pointer-events-none absolute inset-0"
+          style={{ opacity: briefOpacity, y: briefY }}
+        >
+          <BriefArtifact active={settled ? activePhase === 0 : undefined} />
+        </motion.div>
+        <motion.div
+          className="pointer-events-none absolute inset-0"
+          style={{ opacity: shapeOpacity, y: shapeY }}
+        >
+          <StructureArtifact active={activePhase === 1} />
+        </motion.div>
+        <motion.div
+          className="pointer-events-none absolute inset-0"
+          style={{ opacity: buildOpacity, y: buildY }}
+        >
+          <BuildArtifact active={activePhase === 2} />
+        </motion.div>
+        <motion.div
+          className="pointer-events-none absolute inset-0"
+          style={{ opacity: launchOpacity, y: launchY }}
+        >
+          <LaunchArtifact active={activePhase === 3} />
+        </motion.div>
       </motion.div>
     </div>
   );
@@ -483,7 +704,7 @@ export function PhaseArtifactPanel({ progress }: { progress: MotionValue<number>
    decorative redundancy for the active artifact, aria-hidden, driven by the
    SAME monotonic progress as the panel and spine so they can never
    disagree. Reduced motion resolves it to the LIVE SYSTEM caption.
-   ─────────────────────────────────────────────────────────────────────────── */
+   ────────────────────────────────────────────────────────────────────────── */
 export function CanvasStateCaption({
   monotonic,
 }: {

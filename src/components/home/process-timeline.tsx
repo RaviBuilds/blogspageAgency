@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   motion,
+  useMotionValueEvent,
   useScroll,
   useTransform,
   useReducedMotion,
@@ -288,7 +289,7 @@ export function ProcessTimeline() {
   /* ONE section-level progress value drives the artifact panel, spine and
       stage states (Blueprint §8: they advance together; monotonic clamping
       keeps reached states persistent). */
-  const { scrollYProgress } = useScroll({
+  const { scrollY, scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start 0.85", "end 0.5"],
   });
@@ -297,6 +298,40 @@ export function ProcessTimeline() {
     scrollYProgress,
     Boolean(shouldReduceMotion),
   );
+
+  /* R10 — one-shot sticky "dock" detection for the artifact panel. The
+     sticky column's natural document offset minus the lg:top-24 (96px)
+     sticky offset is measured (on mount, once more for late layout shifts,
+     and on resize; skipped while the column is display:none on mobile), and
+     the SHARED page scrollY MotionValue is watched for crossing it — no new
+     scroll infrastructure, no IntersectionObserver, no second scroll system.
+     Fires once; never resets (matching the section's forward-only states). */
+  const stickyColumnRef = useRef<HTMLDivElement>(null);
+  const stickyThresholdRef = useRef(Number.POSITIVE_INFINITY);
+  const [settled, setSettled] = useState(false);
+
+  useEffect(() => {
+    const measure = () => {
+      const el = stickyColumnRef.current;
+      if (!el || el.offsetParent === null) return;
+      stickyThresholdRef.current =
+        el.getBoundingClientRect().top + window.scrollY - 96;
+    };
+    measure();
+    if (window.scrollY >= stickyThresholdRef.current) setSettled(true);
+    const late = window.setTimeout(measure, 800);
+    window.addEventListener("resize", measure);
+    return () => {
+      window.clearTimeout(late);
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
+
+  useMotionValueEvent(scrollY, "change", (y) => {
+    if (y >= stickyThresholdRef.current) {
+      setSettled(true);
+    }
+  });
 
   return (
     <section
@@ -343,7 +378,10 @@ export function ProcessTimeline() {
               scroll past, crossfading at each stage boundary in lockstep with
               the active stage's emphasis. Mobile does not shrink this
               layout: each stage carries its own artifact inline (StageRow). */}
-          <div className="hidden lg:sticky lg:top-24 lg:col-span-6 lg:block">
+          <div
+            ref={stickyColumnRef}
+            className="hidden lg:sticky lg:top-24 lg:col-span-6 lg:block"
+          >
             {/* R8.1 presentation surface: an unboxed, ruled frame for the
                 evolving artifact — corner registration ticks, no card chrome
                 (the artifact itself is the subject). */}
@@ -352,7 +390,10 @@ export function ProcessTimeline() {
               <span aria-hidden className="pointer-events-none absolute right-0 top-0 size-3 border-r border-t border-border" />
               <span aria-hidden className="pointer-events-none absolute bottom-0 left-0 size-3 border-b border-l border-border" />
               <span aria-hidden className="pointer-events-none absolute bottom-0 right-0 size-3 border-b border-r border-border" />
-              <PhaseArtifactPanel progress={scrollYProgress} />
+              <PhaseArtifactPanel
+                progress={scrollYProgress}
+                settled={settled}
+              />
               {/* Baseline rule + editorial state caption. */}
               <div aria-hidden className="mt-4 flex items-center gap-3">
                 <span className="h-px flex-1 bg-border-subtle" />
