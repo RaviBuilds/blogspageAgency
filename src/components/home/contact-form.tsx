@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { motion, useInView, useReducedMotion, type Variants } from "framer-motion";
 import { ArrowRight, Mail, Phone, Sparkles } from "lucide-react";
 
 import { trackEvent } from "@/lib/analytics";
@@ -25,6 +25,13 @@ import { NAP } from "@/lib/site";
      also dispatch it; ChatWidget listens). This component additionally fires
      the `chat_open` analytics event that was defined but never instrumented.
 
+   Terminal arc (wake → command → Sweety online → human review → CTA ready)
+   is driven by ONE framer `useInView(sectionRef, once)` — the sequence now
+   starts on viewport arrival, not on page mount, and renders in its final
+   state under reduced motion. Only live consumer: this homepage
+   (`hotel-hyderabad-landing.tsx` also imports this component but is
+   confirmed dead code — architecture report §26).
+
    D-1 remediation (verified at plan time): per the URL spec, the entire
    `contact?niche=…` string in `/#contact?niche=gym-fitness` IS the fragment,
    so `location.search` is empty and no element matches — the browser never
@@ -38,6 +45,8 @@ const SPRING = {
   damping: 20,
   mass: 1,
 } as const;
+
+const EASE = [0.16, 1, 0.3, 1] as const;
 
 const container: Variants = {
   hidden: {},
@@ -84,43 +93,88 @@ function parseHashContext(): ContactContext | null {
     : null;
 }
 
-/* Typing effect for the panel's scripted lines (kept from the previous
-   design; the script text is now plain-language). */
+/* Typing effect for the panel's command line. Gated on `active` (viewport
+   arrival) rather than mount — previously the timers ran from page load, so
+   the terminal had always finished typing before the visitor scrolled here.
+   The full text renders invisibly as a layout sizer, so the panel height is
+   final from first paint (no CLS while typing). Under `instant` (reduced
+   motion) the full text renders immediately with no timers and no cursor. */
 function TypedLine({
   text,
+  active,
   delay = 0,
   className = "",
+  instant = false,
 }: {
   text: string;
+  active: boolean;
   delay?: number;
   className?: string;
+  instant?: boolean;
 }) {
   const [displayed, setDisplayed] = useState("");
-  const [started, setStarted] = useState(false);
+  const [typing, setTyping] = useState(false);
 
   useEffect(() => {
-    const startTimeout = setTimeout(() => setStarted(true), delay);
+    if (!active || instant) return;
+    const startTimeout = setTimeout(() => setTyping(true), delay);
     return () => clearTimeout(startTimeout);
-  }, [delay]);
+  }, [active, delay, instant]);
 
   useEffect(() => {
-    if (!started) return;
+    if (!typing) return;
     let i = 0;
     const interval = setInterval(() => {
-      i++;
+      i += 1;
       setDisplayed(text.slice(0, i));
       if (i >= text.length) clearInterval(interval);
     }, 28);
     return () => clearInterval(interval);
-  }, [started, text]);
+  }, [typing, text]);
+
+  if (instant) {
+    return <span className={className}>{text}</span>;
+  }
 
   return (
-    <span className={className}>
-      {displayed}
-      {started && displayed.length < text.length && (
-        <span className="animate-pulse">▌</span>
-      )}
+    <span className={`relative inline-block ${className}`}>
+      {/* Layout sizer — final text, invisible; keeps the line's box stable. */}
+      <span aria-hidden className="invisible">
+        {text}
+      </span>
+      <span className="absolute inset-0">
+        {displayed}
+        {typing && displayed.length < text.length && (
+          <span className="animate-pulse">▌</span>
+        )}
+      </span>
     </span>
+  );
+}
+
+/* System-message reveal: the ✓ lines arrive (fade + 6px rise) rather than
+   typing — believable system behaviour, and zero layout shift because the
+   full text is laid out from first paint. */
+function StatusLine({
+  text,
+  visible,
+  delay = 0,
+  className = "",
+}: {
+  text: string;
+  visible: boolean;
+  delay?: number;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 }}
+      transition={{ duration: 0.35, ease: EASE, delay }}
+      className={className}
+    >
+      {text}
+    </motion.div>
   );
 }
 
@@ -128,6 +182,19 @@ export function ConversationExperience() {
   const shouldReduceMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
   const [context, setContext] = useState<ContactContext | null>(null);
+
+  /* ONE motion trigger for the whole terminal arc (wake → connect → ready).
+     Under reduced motion the section is ready at mount: everything renders
+     in its final state with no animation. */
+  const inView = useInView(sectionRef, { once: true, margin: "-100px" });
+  const ready = shouldReduceMotion || Boolean(inView);
+
+  /* Sequence helper — delays (ms) and durations collapse to zero under
+     reduced motion so nothing animates. */
+  const seq = (delayMs: number, duration = 0.4) => ({
+    delay: shouldReduceMotion ? 0 : delayMs / 1000,
+    duration: shouldReduceMotion ? 0 : duration,
+  });
 
   useEffect(() => {
     const handleHash = () => {
@@ -250,9 +317,25 @@ export function ConversationExperience() {
             </div>
           </motion.div>
 
-          {/* Right column — dark conversation panel (visual language only) */}
-          <motion.div variants={fadeUp}>
-            <div className="dark overflow-hidden rounded-2xl border border-border bg-background shadow-2xl shadow-black/40">
+          {/* Right column — dark conversation panel. It wakes when the
+              section arrives: quiet → command → Sweety online → human
+              review → CTA ready. Timings are sequenced via `seq`. */}
+          <motion.div variants={fadeUp} className="relative">
+            {/* Depth on landing — pre-rendered blur, opacity-driven only. */}
+            <motion.div
+              aria-hidden
+              initial={{ opacity: 0 }}
+              animate={{ opacity: ready ? 0.5 : 0 }}
+              transition={{ ...seq(0, 0.8) }}
+              className="pointer-events-none absolute -inset-3 rounded-3xl bg-black/50 blur-2xl"
+            />
+
+            <motion.div
+              initial={false}
+              animate={ready ? { scale: 1, y: 0 } : { scale: 0.985, y: 8 }}
+              transition={{ ...seq(0, 0.45), ease: EASE }}
+              className="relative dark overflow-hidden rounded-2xl border border-border bg-background shadow-2xl shadow-black/40"
+            >
               {/* Panel chrome */}
               <div className="flex items-center gap-2 border-b border-border-subtle px-4 py-3">
                 <div className="flex gap-1.5">
@@ -263,36 +346,70 @@ export function ConversationExperience() {
                 <span className="ml-3 text-xs text-text-disabled">
                   blogspage — say hello
                 </span>
+                {/* Availability — lights once when Sweety comes online. */}
+                <motion.span
+                  aria-hidden
+                  initial={{ opacity: 0.25, scale: 1 }}
+                  animate={
+                    ready
+                      ? shouldReduceMotion
+                        ? { opacity: 1, scale: 1 }
+                        : { opacity: [0.25, 1, 1], scale: [1, 1.4, 1] }
+                      : { opacity: 0.25, scale: 1 }
+                  }
+                  transition={{ ...seq(1150, 0.5) }}
+                  className="ml-auto size-1.5 rounded-full bg-success"
+                />
               </div>
 
-              {/* Scripted lines — plain language */}
+              {/* Scripted lines — plain language. The command types on
+                  arrival; the status lines arrive as system messages (fade +
+                  dot), not typed. Full text is laid out from first paint, so
+                  nothing shifts while the sequence plays. */}
               <div className="p-5 font-mono text-sm leading-relaxed">
                 <div className="text-text-subtle">
                   <span className="text-success">$</span>{" "}
                   <TypedLine
                     text={CONVERSATION.typedLines[0]}
-                    delay={400}
+                    active={ready}
+                    instant={Boolean(shouldReduceMotion)}
+                    delay={350}
                     className="text-foreground"
                   />
                 </div>
 
-                <div className="mt-3 text-text-subtle">
-                  <TypedLine
-                    text={CONVERSATION.typedLines[1]}
-                    delay={1600}
-                    className="text-muted-foreground"
-                  />
-                </div>
+                <StatusLine
+                  text={CONVERSATION.typedLines[1]}
+                  visible={ready}
+                  delay={seq(1150).delay}
+                  className="mt-3 text-muted-foreground"
+                />
 
-                <div className="mt-1 text-text-subtle">
-                  <TypedLine
-                    text={CONVERSATION.typedLines[2]}
-                    delay={2800}
-                    className="text-success"
-                  />
-                </div>
+                <StatusLine
+                  text={CONVERSATION.typedLines[2]}
+                  visible={ready}
+                  delay={seq(1500).delay}
+                  className="mt-1 text-success"
+                />
 
-                <div className="mt-5 border-t border-border-subtle pt-5">
+                <motion.div
+                  initial={{ opacity: 0.65 }}
+                  animate={{ opacity: ready ? 1 : 0.65 }}
+                  transition={{ ...seq(1750, 0.4) }}
+                  className="relative mt-5 border-t border-border-subtle pt-5"
+                >
+                  {/* The line is open — accent hairline, opacity only. */}
+                  <motion.div
+                    aria-hidden
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: ready ? 1 : 0 }}
+                    transition={{ ...seq(1750, 0.6) }}
+                    className="pointer-events-none absolute inset-x-0 -top-px h-px"
+                    style={{
+                      backgroundImage:
+                        "linear-gradient(90deg, transparent, rgba(8,145,178,0.45), transparent)",
+                    }}
+                  />
                   <button
                     type="button"
                     onClick={openChat}
@@ -305,9 +422,9 @@ export function ConversationExperience() {
                   <p className="mb-0 mt-3 text-xs text-muted-foreground">
                     {CONVERSATION.sweetyNote}
                   </p>
-                </div>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         </motion.div>
       </div>

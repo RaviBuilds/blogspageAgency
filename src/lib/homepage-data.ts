@@ -398,14 +398,19 @@ export const GROWTH_SECTION = {
 
 export const CONVERSATION = {
   eyebrow: "Start the conversation",
-  heading: "Tell us about your business.",
-  sub: "Explain what you do and what you need — in your own words. No forms to decode, no technical vocabulary required. We'll figure out the technology together.",
+  // [OWNER REVIEW] Outcome-first headline; the hero and FinalCTA own the
+  // other conversation framings. Previous: "Tell us about your business."
+  heading: "Tell us what you're trying to build.",
+  // [OWNER REVIEW] No-brief-needed framing; no technical vocabulary required.
+  sub: "Describe it in your own words — the goal, what's getting in the way, or what you'd like to improve. You don't need to know the technology yet; we'll figure out the right path together.",
   typedLines: [
     "say hello to blogspage",
     "✓ Sweety — our AI assistant — is online",
     "✓ A real person reads every conversation",
   ],
-  sweetyCta: "Chat with Sweety",
+  // [OWNER REVIEW] Outcome over mechanism — Sweety stays named in
+  // `sweetyNote` (and in the terminal lines), never as the headline action.
+  sweetyCta: "Start a conversation",
   sweetyNote:
     "Sweety asks a few simple questions and passes everything to the team.",
   humanTitle: "Prefer a human?",
