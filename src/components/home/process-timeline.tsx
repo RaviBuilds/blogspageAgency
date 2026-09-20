@@ -6,7 +6,6 @@ import {
   useMotionValueEvent,
   useScroll,
   useTransform,
-  useReducedMotion,
   type MotionValue,
   type Variants,
 } from "framer-motion";
@@ -16,39 +15,44 @@ import {
   BriefArtifact,
   BuildArtifact,
   CanvasStateCaption,
+  COMPLETE_PROGRESS,
   LaunchArtifact,
   PhaseArtifactPanel,
   STAGE_ACCENTS,
   STAGE_WINDOWS,
   StructureArtifact,
-  useMonotonicProgress,
   useReached,
 } from "@/components/home/process-motifs";
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   R9 — HOW WE WORK EXPERIENCE (refinement of the R8 journey)
+   R11 — HOW WE WORK EXPERIENCE (reversible scroll narrative)
 
-   The journey spine, typographic stage entries and entry/terminal frames
-   stay exactly as R8 built them. The refinement upgrades the experience:
+   The journey spine, typographic stage entries, entry/terminal frames and the
+   four project artifacts stay as they are. R11 changes only HOW the left visual
+   is driven:
 
      YOUR BUSINESS -> UNDERSTAND -> SHAPE -> BUILD -> LAUNCH -> READY FOR
      YOUR CUSTOMERS
 
-   - The abstract transformation canvas becomes four realistic project
-     artifacts (brief -> system direction -> build progress -> live system)
-     that become more concrete as each phase is reached — from the SAME
-     single section-level scroll progress that drives the spine and stage
-     emphasis, so the active artifact and active stage never disagree.
-   - Desktop (lg+): the artifact panel is a sticky left column, so the
-     evolving artifact stays in view while the stages scroll past.
-   - Mobile: no shrunken desktop layout — each stage carries its own
-     artifact inline, static and always readable.
+   - ONE reversible source of truth: the section's `scrollYProgress` is passed
+     straight to the spine, the stage nodes and the artifact panel. Scrolling
+     down winds the whole narrative forward; scrolling UP winds it backwards,
+     frame for frame. (The previous monotonic clamp and the discrete
+     phase/`active` state machine are gone — they made the visual one-way and
+     turned the four artifacts into four separate screens.)
+   - The panel's crossfades are centred on the same 0.06 / 0.28 / 0.50 / 0.74
+     boundaries the stage nodes use, so the left artifact and the right timeline
+     can never disagree.
+   - Desktop (lg+): the artifact panel is a sticky left column; a one-shot dock
+     check adds a single cinematic settle when it lands.
+   - Mobile: no shrunken desktop layout — each stage carries its own artifact
+     inline, rendered at its completed state with no motion at all.
    - Each stage answers "You see:" alongside the established "You end
      with:" outcome row; the journey closes with one quiet trust note.
 
    Preserved contracts: `id="process"` (navbar, footer, solution pages),
    the heading + selective-gradient treatment, the `You end with:` outcome
-   rows, §5 spring system, reduced-motion full-static rendering.
+   rows, §5 spring system, reduced-motion readability.
    ─────────────────────────────────────────────────────────────────────────── */
 const SPRING = { type: "spring", stiffness: 100, damping: 20, mass: 1 } as const;
 
@@ -101,11 +105,11 @@ const PHASE_ARTIFACTS = [
 
 /* ─────────────────────────────────────────────────────────────────────────────
    JOURNEY SPINE — the single progress visual connecting every stage.
-   Track + gradient fill + traveling signal, all derived from the shared
-   monotonic progress. Decorative (aria-hidden).
+   Track + gradient fill, both derived from the shared scroll progress, so the
+   spine winds forward and backward with the artifact. Decorative (aria-hidden).
    ─────────────────────────────────────────────────────────────────────────── */
-function JourneySpine({ monotonic }: { monotonic: MotionValue<number> }) {
-  const fill = useTransform(monotonic, [0.06, 0.92], [0, 1], { clamp: true });
+function JourneySpine({ progress }: { progress: MotionValue<number> }) {
+  const fill = useTransform(progress, [0.06, 0.92], [0, 1], { clamp: true });
 
   return (
     <div aria-hidden className="absolute bottom-6 left-[15px] top-6 w-[2px]">
@@ -161,14 +165,14 @@ function JourneySpine({ monotonic }: { monotonic: MotionValue<number> }) {
 function StageRow({
   step,
   index,
-  monotonic,
+  progress,
 }: {
   step: (typeof PROCESS.steps)[number];
   index: number;
-  monotonic: MotionValue<number>;
+  progress: MotionValue<number>;
 }) {
   const meta = STAGE_META[index];
-  const reached = useReached(monotonic, STAGE_WINDOWS["understand"][0] + index * 0.22);
+  const reached = useReached(progress, STAGE_WINDOWS["understand"][0] + index * 0.22);
   const Artifact = PHASE_ARTIFACTS[index];
 
   return (
@@ -222,10 +226,11 @@ function StageRow({
         <span className="text-muted-foreground">{step.outcome}</span>
       </p>
 
-      {/* Mobile: this phase's artifact in normal flow (desktop shows the
-          synced crossfading panel in the sticky left column instead). */}
+      {/* Mobile: this phase's artifact in normal flow, rendered at its
+          completed state with no motion at all (COMPLETE_PROGRESS). Desktop
+          shows the scroll-linked crossfading panel instead. */}
       <div aria-hidden className="mt-6 lg:hidden">
-        <Artifact />
+        <Artifact progress={COMPLETE_PROGRESS} />
       </div>
     </motion.article>
   );
@@ -251,8 +256,8 @@ function EntryFrame() {
   );
 }
 
-function TerminalFrame({ monotonic }: { monotonic: MotionValue<number> }) {
-  const reached = useReached(monotonic, STAGE_WINDOWS.live[0], 0.08);
+function TerminalFrame({ progress }: { progress: MotionValue<number> }) {
+  const reached = useReached(progress, STAGE_WINDOWS.live[0], 0.08);
 
   return (
     <div className="relative flex items-center gap-3 pl-12 md:pl-16">
@@ -283,29 +288,26 @@ function TerminalFrame({ monotonic }: { monotonic: MotionValue<number> }) {
    PROCESS TIMELINE SECTION
    ─────────────────────────────────────────────────────────────────────────── */
 export function ProcessTimeline() {
-  const shouldReduceMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
 
   /* ONE section-level progress value drives the artifact panel, spine and
-      stage states (Blueprint §8: they advance together; monotonic clamping
-      keeps reached states persistent). */
+      stage states, and it is deliberately REVERSIBLE: scrolling back up winds
+      the whole narrative backwards. Reduced motion is handled inside the
+      panel and the stage nodes, by collapsing their interpolation windows. */
   const { scrollY, scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start 0.85", "end 0.5"],
   });
 
-  const monotonic = useMonotonicProgress(
-    scrollYProgress,
-    Boolean(shouldReduceMotion),
-  );
-
-  /* R10 — one-shot sticky "dock" detection for the artifact panel. The
-     sticky column's natural document offset minus the lg:top-24 (96px)
-     sticky offset is measured (on mount, once more for late layout shifts,
-     and on resize; skipped while the column is display:none on mobile), and
-     the SHARED page scrollY MotionValue is watched for crossing it — no new
-     scroll infrastructure, no IntersectionObserver, no second scroll system.
-     Fires once; never resets (matching the section's forward-only states). */
+  /* One-shot sticky "dock" detection for the artifact panel. The sticky
+     column's natural document offset minus the lg:top-24 (96px) sticky offset
+     is measured (on mount, once more for late layout shifts, and on resize;
+     skipped while the column is display:none on mobile), and the SHARED page
+     scrollY MotionValue is watched for crossing it — no new scroll
+     infrastructure, no IntersectionObserver, no second scroll system.
+     Fires once and stays set: it is the panel's one non-reversible state, a
+     landing rather than a progress value (every stage/artifact visual is
+     fully reversible and derived from scrollYProgress). */
   const stickyColumnRef = useRef<HTMLDivElement>(null);
   const stickyThresholdRef = useRef(Number.POSITIVE_INFINITY);
   const [settled, setSettled] = useState(false);
@@ -390,20 +392,17 @@ export function ProcessTimeline() {
               <span aria-hidden className="pointer-events-none absolute right-0 top-0 size-3 border-r border-t border-border" />
               <span aria-hidden className="pointer-events-none absolute bottom-0 left-0 size-3 border-b border-l border-border" />
               <span aria-hidden className="pointer-events-none absolute bottom-0 right-0 size-3 border-b border-r border-border" />
-              <PhaseArtifactPanel
-                progress={scrollYProgress}
-                settled={settled}
-              />
+              <PhaseArtifactPanel progress={scrollYProgress} settled={settled} />
               {/* Baseline rule + editorial state caption. */}
               <div aria-hidden className="mt-4 flex items-center gap-3">
                 <span className="h-px flex-1 bg-border-subtle" />
-                <CanvasStateCaption monotonic={monotonic} />
+                <CanvasStateCaption progress={scrollYProgress} />
               </div>
             </div>
           </div>
 
           <div className="relative mt-10 max-lg:mt-6 lg:col-span-6 lg:mt-0">
-            <JourneySpine monotonic={monotonic} />
+            <JourneySpine progress={scrollYProgress} />
             <div className="flex flex-col gap-10">
               <EntryFrame />
               {PROCESS.steps.map((step, index) => (
@@ -411,10 +410,10 @@ export function ProcessTimeline() {
                   key={step.number}
                   step={step}
                   index={index}
-                  monotonic={monotonic}
+                  progress={scrollYProgress}
                 />
               ))}
-              <TerminalFrame monotonic={monotonic} />
+              <TerminalFrame progress={scrollYProgress} />
               {/* The section's single quiet trust signal: the client is never
                   kept in the dark — work is reviewed before it advances. */}
               <p className="pl-12 text-sm text-text-subtle md:pl-16">
