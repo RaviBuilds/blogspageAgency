@@ -269,6 +269,125 @@ export const TRUST = {
     },
   ],
 } as const;
+/*
+ * MOVEMENT 5b — Growth architecture (Refinement Plan §21, Scene 04 — "Three
+ * Vertical Growth System"). Drives the homepage "How your business grows"
+ * section (`id="models"`, rendered by `growth-pathways.tsx`): the three-pillar
+ * START → BUILD → SCALE trajectory.
+ *
+ * Provenance rules honoured here:
+ * - Capability wording mirrors `homepage-verticals.ts` (the WHAT-WE-BUILD
+ *   triangle), so the taxonomy reads identically in both sections.
+ * - Proof lines reuse the verified `storyFrame` sentences from
+ *   `featured-work-data.ts`; `proofHref` values are existing routes only.
+ * - Stage labels here are START / BUILD / SCALE (this section's trajectory
+ *   framing, per Refinement §21), while `homepage-verticals.ts` keeps GROW
+ *   for pillar 02 — a documented, deliberate divergence between the two
+ *   framings of the same taxonomy (selection vs. trajectory).
+ * - `TRUST` above stays untouched: `delivery-models.tsx` still imports it for
+ *   `/about`, and this section reuses its assurance titles read-only.
+ */
+
+export type GrowthPillarId =
+  | "brand-digital-presence"
+  | "applications-software"
+  | "ai-automation";
+
+export type GrowthPillar = {
+  id: GrowthPillarId;
+  number: string;
+  stage: "START" | "BUILD" | "SCALE";
+  title: string;
+  /** Plain-language promise (Blueprint §3 / Motion Blueprint §8). */
+  promise: string;
+  chainFacing: string;
+  /** The world's four-step chain (Refinement Plan §21). */
+  chain: readonly [string, string, string, string];
+  capabilities: readonly string[];
+  /** Verified project name + story frame + existing route (`featured-work-data.ts`). */
+  proofProject: string;
+  proofLine: string;
+  proofHref: string;
+  /** Raw `r,g,b` accent triple, matching the R5 system (`homepage-verticals.ts`). */
+  accent: string;
+};
+
+export const GROWTH_PILLARS: readonly GrowthPillar[] = [
+  {
+    id: "brand-digital-presence",
+    number: "01",
+    stage: "START",
+    title: "Brand & Digital Presence",
+    promise: "Get your business online properly.",
+    chainFacing: "Customer-facing",
+    chain: ["Business", "Website", "Google", "Customer"],
+    capabilities: [
+      "Branding",
+      "Website",
+      "E-commerce",
+      "CMS",
+      "Google presence",
+      "SEO foundation",
+    ],
+    proofProject: "NeoDent Dental Hospitals",
+    proofLine: "A real healthcare business, brought into a stronger digital presence.",
+    proofHref: "/solutions/dental-hospital-business-solution-website-at-hyderabad",
+    accent: "14,116,144", // --accent-cyan
+  },
+  {
+    id: "applications-software",
+    number: "02",
+    stage: "BUILD",
+    title: "Applications & Business Software",
+    promise: "Build the software your business runs on.",
+    chainFacing: "Operations-facing",
+    chain: ["Customer", "Team", "Dashboard", "Operations"],
+    capabilities: [
+      "CRM",
+      "Dashboards",
+      "Portals",
+      "SaaS",
+      "Booking",
+      "Subscriptions",
+    ],
+    proofProject: "ArogyaDiet Ecosystem",
+    proofLine: "A business that needed its operations connected.",
+    proofHref: "/solutions/online-delivery-business-solution-website-at-hyderabad",
+    accent: "67,83,201", // --accent-blue
+  },
+  {
+    id: "ai-automation",
+    number: "03",
+    stage: "SCALE",
+    title: "AI & Automation",
+    promise: "Remove repetitive work and connect the pieces.",
+    chainFacing: "Automation-facing",
+    chain: ["Lead", "AI", "Workflow", "Follow-up"],
+    capabilities: [
+      "AI agents",
+      "Workflow automation",
+      "Lead handling",
+      "Follow-ups",
+      "Integrations",
+    ],
+    proofProject: "Phixl AI",
+    proofLine: "A product built around AI.",
+    proofHref: "/services/ai-automation",
+    accent: "124,58,237", // --accent-violet
+  },
+];
+
+export const GROWTH_SECTION = {
+  eyebrow: "How your business grows",
+  heading: "Start simple. Build properly. Grow from there.",
+  headingAccent: "Start simple.",
+  sub: "Most businesses begin with a website. The useful next layers — software, then automation — are already mapped, so you never have to start over.",
+  ctaLabel: "Start where your business is",
+  ctaHref: "#contact",
+} as const;
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   MOVEMENT 6 — Conversation (Blueprint §21)
 
 /* ─────────────────────────────────────────────────────────────────────────────
    MOVEMENT 6 — Conversation (Blueprint §21)

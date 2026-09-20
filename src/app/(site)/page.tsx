@@ -5,7 +5,7 @@ import { ServiceVerticals } from "@/components/home/services-bento";
 import { FeaturedProof } from "@/components/home/featured-work";
 import { SupportingWork } from "@/components/home/supporting-work";
 import { BentoGrid } from "@/components/home/bento-grid";
-import { DeliveryModels } from "@/components/home/delivery-models";
+import { GrowthPathways } from "@/components/home/growth-pathways";
 import { ProcessTimeline } from "@/components/home/process-timeline";
 import { Testimonials } from "@/components/home/testimonials";
 import { ConversationExperience } from "@/components/home/contact-form";
@@ -24,7 +24,9 @@ import { webSiteNode } from "@/lib/structured-data";
  *   Movement 3  ServiceVerticals (id="services")
  *   Movement 4  FeaturedProof (id="work") + SupportingWork (id="more-work")
  *   Bridge      BentoGrid (id="solutions") — the ten solution links
- *   Movement 5  ProcessTimeline (id="process") + DeliveryModels (id="models")
+ *   Movement 5  ProcessTimeline (id="process") + GrowthPathways (id="models")
+ *               — the three-pillar growth story; DeliveryModels stays in the
+ *               repo for /about's DELIVERY_MODELS import
  *   Movement 6/7 ConversationExperience (id="contact") + FinalCTA + journal
  *
  * Protected contracts honoured here: the `webSiteNode` JSON-LD stays rendered
@@ -53,7 +55,7 @@ export default function HomePage() {
       <SupportingWork />
       <BentoGrid />
       <ProcessTimeline />
-      <DeliveryModels />
+      <GrowthPathways />
       <Testimonials />
       <ConversationExperience />
       <FinalCTA />
