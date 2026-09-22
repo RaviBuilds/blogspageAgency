@@ -33,6 +33,16 @@ const BRAND_PHRASE_GRADIENT: React.CSSProperties = {
 /** First word of the brand phrase, resolved against the real word order. */
 const BRAND_PHRASE_FIRST_WORD = "find,";
 
+/**
+ * How many leading headline words reveal with no stagger delay. The h1 is the
+ * page's likely LCP element, and a `.hero-word` span that is still waiting on
+ * its stagger delay is painted at `opacity: 0` — which is what pushed the
+ * "banner is slow to load" perception. The first three words ("Build a
+ * business") paint on the first frame; the rest follow at the tightened
+ * `--word-step`.
+ */
+const LCP_IMMEDIATE_WORDS = 3;
+
 const BRAND_PHRASE_FROM_WORD = HEADLINE_LINES
   .flatMap((line) => line.split(" "))
   .indexOf(BRAND_PHRASE_FIRST_WORD);
@@ -57,12 +67,25 @@ const SUBCOPY_SPLIT = /(brand|website|business software|AI automation)/g;
  * index across all lines, so the CSS stagger in `globals.css` reads
  * top-to-bottom, left-to-right, matching the original Framer Motion
  * `staggerChildren` order) and the `hero-word` class that drives the reveal
- * keyframe. No client-side JS is required for the text to be visible: every
- * word is a real, non-empty text node in the server-rendered HTML — the
- * `<h1>` element itself renders at `opacity: 1` (Requirement 11.1); only the
- * individual `.hero-word` spans animate in from `opacity: 0` via the CSS
- * keyframe in `globals.css`, which is a purely visual enhancement layered on
- * top of already-crawlable, already-readable text.
+ * keyframe. No client-side JS is required for any of it: every word is a real,
+ * non-empty text node in the server-rendered HTML, so the headline is fully
+ * crawlable.
+ *
+ * Accuracy note (repo audit finding D-2): the `<h1>` element carries inline
+ * `opacity: 1`, but the individual `.hero-word` spans are animated in from
+ * `opacity: 0` by the CSS keyframe in `globals.css` with an
+ * `animation-fill-mode: both` stagger — so the words are *not* painted visible
+ * at first paint. That is exactly why `LCP_IMMEDIATE_WORDS` exists below: the
+ * first words of the headline get an inline `animation-delay: 0ms`, so the
+ * h1's largest text paints visibly on the first frame instead of ~600ms into
+ * the stagger, which is what the banner-perceived-slowness report traced part
+ * of its load complaint to. The visual enhancement survives; only its delay
+ * before the first words got shorter.
+ *
+ * The stagger cadence itself is set by `--word-step` on the `<h1>` (40ms, read
+ * by `globals.css`'s `var(--word-step, 80ms)` default), so the full reveal
+ * still completes inside a second without the per-word wait the old 60–80ms
+ * steps produced.
  *
  * R2.1: words from `brandFromWord` (global index) to the end of their line
  * render inside one gradient wrapper, so the brand phrase reads as a single
@@ -101,7 +124,17 @@ function KineticHeadline({
           >
             <span
               className="hero-word inline-block origin-bottom will-change-transform"
-              style={{ "--word-index": index } as React.CSSProperties}
+              style={
+                {
+                  "--word-index": index,
+                  // The LCP words skip the stagger entirely. An inline
+                  // animation-delay outranks the calc() in globals.css, which
+                  // is the one property this reveal needs to override per word.
+                  ...(index < LCP_IMMEDIATE_WORDS
+                    ? { animationDelay: "0ms" }
+                    : null),
+                } as React.CSSProperties
+              }
             >
               {word}
             </span>
@@ -230,7 +263,7 @@ export function Hero() {
             <h1
               className="text-[clamp(2.75rem,6.2vw,5.75rem)] font-semibold leading-[0.88] tracking-tighter text-balance"
               style={
-                { opacity: 1, "--word-step": "60ms" } as React.CSSProperties
+                { opacity: 1, "--word-step": "40ms" } as React.CSSProperties
               }
             >
               <KineticHeadline

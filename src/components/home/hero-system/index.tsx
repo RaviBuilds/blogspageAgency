@@ -52,30 +52,40 @@ export function HeroSystemVisual({
       className={[styles.root, className ?? ""].filter(Boolean).join(" ")}
       style={{
         aspectRatio: `${topology.width} / ${topology.height}`,
-        // The tilt needs a perspective origin on an ancestor of the stage for
-        // `translateZ` on the cards to resolve into actual depth.
-        perspective: "1400px",
+        // The tilt needs a perspective on an ancestor of the stage for
+        // `translateZ` on the cards to resolve into actual depth. The mobile
+        // topology has no tilt and no depth tiers (every card is depth 0), so
+        // it ships no 3D context at all and its stage stays flat.
+        perspective: desktop ? "1400px" : undefined,
       }}
     >
       {/*
-        Single transformed node. The drift and the pointer tilt are composed
-        into one `transform` written here each frame, so the entire scene shares
-        one compositor layer instead of promoting every card individually.
+        Ambient drift and pointer tilt, two layers deep on purpose.
+
+        `.drift` carries the ±3px suspension drift as a pure CSS keyframe —
+        compositor-run, no JavaScript, still animating whenever the engine's
+        loop is parked. The stage inside it is the only node the engine writes
+        a transform to, and only on desktop, where it carries the pointer tilt.
+        Perspective sits on the drift wrapper so it remains the stage's parent,
+        preserving the depth structure the root used to provide.
       */}
-      <div
-        data-stage
-        className={styles.stage}
-      >
-        <TraceLayer topology={topology} staticPackets={staticPackets} />
-        {topology.modules.map((mod, i) => (
-          <ModuleCard
-            key={mod.id}
-            module={mod}
-            topology={topology}
-            index={i}
-            interactive={desktop}
-          />
-        ))}
+      <div data-drift className={styles.drift}>
+        <div
+          data-stage
+          className={styles.stage}
+          style={desktop ? { willChange: "transform" } : undefined}
+        >
+          <TraceLayer topology={topology} staticPackets={staticPackets} />
+          {topology.modules.map((mod, i) => (
+            <ModuleCard
+              key={mod.id}
+              module={mod}
+              topology={topology}
+              index={i}
+              interactive={desktop}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

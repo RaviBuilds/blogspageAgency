@@ -41,7 +41,6 @@ import {
   positionAt,
   reducePhase,
   stepScheduler,
-  suspensionOffset,
   telemetryPeriodFor,
   type EngineState,
   type Phase,
@@ -57,6 +56,7 @@ import {
   type SignalHue,
   type Topology,
 } from "./topology";
+import { PRELOADER_RELEASED_EVENT } from "@/components/ui/preloader";
 import { TELEMETRY_BAR_COUNT, telemetryHeights } from "./telemetry";
 
 /** Max frame delta fed to the simulation, in ms. */
@@ -70,15 +70,16 @@ const TILT_RATE = 0.07;
 const BAR_RATE = 0.16;
 
 /**
- * How long the preloader is given to clear before the entrance begins.
- *
- * V1 waited 1500ms, which was comfortably clear of the preloader but pushed the
- * first packet to nearly four seconds after paint. 900ms lands as the curtain
- * starts its exit, so the assembly is revealed already in progress rather than
- * waiting to begin — and on any repeat visit the session flag skips this
- * entirely.
+ * Fallback ceiling for the entrance gate when the preloader's release signal
+ * never arrives (the preloader removed, an error before it mounts, or an
+ * exotic storage/JS failure). The normal path is event-driven:
+ * `Preloader.release()` dispatches `blogspage:preloader-released` and sets
+ * `data-preloader-released` on `<html>` at the exact moment the curtain starts
+ * to leave, and the gate opens then — on revisits the boot script has already
+ * skipped the curtain entirely, so the visual starts straight after hydration
+ * with no wait at all.
  */
-const PRELOADER_WAIT_MS = 900;
+const GATE_FALLBACK_WAIT_MS = 2500;
 
 interface ModuleRuntime {
   id: string;
@@ -239,7 +240,6 @@ export function useSystemEngine({
 
     let rafId = 0;
     let lastTs = 0;
-    let elapsedMs = 0;
     let phaseElapsedMs = 0;
     let visible = false;
     let gateOpened = false;
@@ -250,6 +250,9 @@ export function useSystemEngine({
     let tiltTargetY = 0;
     let tiltX = 0;
     let tiltY = 0;
+    // The last transform string written to the stage, so settled-tilt frames
+    // (pointer idle, tilt caught up) write nothing at all.
+    let lastStageTransform = "";
 
     // Edges currently carrying a packet. Held across frames so each frame writes
     // only the difference: a `data-live` flip costs a style recalc and, for the
@@ -355,7 +358,6 @@ export function useSystemEngine({
       if (lastTs === 0) lastTs = ts;
       const dtMs = clamp(ts - lastTs, 0, MAX_FRAME_MS);
       lastTs = ts;
-      elapsedMs += dtMs;
       phaseElapsedMs += dtMs;
 
       const duration =
@@ -457,16 +459,19 @@ export function useSystemEngine({
 
       for (const mod of modules) stepTelemetry(mod, dtMs);
 
-      // Whole-composition drift plus pointer tilt, written once to the stage so
-      // the entire scene shares a single transform and a single compositor
-      // layer rather than one per card.
-      if (stage) {
-        const drift = suspensionOffset(elapsedMs);
+      // Pointer tilt only. The ambient suspension drift lives in a CSS keyframe
+      // on the `[data-drift]` wrapper now (compositor-run, zero JS), so the
+      // loop's only transform write is the tilt — and on the mobile topology,
+      // which is not interactive, the loop writes no transform at all.
+      if (stage && interactive) {
         tiltX = lerp(tiltX, tiltTargetX, approachFactor(TILT_RATE, dtMs));
         tiltY = lerp(tiltY, tiltTargetY, approachFactor(TILT_RATE, dtMs));
-        stage.style.transform =
-          `translate3d(${drift.x.toFixed(2)}px, ${drift.y.toFixed(2)}px, 0) ` +
+        const next =
           `rotateX(${tiltY.toFixed(3)}deg) rotateY(${tiltX.toFixed(3)}deg)`;
+        if (next !== lastStageTransform) {
+          lastStageTransform = next;
+          stage.style.transform = next;
+        }
       }
 
       if (isAnimating(engine.phase)) {
@@ -649,16 +654,14 @@ export function useSystemEngine({
     );
 
     // The entrance must not compete with the preloader for the user's attention.
-    // If the preloader has already run this session the visual starts straight
-    // away; otherwise it waits for the curtain to clear.
-    let preloaded = false;
-    try {
-      preloaded =
-        window.sessionStorage.getItem("blogspage-preloaded") !== null;
-    } catch {
-      // Private mode or blocked storage — treat as "no preloader to wait for".
-      preloaded = true;
-    }
+    // Revisits and reduced-motion users never see the curtain: the boot script
+    // has already set `data-preloader="skip"` before first paint, so the gate
+    // opens immediately. First visits wait for the real hand-off — the
+    // `blogspage:preloader-released` event the preloader fires the instant the
+    // curtain starts to leave — with the fallback timer only guarding against
+    // that signal never arriving at all.
+    const preloaderSkipped =
+      document.documentElement.getAttribute("data-preloader") === "skip";
 
     const openGate = () => {
       if (gateOpened) return;
@@ -667,10 +670,26 @@ export function useSystemEngine({
       if (visible && !document.hidden) start();
     };
 
-    if (preloaded) {
+    const onPreloaderReleased = () => openGate();
+
+    if (preloaderSkipped) {
+      openGate();
+    } else if (
+      document.documentElement.getAttribute("data-preloader-released") ===
+      "true"
+    ) {
+      // The curtain released before this effect could attach its listener; the
+      // attribute the preloader sets alongside the event covers that race.
       openGate();
     } else {
-      gateTimer = window.setTimeout(openGate, PRELOADER_WAIT_MS);
+      window.addEventListener(PRELOADER_RELEASED_EVENT, onPreloaderReleased, {
+        once: true,
+      });
+      cleanups.push(() =>
+        window.removeEventListener(PRELOADER_RELEASED_EVENT, onPreloaderReleased)
+      );
+      // Safety net: a missing signal must never park the visual forever.
+      gateTimer = window.setTimeout(openGate, GATE_FALLBACK_WAIT_MS);
     }
 
     return () => {

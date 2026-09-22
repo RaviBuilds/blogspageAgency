@@ -85,7 +85,7 @@
   --sys-accent: var(--sys-hue-violet);
 
   --sys-border: rgba(255, 255, 255, 0.185);
-  --sys-card: rgba(19, 20, 27, 0.94);
+  --sys-card: rgba(19, 20, 27, 0.97);
   --sys-label: #f3f4f8;
   --sys-dim: #9aa0b0;
   --sys-stage: #848ca0;
@@ -175,6 +175,55 @@
   transform-style: preserve-3d;
 }
 
+/*
+ * Ambient suspension drift.
+ *
+ * The ±3px whole-composition drift used to be composed into the engine's
+ * per-frame stage transform. Moving it to a CSS keyframe on this wrapper takes
+ * it off the main thread entirely: the compositor runs it for free, it keeps
+ * running while the engine's loop is parked (off-screen, tab hidden), and the
+ * loop's only remaining transform write is the desktop pointer tilt.
+ *
+ * The keyframe stops are samples of the Lissajous the engine used to evaluate
+ * (x = sin(t / 22s · 2π) · 3, y offset by 7s of phase), so the path shape is
+ * preserved; `linear` timing between sine-sampled points is close enough that
+ * no corner is visible. The stage's own transform therefore stays free for the
+ * tilt, and the two compose naturally (drift on the wrapper, tilt on the
+ * stage).
+ */
+.drift {
+  position: absolute;
+  inset: 0;
+  animation: drift 22s linear infinite both;
+  will-change: transform;
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0px, 2.72px, 0);
+  }
+  25% {
+    transform: translate3d(3px, -1.24px, 0);
+  }
+  50% {
+    transform: translate3d(0px, -2.73px, 0);
+  }
+  75% {
+    transform: translate3d(-3px, 1.25px, 0);
+  }
+  100% {
+    transform: translate3d(0px, 2.72px, 0);
+  }
+}
+
+/* The static composition is the correct parked picture, same reasoning as the
+   entrance gating: reduced motion parks the drift entirely. */
+@media (prefers-reduced-motion: reduce) {
+  .drift {
+    animation: none;
+  }
+}
+
 /* --- Module surfaces ------------------------------------------------------ */
 
 .card {
@@ -187,7 +236,13 @@
   border: 1px solid var(--sys-border);
   background-color: var(--sys-card);
   padding: 0.5rem 0.625rem;
-  backdrop-filter: blur(2px);
+
+  /* No `backdrop-filter` — deliberately. The cards sit inside a scene whose
+     shared stage transform changes while the engine runs, so a blurred backdrop
+     would have to be re-sampled and re-rasterised for every card on every
+     frame. At ~0.97 alpha the blur is imperceptible; the depth cues that
+     actually read are the border, the top inner highlight and the seat shadow
+     below, all of which are cheap static paint. */
 
   /* Three layers doing three jobs: a top inner highlight so the surface catches
      light from above, a violet outer seat so the card belongs to the accent
@@ -287,7 +342,6 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.95),
     0 0 0 1px rgba(103, 232, 249, 0.1),
     0 26px 56px -26px rgba(0, 0, 0, 0.95);
-  backdrop-filter: none;
 }
 
 /* The mono system header stays, in dark-on-light. */
@@ -529,6 +583,56 @@
 /* --- Mobile topology ------------------------------------------------------ */
 
 /*
+ * The hover caption line is dropped on mobile entirely — same precedent as the
+ * row cards and the entry surface. There is no hover on a touch viewport, and
+ * at the mobile card heights the caption's ~10px of layout height was pushing
+ * the telemetry cluster below the card's `overflow: hidden` clip on small
+ * viewports. The caption's content is already carried by the page copy.
+ */
+.root[data-hero-system="mobile"] .caption {
+  display: none;
+}
+
+/*
+ * The mobile card *contents* have to track the mobile card *boxes*.
+ *
+ * The boxes are percentages of the topology's coordinate space, so they scale
+ * with the viewport — but rem-based text, chrome padding and gaps do not,
+ * which is what clipped the WEBSITE surface's enquiry chip on small phones.
+ * The mobile variant therefore becomes a size container and the micro text
+ * scales with the column width (`cqw`), with the served desktop sizes as
+ * clamps so very narrow and very wide columns both stay legible. Desktop is
+ * untouched: its cards are large enough that fixed rem text never overflows.
+ */
+.root[data-hero-system="mobile"] {
+  container-type: inline-size;
+}
+
+.root[data-hero-system="mobile"] .label {
+  font-size: clamp(0.5rem, 2.1cqw, 0.625rem);
+}
+
+.root[data-hero-system="mobile"] .stageToken {
+  font-size: clamp(0.4375rem, 1.8cqw, 0.5rem);
+}
+
+.root[data-hero-system="mobile"] .siteUrl {
+  font-size: clamp(0.4375rem, 1.9cqw, 0.5625rem);
+}
+
+.root[data-hero-system="mobile"] .siteHead {
+  font-size: clamp(0.5rem, 2.2cqw, 0.625rem);
+}
+
+.root[data-hero-system="mobile"] .siteCta {
+  font-size: clamp(0.4375rem, 1.9cqw, 0.5625rem);
+}
+
+.root[data-hero-system="mobile"] .card {
+  padding: 0.4rem 0.5rem;
+}
+
+/*
  * Two adjustments the mobile graph needs, keyed off the topology id rather than a
  * media query — the variant, not the viewport, is what decides them.
  *
@@ -587,9 +691,12 @@
  * currently traversing, and cleared as the packet leaves it. This is the single
  * most important thing the visual does: a dot sliding over a static line is an
  * animation, whereas a line that lights up under the dot and goes out behind it
- * is a system carrying something. The glow is two tight `drop-shadow` passes
- * rather than one wide one, so it reads as a filament rather than a smear, and it
- * only ever applies to the one-to-four paths actually carrying traffic.
+ * is a system carrying something. The glow is one tight `drop-shadow` pass, so
+ * it reads as a filament rather than a smear, and it only ever applies to the
+ * one-to-four paths actually carrying traffic. It used to be two passes (tight
+ * + wide); the wide pass was the expensive half — another filter re-render on
+ * every live-edge flip for a barely-there bleed — and was dropped; the alpha on
+ * the tight pass was lifted to compensate.
  */
 .trace[data-live="true"] {
   /* The wire lights in the hue of the transaction it is carrying — cyan for an
@@ -598,39 +705,31 @@
      fallback keeps the wire readable in any engine-less or first-paint state. */
   stroke: var(--live-hue, var(--sys-violet-lit));
   stroke-width: 2;
-  filter:
-    drop-shadow(
-      0 0 3px color-mix(in oklab, var(--live-hue, var(--sys-violet-lit)) 70%, transparent)
-    )
-    drop-shadow(
-      0 0 8px color-mix(in oklab, var(--live-hue, var(--sys-violet-lit)) 45%, transparent)
-    );
+  filter: drop-shadow(
+    0 0 3px color-mix(in oklab, var(--live-hue, var(--sys-violet-lit)) 80%, transparent)
+  );
 }
 
 /* --- Packets -------------------------------------------------------------- */
 
 /*
- * The packet's own bloom. Kept tight (5px) because the three concentric circles
- * in the markup already supply most of the falloff; this adds the last bit of
- * bleed that makes it read as emitted light rather than a filled dot.
+ * The packet's bloom.
+ *
+ * The three concentric circles in the markup supply all of the falloff — the
+ * wide violet halo, the mid ring and the near-white core. A `drop-shadow` used
+ * to sit here as "the last bit of bleed", but a filter on a node whose slot is
+ * re-transformed every frame means re-rasterising the filter as the packet
+ * moves; the falloff already reads as emitted light at these radii, so the
+ * filter is gone and the halo circle's opacity carries the difference instead.
  *
  * Scoped to a wrapper around the circles rather than to the whole slot on
- * purpose: an ancestor filter cannot be undone by a descendant, and a 5px violet
- * bleed on the 8px mono route label would smear it into unreadability. The label
- * is a sibling of this wrapper, so it stays crisp.
- *
- * `filter` is safe here even though the engine writes these nodes every frame:
- * it writes `transform` and `opacity` on the slot, and neither interacts with a
- * filter declared on the child.
+ * purpose: an ancestor filter cannot be undone by a descendant, and a bloom on
+ * the 8px mono route label would smear it into unreadability. The label is a
+ * sibling of this wrapper, so it stays crisp — the wrapper remains in the
+ * markup as that boundary.
  */
 .packetCore {
-  filter: drop-shadow(
-    /* R2.2 polish: one step firmer (5px/55% → 6px/62%) so the in-flight
-       transaction reads as light, not a dot — the enquiry story's carrier
-       becomes the clearest moving thing in the scene without growing the
-       bloom into glow. */
-    0 0 6px color-mix(in oklab, var(--packet-hue, var(--sys-violet-lit)) 62%, transparent)
-  );
+  will-change: transform;
 }
 
 /* --- Node weight hierarchy (R2.2 polish) ---------------------------------- */

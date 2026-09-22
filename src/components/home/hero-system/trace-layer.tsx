@@ -153,10 +153,11 @@ export function TraceLayer({
                 : null),
             }}
           >
-            {/* Glow wrapper — see `.packetCore`. Keeps the bloom off the label. */}
+            {/* Glow wrapper — see `.packetCore`. The halo circle's opacity
+                carries the bloom that the removed `drop-shadow` used to add. */}
             <g className={styles.packetCore}>
-              <circle r={7} fill="var(--packet-hue, var(--sys-packet-halo))" opacity={0.16} />
-              <circle r={3.6} fill="var(--packet-hue, var(--sys-packet-halo))" opacity={0.55} />
+              <circle r={7} fill="var(--packet-hue, var(--sys-packet-halo))" opacity={0.24} />
+              <circle r={3.6} fill="var(--packet-hue, var(--sys-packet-halo))" opacity={0.62} />
               <circle r={1.9} fill="var(--sys-packet)" />
             </g>
             <text

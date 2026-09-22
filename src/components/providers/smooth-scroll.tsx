@@ -21,7 +21,17 @@ export function SmoothScroll() {
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
-    if (prefersReducedMotion) return;
+    // Skip smoothing on touch devices entirely. Lenis drives the document's
+    // scroll position from a script frame, so while it is running every scroll
+    // frame is a main-thread frame — on a phone that converts any busy section
+    // (the animated hero visual above all) into visible scroll stutter, for a
+    // smoothing effect that adds little to a touch gesture. Native scrolling
+    // keeps the compositor in charge. `touchMultiplier` below therefore only
+    // ever applies on desktops with touchscreens.
+    const isCoarsePointer = window.matchMedia(
+      "(pointer: coarse)"
+    ).matches;
+    if (prefersReducedMotion || isCoarsePointer) return;
 
     const lenis = new Lenis({
       duration: 1.2,

@@ -483,14 +483,25 @@ export const DESKTOP_TOPOLOGY: Topology = {
  * ratio lets the visual span the full column without dominating the viewport.
  */
 const MOBILE_W = 340;
-const MOBILE_H = 260;
+/**
+ * Mobile frame height.
+ *
+ * 260 was the shortest frame that held three 72-unit cards, but at real phone
+ * widths the cards scale to ~58-66px of CSS height while their *contents* are
+ * fixed rem text, padding and chrome — which is how the WEBSITE surface's
+ * enquiry chip ended up clipped by the card's `overflow: hidden` on small
+ * viewports. 284 gives each card 80 units (≈64px at a 320px phone) of
+ * comfortable content height for a ~9% taller visual, and the connectors stay
+ * evenly spaced because every other constant below is derived from these.
+ */
+const MOBILE_H = 284;
 const MOBILE_X = 0;
 const MOBILE_CARD_W = MOBILE_W;
 const MOBILE_MID = MOBILE_W / 2; // 170
 /** Two surfaces of equal height, a shorter terminal bar, and even connectors. */
-const MOBILE_CARD_H = 72;
-const MOBILE_ROW_2_Y = 96;
-const MOBILE_ROW_3_Y = 192;
+const MOBILE_CARD_H = 80;
+const MOBILE_ROW_2_Y = 104;
+const MOBILE_ROW_3_Y = 208;
 
 export const MOBILE_TOPOLOGY: Topology = {
   id: "mobile",

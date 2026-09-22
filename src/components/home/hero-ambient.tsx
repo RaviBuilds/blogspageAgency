@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trackEvent } from "@/lib/analytics";
 import { HERO_JOURNEY } from "@/lib/homepage-data";
+import styles from "./hero-ambient.module.css";
 
 // Premium spring from the design system (§5 Motion Physics).
 const SPRING = {
@@ -145,39 +146,25 @@ export function HeroGradients() {
           WEBSITE side of the composition sits in the hue it carries.
 
         None of them floods the frame: each stays at or under a third of its
-        already-low peak alpha, blurred past recognition, breathing on its
-        own long period so the light never syncs into a visible rhythm.
+        already-low peak alpha, with the glow carried entirely by the radial
+        gradient's own falloff — no CSS blur filter, which at these alphas was
+        raster cost with no visible change. The breathing is a CSS opacity
+        keyframe (`hero-ambient.module.css`), one long period per blob so the
+        light never syncs into a visible rhythm, never `scale` (which would
+        force the layer's raster to be regenerated), and fully parked under
+        `prefers-reduced-motion`.
       */}
-      <motion.div
+      <div
         aria-hidden
-        initial={{ opacity: 0.22, scale: 0.9 }}
-        animate={{ opacity: [0.22, 0.4, 0.22], scale: [0.9, 1.05, 0.9] }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        className="pointer-events-none absolute left-[76%] top-20 -z-10 size-[40rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(124,58,237,0.32),rgba(124,58,237,0.13)_38%,transparent_68%)] blur-[110px]"
+        className={`pointer-events-none absolute left-[76%] top-20 -z-10 size-[40rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(124,58,237,0.32),rgba(124,58,237,0.13)_38%,transparent_68%)] ${styles.blob} ${styles.blobViolet}`}
       />
-      <motion.div
+      <div
         aria-hidden
-        initial={{ opacity: 0.18, scale: 1.1 }}
-        animate={{ opacity: [0.18, 0.3, 0.18], scale: [1.1, 0.95, 1.1] }}
-        transition={{
-          duration: 16,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 1.5,
-        }}
-        className="pointer-events-none absolute -bottom-40 left-[12%] -z-10 size-[36rem] rounded-full bg-[radial-gradient(circle,rgba(130,143,255,0.14),transparent_64%)] blur-[120px]"
+        className={`pointer-events-none absolute -bottom-40 left-[12%] -z-10 size-[36rem] rounded-full bg-[radial-gradient(circle,rgba(130,143,255,0.14),transparent_64%)] ${styles.blob} ${styles.blobBlue}`}
       />
-      <motion.div
+      <div
         aria-hidden
-        initial={{ opacity: 0.12, scale: 0.95 }}
-        animate={{ opacity: [0.12, 0.24, 0.12], scale: [0.95, 1.06, 0.95] }}
-        transition={{
-          duration: 18,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 3,
-        }}
-        className="pointer-events-none absolute left-[86%] top-[4%] -z-10 size-[30rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(103,232,249,0.11),transparent_62%)] blur-[100px]"
+        className={`pointer-events-none absolute left-[86%] top-[4%] -z-10 size-[30rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(103,232,249,0.11),transparent_62%)] ${styles.blob} ${styles.blobCyan}`}
       />
     </>
   );
