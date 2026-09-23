@@ -21,7 +21,7 @@ export function SolutionHero({ niche, city, cityLabel }: SolutionHeroProps) {
       <div className="mx-auto max-w-6xl px-6 pb-20 pt-20 lg:px-8 lg:pb-28 lg:pt-28">
         <div className="max-w-3xl">
           <FadeUp>
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs text-muted-foreground">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-muted px-4 py-1.5 text-xs text-muted-foreground">
               <Icon className="size-3.5 text-primary" />
               {niche.title} solution · {cityLabel}
             </div>
@@ -30,6 +30,9 @@ export function SolutionHero({ niche, city, cityLabel }: SolutionHeroProps) {
           <FadeUp delay={0.06}>
             <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">
               {niche.hero.headline}
+              <span className="mt-2 block text-2xl font-medium text-muted-foreground sm:text-3xl">
+                Serving {cityLabel} businesses.
+              </span>
             </h1>
           </FadeUp>
 
@@ -54,10 +57,10 @@ export function SolutionHero({ niche, city, cityLabel }: SolutionHeroProps) {
               <Button
                 size="lg"
                 variant="outline"
-                className="h-11 border-white/10 bg-transparent px-6 hover:bg-white/[0.04]"
+                className="h-11 px-6"
                 asChild
               >
-                <Link href="/#solutions">View all solutions</Link>
+                <Link href="/solutions">View all solutions</Link>
               </Button>
             </div>
           </FadeUp>

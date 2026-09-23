@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    dangerouslyAllowSVG: true,
+    formats: ["image/avif", "image/webp"],
+    dangerouslyAllowSVG: false,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
@@ -34,9 +35,30 @@ const nextConfig: NextConfig = {
        */
       {
         source:
-          "/:slug((?!blogs|studio|solutions|contact|privacy|terms|api|_next|favicon\\.ico|robots\\.txt|sitemap\\.xml)(?!.*\\.(?:jpg|jpeg|png|gif|svg|webp|avif|ico|bmp|js|css|json|txt|xml|woff2?|ttf|otf|map|mp4|webm|pdf)$).+)",
+          "/:slug((?!blogs|studio|solutions|contact|privacy|terms|api|_next|favicon\\.ico|robots\\.txt|sitemap\\.xml|about|services|og|llms\\.txt|services\\.json|feed\\.xml)(?!.*\\.(?:jpg|jpeg|png|gif|svg|webp|avif|ico|bmp|js|css|json|txt|xml|woff2?|ttf|otf|map|mp4|webm|pdf)$).+)",
         destination: "/blogs/:slug",
         permanent: true,
+      },
+    ];
+  },
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=31536000; includeSubDomains",
+          },
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+        ],
       },
     ];
   },

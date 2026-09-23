@@ -1,34 +1,40 @@
 import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/seo";
+import { Breadcrumb } from "@/components/seo/breadcrumb";
+import { NAP } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Terms of Service",
+export const metadata: Metadata = buildMetadata({
+  path: "/terms",
+  title: "Read the blogspage terms of service",
   description:
-    "Terms of Service for Blogspage — AI Automation & Product Engineering Agency.",
-};
+    "Review the terms governing Blogspage client engagements, covering payment schedules, intellectual property, AI output disclaimers, and liability limits.",
+  keywordPhrase: "blogspage terms of service",
+});
 
 export default function TermsPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-24 lg:px-8 lg:py-32">
-      <p className="text-sm font-medium text-primary">Legal</p>
+      <Breadcrumb trail={[{ name: "Terms of Service", path: "/terms" }]} />
+      <p className="mt-6 text-sm font-medium text-primary">Legal</p>
       <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
         Terms of Service
       </h1>
-      <p className="mt-4 text-sm text-white/40">
+      <p className="mt-4 text-sm text-text-subtle">
         Last updated: June 17, 2025
       </p>
 
-      <article className="prose-policy mt-12 space-y-8 text-sm leading-relaxed text-white/70">
+      <article className="prose-policy mt-12 space-y-8 text-sm leading-relaxed text-muted-foreground">
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             1. Agreement to Terms
           </h2>
           <p>
             These Terms of Service (&quot;Terms&quot;) constitute a legally
             binding agreement between you (&quot;Client,&quot;
             &quot;you&quot;) and Blogspage (&quot;Agency,&quot; &quot;we,&quot;
-            &quot;us&quot;), a product engineering and AI automation agency
-            located at Ayodhya Nagar Colony, Mehdipatnam, Hyderabad, Telangana
-            500028, India.
+            &quot;us&quot;), a branding, website, software, and AI automation
+            agency located at Ayodhya Nagar Colony, Mehdipatnam, Hyderabad,
+            Telangana 500028, India.
           </p>
           <p>
             By engaging our services, submitting a project brief, or using our
@@ -38,14 +44,15 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             2. Services Provided
           </h2>
           <p>Blogspage provides the following services:</p>
           <ul className="list-disc space-y-1 pl-5">
+            <li>Brand identity and website design and development.</li>
             <li>
-              Custom SaaS application development (design, engineering,
-              deployment).
+              Custom software and SaaS application development (design,
+              engineering, deployment).
             </li>
             <li>
               AI automation and conversational agent development (LLM-powered
@@ -68,7 +75,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             3. Project Engagement &amp; Acceptance
           </h2>
           <ul className="list-disc space-y-1 pl-5">
@@ -88,7 +95,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             4. Payment Terms
           </h2>
           <ul className="list-disc space-y-1 pl-5">
@@ -117,7 +124,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             5. Intellectual Property
           </h2>
           <ul className="list-disc space-y-1 pl-5">
@@ -146,7 +153,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             6. AI Agent &amp; LLM Output Disclaimer
           </h2>
           <p>
@@ -182,7 +189,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             7. Client Responsibilities
           </h2>
           <ul className="list-disc space-y-1 pl-5">
@@ -206,7 +213,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             8. Warranties &amp; Limitation of Liability
           </h2>
           <p>
@@ -243,7 +250,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             9. Confidentiality
           </h2>
           <p>
@@ -256,7 +263,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             10. Termination
           </h2>
           <ul className="list-disc space-y-1 pl-5">
@@ -280,7 +287,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             11. Indemnification
           </h2>
           <p>
@@ -295,7 +302,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             12. Force Majeure
           </h2>
           <p>
@@ -308,7 +315,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             13. Governing Law &amp; Jurisdiction
           </h2>
           <p>
@@ -320,7 +327,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             14. Modifications
           </h2>
           <p>
@@ -332,26 +339,29 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white/90">
+          <h2 className="text-lg font-semibold text-foreground">
             15. Contact
           </h2>
           <p>
             For questions regarding these Terms of Service, contact us at:
           </p>
-          <div className="mt-3 rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 text-white/80">
-            <p className="font-medium">Blogspage</p>
-            <p>Ayodhya Nagar Colony, Mehdipatnam</p>
-            <p>Hyderabad, Telangana 500028, India</p>
+          <div className="mt-3 rounded-xl border border-border bg-card p-4 text-foreground">
+            <p className="font-medium">{NAP.legalName}</p>
+            <p>{NAP.streetAddress}</p>
+            <p>
+              {NAP.locality}, {NAP.region} {NAP.postalCode}
+            </p>
+            <p>{NAP.country}</p>
             <p className="mt-2">
               Email:{" "}
               <a
-                href="mailto:ravi@blogspage.com"
+                href={NAP.emailHref}
                 className="text-primary hover:underline"
               >
-                ravi@blogspage.com
+                {NAP.email}
               </a>
             </p>
-            <p>Phone: +91 80194 43314</p>
+            <p>Phone: {NAP.telephone}</p>
           </div>
         </section>
       </article>

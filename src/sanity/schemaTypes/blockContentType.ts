@@ -1,17 +1,18 @@
-import {defineType, defineArrayMember} from 'sanity'
-import {ImageIcon} from '@sanity/icons'
+import {defineType, defineArrayMember, defineField} from 'sanity'
+import {ImageIcon, CodeBlockIcon} from '@sanity/icons'
 
 /**
- * This is the schema type for block content used in the post document type
- * Importing this type into the studio configuration's `schema` property
- * lets you reuse it in other document types with:
- * {
- * name: 'someName',
- * title: 'Some title',
- * type: 'blockContent'
- * }
+ * Block content for the post body.
+ *
+ * Improvements over the starter schema:
+ *  - `internalLink` annotation — links to other posts by reference. This is the
+ *    backbone of internal linking / topic clusters: references stay valid even
+ *    if a slug changes, and crawlers get clean, resolvable internal links.
+ *  - External `link` now carries new-tab + nofollow/sponsored controls so
+ *    outbound links can be marked correctly for SEO.
+ *  - Images gain a caption (rendered + usable for ImageObject schema).
+ *  - `codeBlock` for syntax-highlightable snippets (this is a developer blog).
  */
-
 export const blockContentType = defineType({
   title: 'Block Content',
   name: 'blockContent',
@@ -19,66 +20,143 @@ export const blockContentType = defineType({
   of: [
     defineArrayMember({
       type: 'block',
-      // Styles let you define what blocks can be marked up as. The default
-      // set corresponds with HTML tags, but you can set any title or value
-      // you want, and decide how you want to deal with it where you want to
-      // use your content.
       styles: [
         {title: 'Normal', value: 'normal'},
-        {title: 'H1', value: 'h1'},
         {title: 'H2', value: 'h2'},
         {title: 'H3', value: 'h3'},
         {title: 'H4', value: 'h4'},
-        {title: 'H5', value: 'h5'},
-        {title: 'H6', value: 'h6'},
         {title: 'Quote', value: 'blockquote'},
       ],
       lists: [
         {title: 'Bullet', value: 'bullet'},
-        {title: 'Numbered', value: 'number'}
+        {title: 'Numbered', value: 'number'},
       ],
-      // Marks let you mark up inline text in the Portable Text Editor
       marks: {
-        // Decorators usually describe a single property – e.g. a typographic
-        // preference or highlighting
         decorators: [
           {title: 'Strong', value: 'strong'},
           {title: 'Emphasis', value: 'em'},
           {title: 'Underline', value: 'underline'},
           {title: 'Strike-through', value: 'strike-through'},
-          {title: 'Code', value: 'code'}
+          {title: 'Code', value: 'code'},
         ],
-        // Annotations can be any object structure – e.g. a link or a footnote.
         annotations: [
           {
-            title: 'URL',
+            title: 'Internal link',
+            name: 'internalLink',
+            type: 'object',
+            fields: [
+              defineField({
+                name: 'reference',
+                type: 'reference',
+                title: 'Post',
+                to: [{type: 'post'}],
+                validation: (rule) => rule.required(),
+              }),
+            ],
+          },
+          {
+            title: 'External link',
             name: 'link',
             type: 'object',
             fields: [
-              {
+              defineField({
                 title: 'URL',
                 name: 'href',
                 type: 'url',
-              },
+                validation: (rule) =>
+                  rule.uri({scheme: ['http', 'https', 'mailto', 'tel']}),
+              }),
+              defineField({
+                title: 'Open in new tab',
+                name: 'blank',
+                type: 'boolean',
+                initialValue: true,
+              }),
+              defineField({
+                title: 'Nofollow / sponsored',
+                name: 'nofollow',
+                type: 'boolean',
+                description: 'Add rel="nofollow" — use for paid, affiliate, or untrusted links.',
+                initialValue: false,
+              }),
             ],
           },
         ],
       },
     }),
-    // You can add additional types here. Note that you can't use
-    // primitive types such as 'string' and 'number' in the same array
-    // as a block type.
     defineArrayMember({
       type: 'image',
       icon: ImageIcon,
       options: {hotspot: true},
       fields: [
-        {
+        defineField({
           name: 'alt',
           type: 'string',
-          title: 'Alternative Text',
-        }
-      ]
+          title: 'Alternative text',
+          validation: (rule) =>
+            rule.custom((value, context) => {
+              const parent = context.parent as {asset?: {_ref?: string}} | undefined
+              if (parent?.asset && !value) {
+                return 'Alternative text is required for in-content images.'
+              }
+              return true
+            }),
+        }),
+        defineField({
+          name: 'caption',
+          type: 'string',
+          title: 'Caption',
+        }),
+      ],
+    }),
+    defineArrayMember({
+      type: 'object',
+      name: 'codeBlock',
+      title: 'Code block',
+      icon: CodeBlockIcon,
+      fields: [
+        defineField({
+          name: 'language',
+          title: 'Language',
+          type: 'string',
+          options: {
+            list: [
+              {title: 'Plain text', value: 'text'},
+              {title: 'TypeScript', value: 'typescript'},
+              {title: 'JavaScript', value: 'javascript'},
+              {title: 'TSX / JSX', value: 'tsx'},
+              {title: 'JSON', value: 'json'},
+              {title: 'Bash / Shell', value: 'bash'},
+              {title: 'CSS', value: 'css'},
+              {title: 'HTML', value: 'html'},
+              {title: 'GROQ', value: 'groq'},
+              {title: 'SQL', value: 'sql'},
+            ],
+          },
+          initialValue: 'text',
+        }),
+        defineField({
+          name: 'code',
+          title: 'Code',
+          type: 'text',
+          rows: 8,
+          validation: (rule) => rule.required(),
+        }),
+        defineField({
+          name: 'filename',
+          title: 'Filename (optional)',
+          type: 'string',
+        }),
+      ],
+      preview: {
+        select: {language: 'language', filename: 'filename', code: 'code'},
+        prepare({language, filename, code}) {
+          return {
+            title: filename || `${language ?? 'text'} snippet`,
+            subtitle: code ? code.slice(0, 50) : '',
+          }
+        },
+      },
     }),
     defineArrayMember({
       type: 'ctaBlock',

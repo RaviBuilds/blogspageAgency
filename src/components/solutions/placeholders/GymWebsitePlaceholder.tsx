@@ -1,0 +1,72 @@
+import type { SVGProps } from "react";
+
+/**
+ * Inline placeholder preview for the gym marketing website pillar.
+ * Converted from `public/gym-website-placeholder.svg` so it renders as a
+ * plain React SVG component instead of going through the Next.js image
+ * pipeline (see design.md "Security headers and image configuration").
+ */
+export function GymWebsitePlaceholder(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="1280"
+      height="800"
+      viewBox="0 0 1280 800"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="Gym marketing website preview"
+      {...props}
+    >
+      <defs>
+        <linearGradient id="bgW" x1="0" y1="0" x2="1280" y2="800" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#0c0c0f" />
+          <stop offset="1" stopColor="#050505" />
+        </linearGradient>
+        <linearGradient id="accW" x1="0" y1="0" x2="1" y2="1">
+          <stop stopColor="#5e6ad2" />
+          <stop offset="1" stopColor="#9333ea" />
+        </linearGradient>
+        <radialGradient id="glowW" cx="0.7" cy="0.1" r="0.6">
+          <stop stopColor="#5e6ad2" stopOpacity="0.35" />
+          <stop offset="1" stopColor="#5e6ad2" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="1280" height="800" fill="url(#bgW)" />
+      <rect width="1280" height="800" fill="url(#glowW)" />
+
+      {/* nav */}
+      <rect x="64" y="48" width="120" height="20" rx="6" fill="#f7f8f8" opacity="0.9" />
+      <rect x="880" y="50" width="60" height="14" rx="7" fill="#ffffff" opacity="0.4" />
+      <rect x="968" y="50" width="60" height="14" rx="7" fill="#ffffff" opacity="0.4" />
+      <rect x="1056" y="44" width="160" height="28" rx="14" fill="url(#accW)" />
+
+      {/* hero */}
+      <rect x="64" y="168" width="200" height="26" rx="13" fill="#5e6ad2" opacity="0.18" />
+      <rect x="64" y="232" width="620" height="40" rx="8" fill="#f7f8f8" opacity="0.92" />
+      <rect x="64" y="288" width="520" height="40" rx="8" fill="#f7f8f8" opacity="0.92" />
+      <rect x="64" y="344" width="440" height="40" rx="8" fill="url(#accW)" />
+      <rect x="64" y="424" width="560" height="14" rx="7" fill="#ffffff" opacity="0.35" />
+      <rect x="64" y="450" width="480" height="14" rx="7" fill="#ffffff" opacity="0.35" />
+      <rect x="64" y="512" width="190" height="48" rx="24" fill="#ffffff" />
+      <rect x="274" y="512" width="170" height="48" rx="24" fill="#ffffff" opacity="0.12" />
+
+      {/* AI agent chat card */}
+      <rect x="788" y="200" width="404" height="420" rx="20" fill="#141516" stroke="#ffffff" strokeOpacity="0.08" />
+      <circle cx="832" cy="248" r="20" fill="url(#accW)" />
+      <rect x="868" y="238" width="150" height="14" rx="7" fill="#f7f8f8" opacity="0.85" />
+      <rect x="868" y="260" width="90" height="10" rx="5" fill="#28c840" opacity="0.7" />
+      <rect x="812" y="312" width="300" height="56" rx="14" fill="#ffffff" opacity="0.05" />
+      <rect x="828" y="330" width="240" height="9" rx="4.5" fill="#ffffff" opacity="0.4" />
+      <rect x="828" y="346" width="180" height="9" rx="4.5" fill="#ffffff" opacity="0.25" />
+      <rect x="876" y="392" width="300" height="48" rx="14" fill="url(#accW)" opacity="0.85" />
+      <rect x="900" y="408" width="220" height="9" rx="4.5" fill="#ffffff" opacity="0.85" />
+      <rect x="812" y="464" width="300" height="56" rx="14" fill="#ffffff" opacity="0.05" />
+      <rect x="828" y="482" width="220" height="9" rx="4.5" fill="#ffffff" opacity="0.4" />
+      <rect x="828" y="498" width="160" height="9" rx="4.5" fill="#ffffff" opacity="0.25" />
+      <rect x="812" y="552" width="368" height="44" rx="14" fill="#ffffff" opacity="0.06" />
+      <rect x="828" y="568" width="200" height="12" rx="6" fill="#ffffff" opacity="0.3" />
+      <circle cx="1156" cy="574" r="14" fill="url(#accW)" />
+    </svg>
+  );
+}

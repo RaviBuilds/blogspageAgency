@@ -10,8 +10,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { TRUST } from "@/lib/homepage-data";
 
-const models = [
+/**
+ * MOVEMENT 5 — Trust: engagement models (Blueprint §16).
+ *
+ * The section framing is homepage-local (TRUST in `homepage-data.ts`), but
+ * `DELIVERY_MODELS` itself is untouched: `/about` imports this export and
+ * both surfaces must stay character-identical. Preserved contract:
+ * `id="models"` (blueprint-mandated anchor).
+ */
+
+/**
+ * The two delivery-model entries. Exported so `/about` (Requirement 8.4) can
+ * render the same two named delivery models without keeping a separate,
+ * driftable copy.
+ */
+export const DELIVERY_MODELS = [
   {
     icon: Rocket,
     title: "SaaS MVP Launch",
@@ -30,34 +45,62 @@ const models = [
   },
 ];
 
+/**
+ * Section heading treatment — parity with the other homepage sections: the
+ * neutral headline stays neutral; the meaningful opening phrase carries the
+ * restrained brand text sweep. No data change — the phrase is sliced from
+ * the existing `TRUST.heading` string, with a safe whole-heading fallback.
+ */
+const HEADING_TEXT = TRUST.heading;
+const HEADING_ACCENT = "Two ways";
+const HEADING_MAIN = HEADING_TEXT.startsWith(HEADING_ACCENT)
+  ? HEADING_TEXT.slice(HEADING_ACCENT.length)
+  : "";
+
+const BRAND_TEXT_GRADIENT = {
+  backgroundImage:
+    "linear-gradient(90deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)",
+  WebkitBackgroundClip: "text" as const,
+  backgroundClip: "text",
+  color: "transparent",
+} as const;
+
 export function DeliveryModels() {
   return (
-    <section id="models" className="border-t border-white/6 py-24 lg:py-32">
+    <section id="models" className="scroll-mt-24 border-t border-border-subtle bg-background-subtle py-24 lg:py-32">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium text-primary">Delivery Models</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-            How we work with you.
+          <p className="text-sm font-medium text-primary">How we work</p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+            {HEADING_MAIN ? (
+              <>
+                <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>
+                {HEADING_MAIN}
+              </>
+            ) : (
+              TRUST.heading
+            )}
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Choose the engagement that matches your risk, timeline, and business model.
+            {TRUST.sub}
           </p>
         </div>
 
         <div className="mt-16 grid gap-5 lg:grid-cols-2">
-          {models.map((model) => (
+          {DELIVERY_MODELS.map((model) => (
             <Card
               key={model.title}
-              className="group relative overflow-hidden bg-white/2.5 transition-colors hover:border-white/16"
+              className="group relative overflow-hidden transition-colors hover:border-border-strong"
             >
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-indigo-300/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-              <div className="pointer-events-none absolute -right-28 -top-28 size-72 rounded-full bg-primary/15 blur-3xl" />
+              {/* Premium hairline — the approved signal gradient
+                  (transparent -> rgba(67,83,201,0.5) -> transparent), hover-only. */}
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
               <CardHeader className="relative">
                 <div className="flex items-center justify-between gap-4">
-                  <div className="flex size-12 items-center justify-center rounded-xl border border-white/8 bg-white/4">
+                  <div className="flex size-12 items-center justify-center rounded-xl border border-border-subtle bg-muted">
                     <model.icon className="size-5 text-primary" />
                   </div>
-                  <span className="rounded-full border border-white/8 bg-white/4 px-3 py-1 text-xs text-muted-foreground">
+                  <span className="rounded-full border border-border-subtle bg-muted px-3 py-1 text-xs text-muted-foreground">
                     {model.eyebrow}
                   </span>
                 </div>
@@ -71,7 +114,7 @@ export function DeliveryModels() {
                   {model.details.map((detail) => (
                     <li
                       key={detail}
-                      className="rounded-xl border border-white/6 bg-white/2.5 px-3 py-3 text-sm text-zinc-300"
+                      className="rounded-xl border border-border-subtle bg-muted px-3 py-3 text-sm text-foreground"
                     >
                       {detail}
                     </li>
@@ -79,11 +122,7 @@ export function DeliveryModels() {
                 </ul>
               </CardContent>
               <CardFooter className="relative">
-                <Button
-                  variant="outline"
-                  className="border-white/10 bg-transparent hover:bg-white/5"
-                  asChild
-                >
+                <Button variant="outline" asChild>
                   <Link href="#contact">
                     Discuss this model
                     <ArrowRight className="size-4" />
@@ -91,6 +130,23 @@ export function DeliveryModels() {
                 </Button>
               </CardFooter>
             </Card>
+          ))}
+        </div>
+
+        {/* Expectations · ownership · communication (Blueprint §16) */}
+        <div className="mt-12 grid gap-4 sm:grid-cols-3">
+          {TRUST.assurances.map((assurance) => (
+            <div
+              key={assurance.title}
+              className="rounded-2xl border border-border bg-card p-5"
+            >
+              <h3 className="text-sm font-semibold tracking-tight text-foreground">
+                {assurance.title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {assurance.detail}
+              </p>
+            </div>
           ))}
         </div>
       </div>

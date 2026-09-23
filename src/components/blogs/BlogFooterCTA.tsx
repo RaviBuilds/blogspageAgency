@@ -23,13 +23,13 @@ export function BlogFooterCTA({
 
   return (
     <aside
-      className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-12 text-center"
+      className="rounded-2xl border border-border bg-card p-12 text-center"
       aria-label="Call to action"
     >
       <h2 className="text-4xl font-bold tracking-tight text-balance">
         {headline}
       </h2>
-      <p className="mx-auto mt-4 max-w-2xl text-white/70">{body}</p>
+      <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">{body}</p>
       <div className="mt-8 flex flex-row flex-wrap justify-center gap-4">
         <button
           type="button"
@@ -40,7 +40,7 @@ export function BlogFooterCTA({
         </button>
         <Link
           href={secondaryHref}
-          className="inline-flex h-11 items-center justify-center rounded-full border border-white/20 px-6 text-sm font-semibold text-foreground transition-colors hover:bg-white/5"
+          className="inline-flex h-11 items-center justify-center rounded-full border border-border-strong px-6 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
         >
           {secondaryLabel}
         </Link>

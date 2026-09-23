@@ -6,7 +6,7 @@
  * Keep this in sync with the niche matrix when offerings change.
  */
 
-export const AGENCY_OVERVIEW = `Blogspage is a senior product-engineering agency for Web Development, SaaS, and AI Automation. We turn high-stakes ideas into polished SaaS products, workflow automation, and internal operating systems. We typically ship production-grade builds in a focused 10-15 day launch window. Core stack: Next.js, Supabase, Stripe, Vercel, Capacitor (native iOS/Android from one codebase), and modern AI integrations.`;
+export const AGENCY_OVERVIEW = `Blogspage AI builds websites, brand identity, business software, and AI automation for growing businesses. We turn ideas into working systems: brand and web presence, custom software, and automation that scales with the business. Core stack: Next.js, Supabase, Stripe, Vercel, Capacitor (native iOS/Android from one codebase), and modern AI integrations.`;
 
 type CatalogEntry = {
   title: string;
