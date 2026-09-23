@@ -20,15 +20,50 @@ const HEADLINE_LINES = HERO.headlineLines;
  * The triad is the same one the eyebrow dot, the system packets and the
  * connector speak, so the typography and the visual read as one system.
  * Static by design — never animated, never hue-shifting.
+ *
+ * Slice per word, never a wrapper (tablet/phone fix). The sweep used to sit on
+ * one wrapper `<span>` around the phrase. The phrase's words are individual
+ * `will-change: transform` compositing layers, and Chrome refuses to paint a
+ * `background-clip: text` mask that an ancestor of those layers owns: the
+ * wrapper's mask was dropped, and because the mask is the only thing painting
+ * glyphs, the transparent text rendered as nothing. The H1 visibly ended at
+ * "people can" at 768px and below, and in GPU-less renderers (including the
+ * headless Chrome that crawlers run) at every width. Declaring the clip on the
+ * word span that owns the layer keeps mask and glyphs inside one paint layer
+ * at every viewport. Same pixels — the slice maths below reproduces the
+ * wrapper's progression — and, critically, the same text.
  */
-const BRAND_PHRASE_GRADIENT: React.CSSProperties = {
-  backgroundImage:
-    "linear-gradient(94deg, #67E8F9 0%, #828FFF 48%, #A78BFA 100%)",
-  WebkitBackgroundClip: "text",
-  backgroundClip: "text",
-  color: "transparent",
-  WebkitTextFillColor: "transparent",
-};
+const BRAND_PHRASE_STOPS =
+  "linear-gradient(94deg, #67E8F9 0%, #828FFF 48%, #A78BFA 100%)";
+
+/**
+ * The `index`-th of `total` brand-phrase words, painted with the share of the
+ * triad it showed under the whole-phrase sweep.
+ *
+ * `background-size` stretches the gradient across `total` word widths and
+ * `background-position` slides each word its own 1/`total` step over it, so
+ * the cyan → violet progression still runs once over the phrase instead of
+ * restarting on every word.
+ *
+ * The transparent fill stays, because the gradient is what paints these
+ * glyphs — which is why `globals.css` carries a `@supports` fallback that
+ * repaints the phrase in opaque signal blue on engines that cannot clip a
+ * background to text at all.
+ */
+function brandPhraseWordStyle(
+  index: number,
+  total: number
+): React.CSSProperties {
+  return {
+    backgroundImage: BRAND_PHRASE_STOPS,
+    backgroundSize: `${total * 100}% 100%`,
+    backgroundPosition: `${total > 1 ? (index / (total - 1)) * 100 : 0}% 0`,
+    WebkitBackgroundClip: "text",
+    backgroundClip: "text",
+    color: "transparent",
+    WebkitTextFillColor: "transparent",
+  };
+}
 
 /** First word of the brand phrase, resolved against the real word order. */
 const BRAND_PHRASE_FIRST_WORD = "find,";
@@ -88,10 +123,10 @@ const SUBCOPY_SPLIT = /(brand|website|business software|AI automation)/g;
  * steps produced.
  *
  * R2.1: words from `brandFromWord` (global index) to the end of their line
- * render inside one gradient wrapper, so the brand phrase reads as a single
- * continuous sweep — never a gradient per word. The mechanism is the same
- * one the line-level gradient used (background-clip: text over the same
- * nested word spans), only scoped to the phrase.
+ * carry the brand triad as one continuous sweep — never a gradient per word.
+ * Each word renders its own slice of that sweep (`brandPhraseWordStyle`), so
+ * the mask is owned by the same paint layer as the glyphs it clips while the
+ * cyan → violet progression still spans the phrase as a whole.
  */
 function KineticHeadline({
   lines,
@@ -116,14 +151,21 @@ function KineticHeadline({
         const brandAt =
           brandFromWord === undefined ? -1 : brandFromWord - lineBase;
 
-        const renderWord = (word: string, index: number, i: number) => (
+        const renderWord = (
+          word: string,
+          index: number,
+          i: number,
+          brandStyle?: React.CSSProperties
+        ) => (
           <span
             key={`${word}-${lineIdx}-${i}`}
             className="inline-block align-bottom"
             style={{ perspective: "1000px" }}
           >
             <span
-              className="hero-word inline-block origin-bottom will-change-transform"
+              className={`hero-word inline-block origin-bottom will-change-transform${
+                brandStyle ? " hero-brand-word" : ""
+              }`}
               style={
                 {
                   "--word-index": index,
@@ -133,6 +175,10 @@ function KineticHeadline({
                   ...(index < LCP_IMMEDIATE_WORDS
                     ? { animationDelay: "0ms" }
                     : null),
+                  // Brand-phrase words paint their own slice of the triad onto
+                  // the very layer that carries the transform — see
+                  // `brandPhraseWordStyle`.
+                  ...brandStyle,
                 } as React.CSSProperties
               }
             >
@@ -152,16 +198,21 @@ function KineticHeadline({
           );
         }
 
+        const brandWords = words.slice(brandAt);
+
         return (
           <span key={lineIdx} className={lineClass}>
             {words.slice(0, brandAt).map((word, i) =>
               renderWord(word, lineBase + i, i)
             )}
-            <span style={BRAND_PHRASE_GRADIENT}>
-              {words.slice(brandAt).map((word, i) =>
-                renderWord(word, lineBase + brandAt + i, brandAt + i)
-              )}
-            </span>
+            {brandWords.map((word, i) =>
+              renderWord(
+                word,
+                lineBase + brandAt + i,
+                brandAt + i,
+                brandPhraseWordStyle(i, brandWords.length)
+              )
+            )}
           </span>
         );
       })}

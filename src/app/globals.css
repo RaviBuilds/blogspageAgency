@@ -381,6 +381,33 @@
 }
 
 /*
+ * Hero brand-phrase insurance (R2.1).
+ *
+ * The phrase's glyphs are painted by `background-clip: text` over a transparent
+ * fill, so the gradient *is* the text: on an engine that cannot clip a
+ * background to text, the background image is dropped, the fill stays
+ * transparent, and the words vanish — the H1 loses its tail exactly the way it
+ * did on phone and tablet viewports. `@supports` gives those engines an opaque
+ * signal blue instead: #828FFF measures 6.9:1 against `--background`, clearing
+ * WCAG AA for large text with room to spare, so the headline still ends where
+ * the copy says it ends.
+ *
+ * `!important` is required because both the gradient and the transparent fill
+ * are declared inline by `brandPhraseWordStyle`. The rule is deliberately
+ * scoped to the hero phrase: it is the one gradient headline painted on a
+ * known-dark surface, and #828FFF is not a safe fallback on a light one. The
+ * other `.text-gradient` headings share the fragility but need their own
+ * contrast check before they join this rule.
+ */
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+  .hero-brand-word {
+    background-image: none !important;
+    color: #828fff !important;
+    -webkit-text-fill-color: #828fff !important;
+  }
+}
+
+/*
  * Preloader skip flag — the blocking boot script in `(site)/layout.tsx` sets
  * `data-preloader="skip"` on <html> whenever the SSR'd cinematic preloader
  * must not play (session revisit, prefers-reduced-motion, or the no-hydration
