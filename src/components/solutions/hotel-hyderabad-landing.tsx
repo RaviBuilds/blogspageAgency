@@ -8,7 +8,7 @@ import {
   TrendingDown,
 } from "lucide-react";
 
-import { ContactForm } from "@/components/home/contact-form";
+import { ConversationExperience } from "@/components/home/contact-form";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -221,7 +221,7 @@ export function HotelHyderabadLanding() {
 
             <Card className="bg-white/2">
               <CardContent className="p-6 sm:p-8">
-                <ContactForm source="hotel-hyderabad-solution" />
+                <ConversationExperience />
               </CardContent>
             </Card>
           </div>

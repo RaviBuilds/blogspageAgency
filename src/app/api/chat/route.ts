@@ -12,7 +12,7 @@ import { AGENCY_OVERVIEW, renderServiceCatalog } from "@/lib/services-catalog";
 
 export const dynamic = "force-dynamic";
 
-const MODEL = "meta/llama-3.3-70b-instruct";
+const MODEL = "gpt-4o-mini";
 
 const SYSTEM_PROMPT = `You are "Sweety", the friendly AI sales development representative (SDR) and lead specialist for Blogspage.
 
@@ -91,19 +91,16 @@ const saveLeadSchema = z
   .strict();
 
 export async function POST(request: Request) {
-  const apiKey = process.env.NVIDIA_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    console.error("[Chat Error] Missing NVIDIA_API_KEY in environment.");
+    console.error("[Chat Error] Missing OPENAI_API_KEY in environment.");
     return new Response(
       JSON.stringify({ error: "Server is not configured for chat." }),
       { status: 500 }
     );
   }
 
-  const nvidia = createOpenAI({
-    baseURL: "https://integrate.api.nvidia.com/v1",
-    apiKey,
-  });
+  const openai = createOpenAI({ apiKey });
 
   const body = await request.json().catch(() => ({}));
   const { messages }: { messages: UIMessage[] } = body;
@@ -132,7 +129,7 @@ export async function POST(request: Request) {
 
   try {
     const result = streamText({
-      model: nvidia.chat(MODEL),
+      model: openai.chat(MODEL),
       system: SYSTEM_PROMPT,
       messages: await convertToModelMessages(messages),
       // Allow Sweety to call save_lead and then continue the conversation.

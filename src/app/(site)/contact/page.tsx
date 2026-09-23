@@ -1,42 +1,56 @@
 import type { Metadata } from "next";
 import { MapPin, Phone, Mail, ArrowRight } from "lucide-react";
 import { ContactChatTrigger } from "./contact-chat-trigger";
+import { buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/json-ld";
+import { Breadcrumb } from "@/components/seo/breadcrumb";
+import { localBusinessNode } from "@/lib/structured-data";
+import { NAP } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Contact",
+// Must stay consistent with `OPENING_HOURS` ("Mo-Su 10:00-19:00") in
+// `src/lib/site.ts`, which drives the `LocalBusiness` `openingHours` value
+// below. Both cover all seven days, 10 AM-7 PM IST.
+const OPENING_HOURS_COPY = "Mon-Sun, 10:00 AM - 7:00 PM IST";
+
+export const metadata: Metadata = buildMetadata({
+  path: "/contact",
+  title: "Contact Blogspage AI: hire a digital agency",
   description:
-    "Get in touch with Blogspage — AI Automation & Product Engineering Agency based in Hyderabad, India.",
-};
+    "Contact Blogspage AI, the digital agency in Hyderabad, India building websites, brand identity, business software, and AI automation, to discuss your project and timeline.",
+  keywordPhrase: "hire a digital agency",
+});
 
 const details = [
   {
     icon: MapPin,
     label: "Office Address",
-    value: "Ayodhya Nagar Colony, Mehdipatnam\nHyderabad, Telangana 500028\nIndia",
+    value: `${NAP.streetAddress}\n${NAP.locality}, ${NAP.region} ${NAP.postalCode}\n${NAP.country}`,
   },
   {
     icon: Phone,
     label: "Phone",
-    value: "+91 80194 43314",
-    href: "tel:+918019443314",
+    value: NAP.telephone,
+    href: NAP.telephoneHref,
   },
   {
     icon: Mail,
     label: "Email",
-    value: "ravi@blogspage.com",
-    href: "mailto:ravi@blogspage.com",
+    value: NAP.email,
+    href: NAP.emailHref,
   },
 ];
 
 export default function ContactPage() {
   return (
     <div className="mx-auto max-w-4xl px-6 py-24 lg:px-8 lg:py-32">
+      <Breadcrumb trail={[{ name: "Contact", path: "/contact" }]} />
+
       {/* Header */}
-      <p className="text-sm font-medium text-primary">Contact</p>
+      <p className="mt-6 text-sm font-medium text-primary">Contact</p>
       <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
         Let&apos;s build something intelligent.
       </h1>
-      <p className="mt-4 max-w-2xl text-lg leading-relaxed text-white/60">
+      <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
         Whether you need an AI automation engine, a custom SaaS platform, or a
         strategy conversation — reach out through any channel below.
       </p>
@@ -46,23 +60,23 @@ export default function ContactPage() {
         {details.map((item) => (
           <div
             key={item.label}
-            className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 backdrop-blur-sm"
+            className="rounded-2xl border border-border bg-card p-6"
           >
-            <div className="flex size-10 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04]">
+            <div className="flex size-10 items-center justify-center rounded-xl border border-border-subtle bg-muted">
               <item.icon className="size-4 text-primary" />
             </div>
-            <p className="mt-4 text-xs font-medium uppercase tracking-[0.18em] text-white/40">
+            <p className="mt-4 text-xs font-medium uppercase tracking-[0.18em] text-text-subtle">
               {item.label}
             </p>
             {item.href ? (
               <a
                 href={item.href}
-                className="mt-2 block whitespace-pre-line text-sm leading-relaxed text-white/80 transition-colors hover:text-white"
+                className="mt-2 block whitespace-pre-line text-sm leading-relaxed text-foreground transition-colors hover:text-primary"
               >
                 {item.value}
               </a>
             ) : (
-              <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-white/80">
+              <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-foreground">
                 {item.value}
               </p>
             )}
@@ -71,11 +85,11 @@ export default function ContactPage() {
       </div>
 
       {/* AI Chat Trigger */}
-      <div className="mt-16 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 text-center backdrop-blur-sm">
+      <div className="mt-16 rounded-2xl border border-border bg-card p-8 text-center">
         <h2 className="text-xl font-semibold tracking-tight">
           Prefer an instant conversation?
         </h2>
-        <p className="mt-2 text-sm text-white/50">
+        <p className="mt-2 text-sm text-muted-foreground">
           Talk to Sweety, our AI SDR. Get a strategy recommendation in under 2
           minutes — no forms, no waiting.
         </p>
@@ -85,10 +99,11 @@ export default function ContactPage() {
       </div>
 
       {/* Availability note */}
-      <p className="mt-12 text-center text-xs text-white/30">
-        Business hours: Mon–Sat, 10:00 AM – 7:00 PM IST · Response within 24
-        hours
+      <p className="mt-12 text-center text-xs text-text-subtle">
+        Business hours: {OPENING_HOURS_COPY} · Response within 24 hours
       </p>
+
+      <JsonLd nodes={[localBusinessNode()]} />
     </div>
   );
 }

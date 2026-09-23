@@ -1,0 +1,48 @@
+.blob {
+  /* Opacity-only breathing. Never `scale`: scaling a filtered or layered
+     element forces its raster to be regenerated, whereas opacity is a pure
+     compositor property on a promoted layer. The heavy CSS blur the previous
+     Framer Motion version applied is gone too — the radial-gradient falloff
+     already ends in `transparent`, so the blur added raster cost without a
+     visible change at these alphas. */
+  animation: breathe var(--breathe-duration, 14s) ease-in-out
+    var(--breathe-delay, 0s) infinite both;
+  will-change: opacity;
+}
+
+.blobViolet {
+  --breathe-duration: 12s;
+  --blob-from: 0.22;
+  --blob-to: 0.4;
+}
+
+.blobBlue {
+  --breathe-duration: 16s;
+  --blob-from: 0.18;
+  --blob-to: 0.3;
+  --breathe-delay: 1.5s;
+}
+
+.blobCyan {
+  --breathe-duration: 18s;
+  --blob-from: 0.12;
+  --blob-to: 0.24;
+  --breathe-delay: 3s;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: var(--blob-from);
+  }
+  50% {
+    opacity: var(--blob-to);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob {
+    animation: none;
+    opacity: var(--blob-from);
+  }
+}
