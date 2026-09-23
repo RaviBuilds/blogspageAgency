@@ -4,6 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 import { projects, type FeaturedProject } from "@/lib/featured-work-data";
 import { SUPPORTING, SUPPORTING_PROJECT_IDS } from "@/lib/homepage-data";
 import { TrackedLink } from "@/components/home/tracked-link";
+import { BoundaryVeil, ProgressReveal } from "@/components/home/progress-reveal";
 import { cn } from "@/lib/utils";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -49,30 +50,41 @@ export function SupportingWork() {
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white/[0.015] to-transparent"
       />
+      {/* R9 boundary veil — the dark island dissolves back into the light
+          page tone as its bottom edge rises toward mid-viewport, so the
+          handoff into By Industry reads as one continuous tonal shift
+          instead of a hard theme flip. Decorative, behind content. */}
+      <BoundaryVeil edge="bottom" tone="#EDF1F6" className="h-[38vh]" />
       <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
-        <div className="flex items-end justify-between gap-8">
-          <div className="max-w-2xl">
-            <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              {SUPPORTING.heading}
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground lg:text-base">
-              {SUPPORTING.sub}
-            </p>
+        <ProgressReveal distance={20}>
+          <div className="flex items-end justify-between gap-8">
+            <div className="max-w-2xl">
+              <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+                {SUPPORTING.heading}
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground lg:text-base">
+                {SUPPORTING.sub}
+              </p>
+            </div>
+            {/* Editorial hairline — the archive reads as a curated index. */}
+            <div
+              aria-hidden
+              className="mb-2 hidden h-px flex-1 bg-gradient-to-r from-border to-transparent lg:block"
+            />
           </div>
-          {/* Editorial hairline — the archive reads as a curated index. */}
-          <div
-            aria-hidden
-            className="mb-2 hidden h-px flex-1 bg-gradient-to-r from-border to-transparent lg:block"
-          />
-        </div>
+        </ProgressReveal>
 
         <div className="mt-12 grid gap-4 lg:grid-cols-5">
           {supporting.map((project, index) => (
-            <SupportingCard
+            <ProgressReveal
               key={project.id}
-              project={project}
-              wide={index === 0}
-            />
+              className={index === 0 ? "lg:col-span-3" : "lg:col-span-2"}
+              enterAt={index * 0.12}
+              completeBy={0.55 + index * 0.12}
+              distance={20}
+            >
+              <SupportingCard project={project} wide={index === 0} />
+            </ProgressReveal>
           ))}
         </div>
       </div>
@@ -88,8 +100,7 @@ function SupportingCard({
   wide: boolean;
 }) {
   const cardClassName = cn(
-    "group relative flex flex-col overflow-hidden rounded-2xl border border-border-subtle bg-card/70 p-5 transition-colors hover:border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-    wide ? "lg:col-span-3" : "lg:col-span-2",
+    "group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border-subtle bg-card/70 p-5 transition-colors hover:border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   );
 
   const body = (

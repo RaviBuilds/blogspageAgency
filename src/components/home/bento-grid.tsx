@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import {
   AnimatePresence,
   motion,
+  useMotionValue,
   useReducedMotion,
+  useScroll,
+  useTransform,
   type Variants,
 } from "framer-motion";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
@@ -20,6 +23,7 @@ import {
 } from "@/lib/industry-discovery";
 import { IndustryStoryStrip, RealWorkVisual } from "@/components/home/industry-visual";
 import { ConceptVisual } from "@/components/home/industry-system-visuals";
+import { ProgressReveal } from "@/components/home/progress-reveal";
 import { cn } from "@/lib/utils";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -100,6 +104,25 @@ export function BentoGrid() {
   const shouldReduceMotion = useReducedMotion();
   const [selectedId, setSelectedId] = useState<string>(DEFAULT_SELECTED_ID);
 
+  /* R9: the section's cyan/blue atmosphere builds with scroll as the light
+     page tone takes over from the dark island above — the boundary breathes
+     instead of snapping. Decorative opacity only. */
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const settledAtmosphere = useMotionValue(1);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "start 0.35"],
+  });
+  const atmosphereReveal = useTransform(
+    scrollYProgress,
+    [0.12, 0.65],
+    [0, 1],
+    { clamp: true },
+  );
+  const atmosphereOpacity = shouldReduceMotion
+    ? settledAtmosphere
+    : atmosphereReveal;
+
   const selected = NICHES.find((niche) => niche.id === selectedId) ?? NICHES[0];
   const story = getIndustryStory(selected.id);
   const accent = story?.accent ?? DEFAULT_INDUSTRY_ACCENT;
@@ -109,26 +132,36 @@ export function BentoGrid() {
 
   return (
     <section
+      ref={sectionRef}
       id="solutions"
       className="relative scroll-mt-24 overflow-hidden border-t border-border-subtle bg-background-subtle py-24 lg:py-32"
     >
       {/* R7 environment: light editorial field with a restrained cyan/blue
-          atmosphere behind the opening — static, decorative, aria-hidden. */}
-      <div
+          atmosphere behind the opening — decorative, aria-hidden; R9: its
+          presence is scroll-linked instead of always-on. */}
+      <motion.div
         aria-hidden
+        style={{ opacity: atmosphereOpacity }}
         className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-white/[0.03] to-transparent"
       />
       <div
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-0 h-[24rem] w-[56rem] max-w-none -translate-x-1/2"
-        style={{
-          background:
-            "radial-gradient(45% 50% at 50% 15%, rgba(14, 116, 144, 0.05), transparent 70%), radial-gradient(38% 42% at 58% 20%, rgba(67, 83, 201, 0.04), transparent 72%)",
-        }}
-      />
+      >
+        <motion.div
+          aria-hidden
+          style={{
+            opacity: atmosphereOpacity,
+            background:
+              "radial-gradient(45% 50% at 50% 15%, rgba(14, 116, 144, 0.05), transparent 70%), radial-gradient(38% 42% at 58% 20%, rgba(67, 83, 201, 0.04), transparent 72%)",
+          }}
+          className="h-full w-full"
+        />
+      </div>
       <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
-        {/* Section header (Blueprint §15 approved wording) */}
-        <div className="mx-auto max-w-2xl text-center">
+        {/* Section header (Blueprint §15 approved wording). R9: establishes
+            with scroll, like every other section on the page. */}
+        <ProgressReveal className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-medium text-primary">{BRIDGE.eyebrow}</p>
           <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
             {HEADING_MAIN || BRIDGE.heading}
@@ -137,7 +170,7 @@ export function BentoGrid() {
             )}
           </h2>
           <p className="mt-4 text-muted-foreground">{BRIDGE.sub}</p>
-        </div>
+        </ProgressReveal>
 
         <div className="mt-16 grid items-stretch gap-10 lg:grid-cols-12">
           {/* ── Industry recognition field (DISCOVER) ──

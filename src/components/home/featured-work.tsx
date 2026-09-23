@@ -2,12 +2,26 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRef } from "react";
 import { ArrowUpRight } from "lucide-react";
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+  type MotionValue,
+} from "framer-motion";
 import { projects, type FeaturedProject } from "@/lib/featured-work-data";
 import { FLAGSHIP_PROJECT_IDS, PROOF } from "@/lib/homepage-data";
 import { trackEvent } from "@/lib/analytics";
 import { SystemFlow } from "@/components/home/system-flow";
+import {
+  BoundaryVeil,
+  ProgressReveal,
+  useMotionReady,
+  useStage,
+} from "@/components/home/progress-reveal";
 import { cn } from "@/lib/utils";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -39,22 +53,52 @@ import { cn } from "@/lib/utils";
      a `cta_location` discriminator — no new analytics contract.
    ──────────────────────────────────────────────────────────────────────────── */
 
-const SPRING = {
-  type: "spring",
-  stiffness: 100,
-  damping: 20,
-  mass: 1,
-} as const;
+/* ── R9 scroll choreography ──────────────────────────────────────────────────
+   Each flagship story is driven by its own scroll progress (0 when the
+   article's top enters at 85% of the viewport, 1 when its bottom reaches
+   75%). The narrative stages below are slices of that progress, so the
+   chapter builds in reading order while scrolling down and dissolves back in
+   exactly the reverse order when scrolling up. Pure MotionValues — no
+   per-frame React state, no pinning, no timers. Reduced motion resolves
+   every slice to its settled state. */
 
-const container: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.08 } },
+const STORY_STAGE_RANGES: Record<
+  | "atmosphere"
+  | "category"
+  | "title"
+  | "problem"
+  | "media"
+  | "flow"
+  | "description"
+  | "evidence"
+  | "cta",
+  [number, number]
+> = {
+  atmosphere: [0.04, 0.38],
+  category: [0.0, 0.12],
+  title: [0.05, 0.2],
+  problem: [0.1, 0.26],
+  media: [0.12, 0.34],
+  flow: [0.28, 0.62],
+  description: [0.32, 0.52],
+  evidence: [0.42, 0.62],
+  cta: [0.5, 0.7],
 };
 
-const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 32 },
-  show: { opacity: 1, y: 0, transition: SPRING },
-};
+/* One scroll progress per story article, shared by every stage inside it. */
+function useStoryProgress() {
+  const articleRef = useRef<HTMLElement | null>(null);
+  const shouldReduceMotion = useReducedMotion();
+  const settled = useMotionValue(1);
+  const { scrollYProgress } = useScroll({
+    target: articleRef,
+    offset: ["start 0.85", "end 0.75"],
+  });
+  return {
+    articleRef,
+    progress: shouldReduceMotion ? settled : scrollYProgress,
+  };
+}
 
 /**
  * R6.1 heading treatment — parity with the other homepage sections: the
@@ -79,28 +123,7 @@ const BRAND_TEXT_GRADIENT = {
   color: "transparent",
 } as const;
 
-/* R6 story choreography. The article staggers its direct motion children in
-   DOM order, which is deliberately the narrative order: the real screenshot
-   enters before the system flow connects, and evidence/CTA resolve last. */
-const storyStagger: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
-};
 
-const stage: Variants = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: SPRING },
-};
-
-const mediaStage: Variants = {
-  hidden: { opacity: 0, y: 28, scale: 0.985 },
-  show: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { type: "spring", stiffness: 90, damping: 20, mass: 1 },
-  },
-};
 
 type StoryLayout = "system" | "narrative" | "brand";
 
@@ -121,33 +144,45 @@ const STORY_LAYOUTS: Record<string, StoryLayout> = {
 function ChapterAtmosphere({
   accent,
   side,
+  opacity,
 }: {
   accent: string;
   /** Which side of the chapter the light sits on (the screenshot side). */
   side: "left" | "right" | "center";
+  /** R9: scroll-linked presence — the light rides the chapter's progress. */
+  opacity?: MotionValue<number>;
 }) {
   const x = side === "left" ? "30%" : side === "right" ? "70%" : "50%";
   return (
-    <div
+    <motion.div
       aria-hidden
       className="pointer-events-none absolute inset-x-[-6%] -top-16 bottom-0 hidden lg:block"
       style={{
         background: `radial-gradient(48% 42% at ${x} 34%, rgba(${accent}, 0.07), transparent 70%)`,
+        ...(opacity ? { opacity } : {}),
       }}
     />
   );
 }
 
 /* Ghosted chapter numeral — the subconscious "chapter 01/02/03" marker.
-   Decorative; derived from story position; carries no copy. */
-function GhostIndex({ chapter }: { chapter: number }) {
+   Decorative; derived from story position; carries no copy. R9: its presence
+   fades in with the chapter's scroll progress instead of being always-on. */
+function GhostIndex({
+  chapter,
+  opacity,
+}: {
+  chapter: number;
+  opacity?: MotionValue<number>;
+}) {
   return (
-    <div
+    <motion.div
       aria-hidden
       className="pointer-events-none absolute -top-8 right-0 hidden select-none text-[8rem] font-semibold leading-none tracking-tighter text-white/[0.035] lg:block"
+      style={opacity ? { opacity } : undefined}
     >
       {String(chapter).padStart(2, "0")}
-    </div>
+    </motion.div>
   );
 }
 
@@ -202,14 +237,21 @@ function ScreenshotStage({
    nothing — never a placeholder claim. */
 function MetricLine({
   metrics,
+  progress,
 }: {
   metrics: FeaturedProject["metrics"];
+  progress: MotionValue<number>;
 }) {
+  const ready = useMotionReady();
+  const reveal = useStage(progress, STORY_STAGE_RANGES.evidence);
   if (metrics.length === 0) {
     return null;
   }
   return (
-    <motion.ul variants={stage} className="flex flex-col gap-1">
+    <motion.ul
+      style={ready ? { opacity: reveal.opacity, y: reveal.y } : undefined}
+      className="flex flex-col gap-1"
+    >
       {metrics.map((metric) => (
         <li
           key={metric.label}
@@ -240,24 +282,43 @@ function BrowserChrome({ children }: { children: React.ReactNode }) {
 
 /* ── Story atoms ─────────────────────────────────────────────────────────── */
 
-function StoryHeader({ project }: { project: FeaturedProject }) {
+function StoryHeader({
+  project,
+  progress,
+}: {
+  project: FeaturedProject;
+  progress: MotionValue<number>;
+}) {
+  const ready = useMotionReady();
+  const category = useStage(progress, STORY_STAGE_RANGES.category);
+  const title = useStage(progress, STORY_STAGE_RANGES.title);
+  const problem = useStage(progress, STORY_STAGE_RANGES.problem);
+
   return (
     <>
       {/* CATEGORY — the capability pillar this project proves */}
       <motion.span
-        variants={stage}
         className="inline-block w-fit rounded-full border px-3 py-1 text-xs font-medium uppercase tracking-[0.18em]"
-        style={{
-          borderColor: `rgba(${project.accent}, 0.3)`,
-          color: `rgba(${project.accent}, 0.9)`,
-        }}
+        style={
+          ready
+            ? {
+                opacity: category.opacity,
+                y: category.y,
+                borderColor: `rgba(${project.accent}, 0.3)`,
+                color: `rgba(${project.accent}, 0.9)`,
+              }
+            : {
+                borderColor: `rgba(${project.accent}, 0.3)`,
+                color: `rgba(${project.accent}, 0.9)`,
+              }
+        }
       >
         {project.category ?? project.tag}
       </motion.span>
 
       <motion.h3
-        variants={stage}
         className="mt-4 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl"
+        style={ready ? { opacity: title.opacity, y: title.y } : undefined}
       >
         {project.headline}
       </motion.h3>
@@ -265,9 +326,16 @@ function StoryHeader({ project }: { project: FeaturedProject }) {
       {/* PROBLEM — why the project existed */}
       {project.storyFrame ? (
         <motion.p
-          variants={stage}
           className="mt-3 max-w-xl border-l-2 pl-4 text-base font-medium text-foreground/90"
-          style={{ borderColor: `rgba(${project.accent}, 0.4)` }}
+          style={
+            ready
+              ? {
+                  opacity: problem.opacity,
+                  y: problem.y,
+                  borderColor: `rgba(${project.accent}, 0.4)`,
+                }
+              : { borderColor: `rgba(${project.accent}, 0.4)` }
+          }
         >
           {project.storyFrame}
         </motion.p>
@@ -278,11 +346,21 @@ function StoryHeader({ project }: { project: FeaturedProject }) {
 
 /* PROOF — technology as secondary evidence: one quiet "Built with" line,
    never a logo wall. Empty stack (NeoDent) renders nothing at all. */
-function StoryEvidence({ project }: { project: FeaturedProject }) {
+function StoryEvidence({
+  project,
+  progress,
+}: {
+  project: FeaturedProject;
+  progress: MotionValue<number>;
+}) {
+  const ready = useMotionReady();
+  const reveal = useStage(progress, STORY_STAGE_RANGES.evidence);
   return (
     <>
       {project.tech.length > 0 ? (
-        <motion.div variants={stage}>
+        <motion.div
+          style={ready ? { opacity: reveal.opacity, y: reveal.y } : undefined}
+        >
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-text-subtle">
             Built with
           </p>
@@ -291,20 +369,30 @@ function StoryEvidence({ project }: { project: FeaturedProject }) {
           </p>
         </motion.div>
       ) : null}
-      <MetricLine metrics={project.metrics} />
+      <MetricLine metrics={project.metrics} progress={progress} />
     </>
   );
 }
 
 /* Where can I learn more? — every flagship story links into an existing
    solution / Service_Route destination carried by the data layer. */
-function StoryCta({ project }: { project: FeaturedProject }) {
+function StoryCta({
+  project,
+  progress,
+}: {
+  project: FeaturedProject;
+  progress: MotionValue<number>;
+}) {
+  const ready = useMotionReady();
+  const reveal = useStage(progress, STORY_STAGE_RANGES.cta);
   const href = project.solutionHref;
   if (!href || !project.solutionCta) {
     return null;
   }
   return (
-    <motion.div variants={stage}>
+    <motion.div
+      style={ready ? { opacity: reveal.opacity, y: reveal.y } : undefined}
+    >
       <Link
         href={href}
         onClick={() =>
@@ -343,8 +431,33 @@ function StoryArticle({
   if (layout === "brand") {
     return <BrandStory project={project} chapter={chapter} />;
   }
+  return (
+    <SequenceStory
+      project={project}
+      layout={layout}
+      priority={priority}
+      chapter={chapter}
+    />
+  );
+}
 
-  const accentStyle = { "--card-accent": project.accent } as React.CSSProperties;
+/* "system" (ArogyaDiet) / "narrative" (Phixl) compositions, now driven by the
+   article's own scroll progress: the narrative order — CATEGORY → TITLE →
+   PROBLEM → SCREENSHOT → FLOW → BUILT → PROOF → CTA — builds as slices of
+   that progress on the way down and dissolves in reverse on the way up. */
+function SequenceStory({
+  project,
+  layout,
+  priority,
+  chapter,
+}: {
+  project: FeaturedProject;
+  layout: StoryLayout;
+  priority: boolean;
+  chapter: number;
+}) {
+  const ready = useMotionReady();
+  const { articleRef, progress } = useStoryProgress();
 
   /* "system" (ArogyaDiet): screenshot leads on desktop, vertical system map
      in the story column. "narrative" (Phixl): story leads on desktop,
@@ -353,28 +466,53 @@ function StoryArticle({
      PROOF → CTA via the order utilities. */
   const mediaFirstOnDesktop = layout === "system";
 
+  const atmosphere = useStage(progress, STORY_STAGE_RANGES.atmosphere, 0);
+  const media = useStage(progress, STORY_STAGE_RANGES.media, 28);
+  const mediaScale = useTransform(
+    progress,
+    STORY_STAGE_RANGES.media,
+    [0.985, 1],
+    { clamp: true },
+  );
+  const flowProgress = useTransform(
+    progress,
+    STORY_STAGE_RANGES.flow,
+    [0, 1],
+    { clamp: true },
+  );
+  const description = useStage(progress, STORY_STAGE_RANGES.description);
+
+  const mediaStyle = ready
+    ? { opacity: media.opacity, y: media.y, scale: mediaScale }
+    : undefined;
+  const descriptionStyle = ready
+    ? { opacity: description.opacity, y: description.y }
+    : undefined;
+
   return (
     <motion.article
-      variants={storyStagger}
+      ref={articleRef}
       className="relative flex flex-col gap-8"
-      style={accentStyle}
+      style={{ "--card-accent": project.accent } as React.CSSProperties}
     >
       {/* R6.1 chapter environment: localized light over the screenshot side
-          + a ghosted chapter numeral. Static, decorative, desktop-only. */}
+          + a ghosted chapter numeral. Desktop-only; R9: both ride the
+          chapter's scroll progress instead of being always-on. */}
       <ChapterAtmosphere
         accent={project.accent}
         side={mediaFirstOnDesktop ? "left" : "right"}
+        opacity={atmosphere.opacity}
       />
-      <GhostIndex chapter={chapter} />
+      <GhostIndex chapter={chapter} opacity={atmosphere.opacity} />
 
       <div className="relative max-w-2xl">
-        <StoryHeader project={project} />
+        <StoryHeader project={project} progress={progress} />
       </div>
 
       <div className="relative grid items-start gap-10 lg:grid-cols-12 lg:gap-14">
         {/* BUILD — the real screenshot */}
         <motion.div
-          variants={mediaStage}
+          style={mediaStyle}
           className={cn(
             "order-2",
             mediaFirstOnDesktop
@@ -403,6 +541,7 @@ function StoryArticle({
               steps={project.visualSequence ?? []}
               orientation="horizontal"
               accent={project.accent}
+              progress={flowProgress}
               className="mt-6"
             />
           ) : null}
@@ -435,12 +574,13 @@ function StoryArticle({
                 steps={project.visualSequence ?? []}
                 orientation="vertical"
                 accent={project.accent}
+                progress={flowProgress}
                 className="pl-3"
               />
             </div>
           ) : null}
           <motion.p
-            variants={stage}
+            style={descriptionStyle}
             className={cn(
               "text-sm leading-relaxed text-muted-foreground lg:text-base",
               layout === "system" ? "order-3 lg:order-2" : "",
@@ -449,8 +589,8 @@ function StoryArticle({
             {project.description}
           </motion.p>
           <div className="order-4 flex flex-col gap-5">
-            <StoryEvidence project={project} />
-            <StoryCta project={project} />
+            <StoryEvidence project={project} progress={progress} />
+            <StoryCta project={project} progress={progress} />
           </div>
         </div>
       </div>
@@ -459,7 +599,8 @@ function StoryArticle({
 }
 
 /* NeoDent "brand" composition: header → full-width brand plate → detail band
-   + horizontal Brand → Website → Trust → Enquiry ribbon. */
+   + horizontal Brand → Website → Trust → Enquiry ribbon. R9: the whole
+   chapter is driven by the article's own scroll progress. */
 function BrandStory({
   project,
   chapter,
@@ -467,41 +608,72 @@ function BrandStory({
   project: FeaturedProject;
   chapter: number;
 }) {
+  const ready = useMotionReady();
+  const { articleRef, progress } = useStoryProgress();
+
+  const atmosphere = useStage(progress, STORY_STAGE_RANGES.atmosphere, 0);
+  const media = useStage(progress, STORY_STAGE_RANGES.media, 28);
+  const mediaScale = useTransform(
+    progress,
+    STORY_STAGE_RANGES.media,
+    [0.985, 1],
+    { clamp: true },
+  );
+  const flowProgress = useTransform(
+    progress,
+    STORY_STAGE_RANGES.flow,
+    [0, 1],
+    { clamp: true },
+  );
+  const description = useStage(progress, STORY_STAGE_RANGES.description);
+
+  const mediaStyle = ready
+    ? { opacity: media.opacity, y: media.y, scale: mediaScale }
+    : undefined;
+  const descriptionStyle = ready
+    ? { opacity: description.opacity, y: description.y }
+    : undefined;
+
   return (
     <motion.article
-      variants={storyStagger}
+      ref={articleRef}
       className="relative flex flex-col gap-8"
       style={{ "--card-accent": project.accent } as React.CSSProperties}
     >
       {/* R6.1 chapter environment (presence chapter: centered light). */}
-      <ChapterAtmosphere accent={project.accent} side="center" />
-      <GhostIndex chapter={chapter} />
+      <ChapterAtmosphere
+        accent={project.accent}
+        side="center"
+        opacity={atmosphere.opacity}
+      />
+      <GhostIndex chapter={chapter} opacity={atmosphere.opacity} />
 
       <div className="relative max-w-2xl">
-        <StoryHeader project={project} />
+        <StoryHeader project={project} progress={progress} />
       </div>
 
-      <motion.div variants={mediaStage} className="relative">
+      <motion.div style={mediaStyle} className="relative">
         <BrandPlate project={project} />
       </motion.div>
 
       <div className="relative grid gap-8 lg:grid-cols-2 lg:gap-12">
         <div className="order-2 lg:order-1">
           <motion.p
-            variants={stage}
+            style={descriptionStyle}
             className="text-sm leading-relaxed text-muted-foreground lg:text-base"
           >
             {project.description}
           </motion.p>
           <div className="mt-6 flex flex-col gap-5">
-            <StoryEvidence project={project} />
-            <StoryCta project={project} />
+            <StoryEvidence project={project} progress={progress} />
+            <StoryCta project={project} progress={progress} />
           </div>
         </div>
         <SystemFlow
           steps={project.visualSequence ?? []}
           orientation="horizontal"
           accent={project.accent}
+          progress={flowProgress}
           className="order-1 self-start lg:order-2 lg:pt-2"
         />
       </div>
@@ -537,8 +709,6 @@ function BrandPlate({ project }: { project: FeaturedProject }) {
 }
 
 export function FeaturedProof() {
-  const shouldReduceMotion = useReducedMotion();
-
   // Resolve the evidence-gated flagship list against the real project data.
   // An unknown id can only mean the two modules drifted; dropping it beats
   // rendering an empty card shell.
@@ -551,6 +721,12 @@ export function FeaturedProof() {
       id="work"
       className="dark relative scroll-mt-24 overflow-hidden border-t border-border bg-background py-24 lg:py-32"
     >
+      {/* R9 boundary veil — the light page tone dissolves into the gallery
+          as the section enters, and re-forms on the way back up, so the
+          dark island no longer starts as a hard cut behind a hairline.
+          Static tone, scroll-linked opacity, decorative, behind content. */}
+      <BoundaryVeil edge="top" tone="#F7F8FA" className="h-[40vh]" />
+
       {/* R6.1 environment: a tonal entry band plus a soft blue-violet field
           behind the opening — the visitor enters a designed gallery, not
           another black rectangle. Static, decorative, aria-hidden. */}
@@ -567,29 +743,18 @@ export function FeaturedProof() {
         }}
       />
       <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
-        <motion.div
-          variants={container}
-          initial={shouldReduceMotion ? "show" : "hidden"}
-          whileInView="show"
-          viewport={{ once: true, margin: "-100px" }}
-          className="mx-auto max-w-2xl text-center"
-        >
-          <motion.p variants={fadeUp} className="text-sm font-medium text-primary">
-            {PROOF.eyebrow}
-          </motion.p>
-          <motion.h2
-            variants={fadeUp}
-            className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
-          >
+        {/* R9: the opening establishes with scroll — typography emphasis
+            builds as the gallery arrives, reverses on the way up. */}
+        <ProgressReveal distance={28} className="mx-auto max-w-2xl text-center">
+          <p className="text-sm font-medium text-primary">{PROOF.eyebrow}</p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
             {HEADING_MAIN || PROOF.heading}
             {HEADING_MAIN && (
               <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>
             )}
-          </motion.h2>
-          <motion.p variants={fadeUp} className="mt-4 text-muted-foreground">
-            {PROOF.sub}
-          </motion.p>
-        </motion.div>
+          </h2>
+          <p className="mt-4 text-muted-foreground">{PROOF.sub}</p>
+        </ProgressReveal>
 
         <div className="mt-20 flex flex-col gap-24 lg:gap-36">
           {flagship.map((project, index) => (
