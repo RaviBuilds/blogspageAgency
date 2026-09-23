@@ -1,0 +1,58 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Evidence-shelf atmosphere — opacity-only breathing for the section's two
+   ambient glows, mirroring hero-ambient.module.css's technique (never
+   `scale`: a promoted layer's opacity is a pure compositor property, while
+   scaling a filtered/layered element forces its raster to be regenerated).
+   Reduced motion resolves to the resting opacity with no animation.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.breatheA {
+  animation: evidence-breathe 16s ease-in-out 0s infinite both;
+  will-change: opacity;
+}
+
+.breatheB {
+  animation: evidence-breathe 20s ease-in-out 3s infinite both;
+  will-change: opacity;
+}
+
+/* The single signature ghost-「G」 motif — slower, quieter breath than the
+   field glows so it feels like permanent atmosphere, not an animation. */
+.ghostBreathe {
+  animation: evidence-breathe 26s ease-in-out 6s infinite both;
+  will-change: opacity;
+}
+
+@keyframes evidence-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* The ambient dot-grid texture — a faint editorial grain behind the
+   evidence. Opacity-only, static (no animation), strictly subordinate. */
+.gridTexture {
+  background-image: radial-gradient(
+    circle,
+    rgba(14, 21, 36, 0.055) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+  mask-image: radial-gradient(
+    ellipse 80% 60% at 50% 40%,
+    black 0%,
+    transparent 75%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .breatheA,
+  .breatheB,
+  .ghostBreathe {
+    animation: none;
+  }
+}
