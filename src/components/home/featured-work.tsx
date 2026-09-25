@@ -361,7 +361,10 @@ function StoryEvidence({
         <motion.div
           style={ready ? { opacity: reveal.opacity, y: reveal.y } : undefined}
         >
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-text-subtle">
+          {/* 12px floor (P0-2 label pass): real content, so it has to be
+              readable on a phone. Decorative mockup interiors keep their
+              smaller type — there the tiny text depicts a product UI. */}
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-text-subtle">
             Built with
           </p>
           <p className="mt-1 text-sm text-muted-foreground">

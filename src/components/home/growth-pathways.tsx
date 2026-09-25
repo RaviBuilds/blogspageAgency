@@ -315,7 +315,8 @@ function GrowthWorld({
             {pillar.number}
           </span>
           <span
-            className="rounded-full border px-2.5 py-0.5 text-[11px] font-medium tracking-wide"
+            /* 12px floor — real content, see featured-work.tsx. */
+            className="rounded-full border px-2.5 py-0.5 text-xs font-medium tracking-wide"
             style={{
               borderColor: `rgba(${pillar.accent}, 0.35)`,
               color: `rgb(${pillar.accent})`,
@@ -336,7 +337,9 @@ function GrowthWorld({
             piece of imagery per world. The final node carries the pillar
             accent: colour for meaning (destination), not decoration. */}
         <div className="relative mt-6 rounded-xl border border-white/[0.08] bg-[#0a0a0b] p-4">
-          <p className="text-[11px] uppercase tracking-wider text-neutral-400">
+          {/* 12px floor — real content (not aria-hidden), see
+              featured-work.tsx. */}
+          <p className="text-xs uppercase tracking-wider text-neutral-400">
             {pillar.chainFacing}
           </p>
           <motion.div
@@ -351,7 +354,13 @@ function GrowthWorld({
                 <Fragment key={step}>
                   <motion.div
                     variants={chainNodeRise}
-                    className="flex w-12 flex-col items-center gap-1.5 text-center sm:w-14"
+                    /* Flex-distributed rather than a fixed 48px column: the
+                       longest labels ("Operations", "Follow-up") cannot fit at
+                       the 12px floor in 48px, and the floor is not negotiable
+                       for real content. Equal shares plus `min-w-0` let the
+                       long ones wrap to two lines while `items-start` on the
+                       parent keeps every icon on one line. */
+                    className="flex min-w-0 flex-1 flex-col items-center gap-1.5 text-center"
                   >
                     <span
                       className="flex size-9 shrink-0 items-center justify-center rounded-lg border"
@@ -376,14 +385,17 @@ function GrowthWorld({
                         }}
                       />
                     </span>
-                    <span className="text-[10px] leading-tight text-neutral-400">
+                    {/* 12px floor — real content, see featured-work.tsx. The
+                        flex columns above exist to make this size fit. */}
+                    <span className="text-xs leading-tight text-neutral-400">
                       {step}
                     </span>
                   </motion.div>
                   {!isLast && (
                     <span
                       aria-hidden
-                      className="mt-[18px] h-px min-w-2 flex-1 bg-white/10"
+                      /* Fixed now that the nodes carry the flex growth. */
+                      className="mt-[18px] h-px w-2 shrink-0 bg-white/10"
                     />
                   )}
                 </Fragment>

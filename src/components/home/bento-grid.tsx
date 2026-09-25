@@ -313,7 +313,8 @@ export function BentoGrid() {
                   />
 
                   <div className="relative">
-                    <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-text-subtle">
+                    {/* 12px floor — real content, see featured-work.tsx. */}
+                    <p className="text-xs font-medium uppercase tracking-[0.18em] text-text-subtle">
                       {selected.focus}
                     </p>
                     <h3 className="mt-2 text-balance text-2xl font-semibold tracking-tight text-foreground xl:text-3xl">

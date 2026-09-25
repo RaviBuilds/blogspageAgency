@@ -138,7 +138,8 @@ function SupportingCard({
 
       <div className="relative z-10 flex flex-1 flex-col pt-5">
         <span
-          className="inline-block w-fit rounded-full border px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.16em]"
+          /* 12px floor — real content, see featured-work.tsx. */
+          className="inline-block w-fit rounded-full border px-2.5 py-0.5 text-xs font-medium uppercase tracking-[0.16em]"
           style={{
             borderColor: `rgba(${project.accent}, 0.3)`,
             color: `rgba(${project.accent}, 0.9)`,

@@ -367,7 +367,8 @@ function VerticalCard({
           className="mt-4 border-l-2 pl-3 text-sm"
           style={{ borderColor: `rgba(${vertical.accent},0.35)` }}
         >
-          <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-text-subtle">
+          {/* 12px floor — real content, see featured-work.tsx. */}
+          <span className="block text-xs font-semibold uppercase tracking-[0.18em] text-text-subtle">
             Built with
           </span>
           <Link
