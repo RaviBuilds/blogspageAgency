@@ -37,7 +37,16 @@ import { webSiteNode } from "@/lib/structured-data";
  *   Movement 5  ProcessTimeline (id="process") + GrowthPathways (id="models")
  *               — the three-pillar growth story; DeliveryModels stays in the
  *               repo for /about's DELIVERY_MODELS import
- *   Movement 6/7 ConversationExperience (id="contact") + FinalCTA + journal
+ *   Interlude   LatestBlogs — the journal, in the QUIET register
+ *   Movement 6/7 ConversationExperience (id="contact") + FinalCTA
+ *
+ * P0-4 ordering: the page used to end
+ * `Testimonials → Contact → FinalCTA → LatestBlogs`, so the last thing a
+ * visitor saw was an index of blog posts — the closing argument was buried one
+ * section above an archive. The journal now sits between the trust movement and
+ * the conversation, where it reads as a quiet interlude, and the page closes on
+ * its own final call. `#contact` is unchanged and still lives on
+ * `contact-form.tsx`; only the order around it moved.
  *
  * Protected contracts honoured here: the `webSiteNode` JSON-LD stays rendered
  * on this page; every section keeps its anchor id; ComparisonSection is
@@ -69,9 +78,9 @@ export default function HomePage() {
       <ProcessTimeline />
       <GrowthPathways />
       <Testimonials />
+      <LatestBlogs />
       <ConversationExperience />
       <FinalCTA />
-      <LatestBlogs />
     </>
   );
 }

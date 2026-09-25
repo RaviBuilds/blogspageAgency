@@ -32,8 +32,12 @@ export async function LatestBlogs() {
     return null;
   }
 
+  /* Subtle top hairline: every other homepage section uses
+     `border-border-subtle`, and the journal is the page's quietest register —
+     the stronger rule was announcing it louder than the movements it sits
+     between. */
   return (
-    <section className="border-t border-border bg-background">
+    <section className="border-t border-border-subtle bg-background">
       <div className={`mx-auto max-w-6xl px-6 lg:px-8 ${RHYTHM_QUIET}`}>
         <div className="mb-12 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -53,26 +57,54 @@ export async function LatestBlogs() {
           </Link>
         </div>
 
-        <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {/*
+          A ruled index, not a card grid.
+
+          The journal used to render as three bordered cards on a tinted surface
+          that scaled up on hover — the same card language the page already uses
+          for services, industries, pathways and the work archive. Reusing it
+          here gave an archive listing the same visual weight as the page's
+          arguments, and `hover:scale` on a text link is motion with no meaning.
+
+          An index is a list of references, so it is set as one: hairline-ruled
+          rows, the date as a quiet leading column, the title carrying the row.
+          Hover moves the arrow only — the same restrained affordance the "View
+          all articles" link uses.
+        */}
+        <ul className="border-t border-border-subtle">
           {posts.map((post) => (
-            <li key={post._id}>
+            <li key={post._id} className="border-b border-border-subtle">
               <Link
                 href={`/blogs/${post.slug}`}
-                className="group flex h-full flex-col rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:scale-[1.02] hover:border-primary"
+                className="group flex items-baseline gap-4 py-5 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 sm:gap-8"
               >
                 {post.publishedAt ? (
                   <time
                     dateTime={post.publishedAt}
-                    className="text-xs text-muted-foreground"
+                    className="hidden w-28 shrink-0 text-xs tabular-nums text-muted-foreground sm:block"
                   >
                     {formatDate(post.publishedAt)}
                   </time>
-                ) : null}
+                ) : (
+                  /* Keeps the title column aligned when a post has no date. */
+                  <span aria-hidden className="hidden w-28 shrink-0 sm:block" />
+                )}
 
-                <h3 className="mt-3 flex items-start gap-2 text-lg font-medium tracking-tight transition-colors group-hover:text-primary">
+                <h3 className="flex-1 text-lg font-medium tracking-tight text-balance">
                   {post.title}
-                  <ArrowUpRight className="mt-1 size-4 shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
+                  {/* The date still has to reach a phone, where the leading
+                      column is hidden. */}
+                  {post.publishedAt ? (
+                    <time
+                      dateTime={post.publishedAt}
+                      className="mt-1 block text-xs tabular-nums text-muted-foreground sm:hidden"
+                    >
+                      {formatDate(post.publishedAt)}
+                    </time>
+                  ) : null}
                 </h3>
+
+                <ArrowUpRight className="size-4 shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
               </Link>
             </li>
           ))}
