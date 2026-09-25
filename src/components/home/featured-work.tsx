@@ -651,7 +651,18 @@ function BrandCaseStory({
         <StoryHeader project={project} progress={progress} />
       </div>
 
-      <motion.div style={mediaStyle} className="relative">
+      {/* The page's ONE full-bleed moment.
+
+          Breakout rather than a wider max-width: the story's own header and
+          detail band stay on the `max-w-6xl` measure, and only the product
+          image crosses it, so the edge-to-edge width reads as deliberate
+          emphasis instead of a different container. Safe because the `#work`
+          section carries `overflow-hidden` — a `100vw` child cannot introduce
+          a horizontal scrollbar. */}
+      <motion.div
+        style={mediaStyle}
+        className="relative left-1/2 w-screen -translate-x-1/2"
+      >
         <BrandPlate project={project} />
       </motion.div>
 
@@ -680,30 +691,56 @@ function BrandCaseStory({
   );
 }
 
-/* NeoDent "brand" frame — a cleaner brand plate instead of mac browser
-   chrome on a healthcare brand story. The real screenshot stays the visual
-   authority: full fidelity from the moment it enters, never dimmed. */
+/* NeoDent "brand" frame — the page's one full-bleed product moment.
+   The real screenshot stays the visual authority: full fidelity from the
+   moment it enters, never dimmed or recolored.
+
+   No `ScreenshotStage` plinth here, unlike the contained stories above. A
+   floor shadow, an edge-lit hairline and rounded corners all say "this is an
+   object sitting on a surface" — which is exactly right for an exhibit inside
+   a measure, and wrong for an image that runs to both edges of the viewport.
+   Full bleed means the image *is* the surface, so the framing drops away and
+   only the horizontal hairlines above and below remain to seat it in the
+   dark section.
+
+   The aspect ratio also has to change with the width: at `100vw` a 3/2 crop
+   would stand ~900px tall on a desktop and swallow the whole viewport, so the
+   plate flattens progressively as it widens. */
 function BrandPlate({ project }: { project: FeaturedProject }) {
   return (
-    <ScreenshotStage accent={project.accent}>
-      <div className="relative aspect-[3/2] w-full">
+    <figure className="relative border-y border-white/[0.07]">
+      {/* Accent wash bleeding from the section into the image edges, so the
+          full-bleed plate is seated rather than pasted on. Decorative. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-10"
+        style={{
+          background: `linear-gradient(90deg, rgba(${project.accent}, 0.10) 0%, transparent 18%, transparent 82%, rgba(${project.accent}, 0.10) 100%)`,
+        }}
+      />
+      <div className="relative aspect-[4/3] w-full sm:aspect-[16/9] lg:aspect-[21/9]">
         <Image
           src={project.image}
           alt={`${project.headline} — live website`}
           fill
-          sizes="(min-width: 1024px) 1100px, 100vw"
+          /* Full-bleed at every breakpoint, so the hint is simply the
+             viewport width. No `priority`: this is the third story in a
+             below-the-fold gallery and must never compete with the hero for
+             the LCP window. `next/image` lazy-loads by default. */
+          sizes="100vw"
           className="object-cover object-top"
         />
       </div>
-      <div className="relative flex items-center justify-between border-t border-border-subtle bg-white/[0.02] px-4 py-2.5">
+      <figcaption className="relative mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3 lg:px-8">
         <span className="text-xs font-medium text-muted-foreground">
           {project.headline} — live site
         </span>
-        <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-text-subtle">
+        {/* 12px floor, per the P0-2 label pass. */}
+        <span className="text-xs font-medium uppercase tracking-[0.18em] text-text-subtle">
           Real screenshot
         </span>
-      </div>
-    </ScreenshotStage>
+      </figcaption>
+    </figure>
   );
 }
 
