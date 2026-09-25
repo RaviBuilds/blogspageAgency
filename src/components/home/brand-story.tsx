@@ -6,11 +6,7 @@ import { motion, useScroll, type Variants } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { BRAND_CHAPTER_ONE, BRAND_CHAPTER_TWO } from "@/lib/brand-story-data";
-import {
-  BRAND_TEXT_GRADIENT,
-  TYPE_MICRO_LABEL,
-  TYPE_SECTION,
-} from "@/lib/brand-type";
+import { TYPE_MICRO_LABEL, TYPE_SECTION } from "@/lib/brand-type";
 import {
   BrandOrbit,
   PhysicalToDigitalPanel,
@@ -89,20 +85,22 @@ export function BrandStory() {
             <motion.p variants={fadeUp} className={TYPE_MICRO_LABEL}>
               {BRAND_CHAPTER_ONE.eyebrow}
             </motion.p>
+            {/* P0-1: `question` / `answer` / `bridgeToBrand` were promoted out
+                of this header into the Manifesto beat directly below the hero
+                (see `manifesto.tsx`) — they are the page's belief, and they
+                were being rendered at section size in the middle of a teaching
+                movement. The copy is not duplicated here.
+
+                What remains is the chapter's own job: explaining what a brand
+                actually is. `insight` becomes that heading — it was already
+                written, and it was already the chapter's thesis; it simply sat
+                below the orbit instead of leading. It is removed from the
+                bridge block further down, so it still renders exactly once. */}
             <motion.h2 variants={fadeUp} className={`mt-3 ${TYPE_SECTION}`}>
-              {BRAND_CHAPTER_ONE.question}
+              {BRAND_CHAPTER_ONE.insight}
             </motion.h2>
-            <motion.p
-              variants={fadeUp}
-              className="mt-4 text-xl font-semibold tracking-tight text-foreground"
-            >
-              {BRAND_CHAPTER_ONE.answer}
-            </motion.p>
-            <motion.p variants={fadeUp} className="mt-3 text-muted-foreground">
+            <motion.p variants={fadeUp} className="mt-4 text-muted-foreground">
               {BRAND_CHAPTER_ONE.lead}
-            </motion.p>
-            <motion.p variants={fadeUp} className="mt-5 text-2xl font-semibold tracking-tight sm:text-3xl">
-              <span style={BRAND_TEXT_GRADIENT}>{BRAND_CHAPTER_ONE.bridgeToBrand}</span>
             </motion.p>
             <motion.p variants={fadeUp} className="mt-4 text-muted-foreground">
               {BRAND_CHAPTER_ONE.explanation}
@@ -118,21 +116,18 @@ export function BrandStory() {
             </span>
           </div>
 
-          {/* Insight bridge → touchpoints, closing chapter 1. */}
+          {/* Touchpoints, closing chapter 1. The insight line that used to
+              introduce this row is now the chapter heading above — the row is
+              the evidence for it, so it no longer needs its own restatement. */}
           <motion.div
             variants={riseIn}
             {...insightBridge}
             className="mx-auto mt-16 max-w-2xl text-center"
           >
-            <p className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-              {BRAND_CHAPTER_ONE.insight}
-            </p>
-            <div className="mt-6">
-              <TouchpointRow progress={scrollYProgress} />
-              <span className="sr-only">
-                Touchpoints: {BRAND_CHAPTER_ONE.touchpoints.join(" → ")}
-              </span>
-            </div>
+            <TouchpointRow progress={scrollYProgress} />
+            <span className="sr-only">
+              Touchpoints: {BRAND_CHAPTER_ONE.touchpoints.join(" → ")}
+            </span>
           </motion.div>
         </div>
       </section>

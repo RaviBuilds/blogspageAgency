@@ -1,4 +1,5 @@
 import { Hero } from "@/components/home/hero";
+import { Manifesto } from "@/components/home/manifesto";
 import { AudiencePathways } from "@/components/home/audience-pathways";
 import { DigitalPresenceStory } from "@/components/home/digital-presence-story";
 import { BrandStory } from "@/components/home/brand-story";
@@ -20,6 +21,10 @@ import { webSiteNode } from "@/lib/structured-data";
  *
  * Narrative order follows the approved plan / Blueprint §44 storyboard:
  *   Movement 1  Hero (dark island, untouched isolation wrapper)
+ *   Movement 1b Manifesto — the page's belief, stated once before it asks the
+ *               visitor anything. The copy is the promoted opening of
+ *               BrandStory chapter 1 (see `manifesto.tsx`); it is not
+ *               duplicated there.
  *   Movement 2  AudiencePathways — "Where are you right now?"
  *   Movement 2b DigitalPresenceStory — starting-from-zero story
  *   Movement 2c BrandStory (id="brand" + id="digital-office") — the
@@ -53,6 +58,7 @@ export default function HomePage() {
       <div className="dark hero-island">
         <Hero />
       </div>
+      <Manifesto />
       <AudiencePathways />
       <DigitalPresenceStory />
       <BrandStory />
