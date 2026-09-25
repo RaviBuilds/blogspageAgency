@@ -10,6 +10,7 @@ import { Star } from "lucide-react";
 import { useRef, type ReactNode } from "react";
 
 import { useMotionReady } from "@/components/home/progress-reveal";
+import { EASE } from "@/lib/motion";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Evidence-shelf micro-choreography (client primitives).
@@ -26,8 +27,6 @@ import { useMotionReady } from "@/components/home/progress-reveal";
    - ReviewStars: the rating's five stars settle in sequence (70ms/star).
    - AmbientFade: the section's atmosphere fades in ahead of the copy.
    ───────────────────────────────────────────────────────────────────────────── */
-
-const EASE = [0.16, 1, 0.3, 1] as const;
 
 /** `hidden` carries `duration: 0` so the pre-paint armed flip is instant —
     exactly the mechanism ScrollReveal's hidden variant uses. */

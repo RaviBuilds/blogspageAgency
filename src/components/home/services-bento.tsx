@@ -32,6 +32,7 @@ import {
   TYPE_SECTION,
 } from "@/lib/brand-type";
 import { RHYTHM_MOVEMENT } from "@/lib/section-rhythm";
+import { SPRING, STAGGER_STAGED } from "@/lib/motion";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 import {
   CapabilitySpine,
@@ -94,16 +95,11 @@ import {
    override still points at the legacy near-white gradient).
    ───────────────────────────────────────────────────────────────────────────── */
 
-const SPRING = {
-  type: "spring",
-  stiffness: 100,
-  damping: 20,
-  mass: 1,
-} as const;
-
 const gridVariants: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.35 } },
+  /* STAGED, not COPY: each child here is an entire animated capability visual,
+     so overlapping them would put three scenes in motion at once. */
+  show: { transition: { staggerChildren: STAGGER_STAGED } },
 };
 
 /* `hidden` is instant on both: these blocks arm their hidden state *after*

@@ -12,6 +12,7 @@ import {
   TYPE_STATEMENT,
 } from "@/lib/brand-type";
 import { RHYTHM_MOVEMENT } from "@/lib/section-rhythm";
+import { SPRING, STAGGER_COPY } from "@/lib/motion";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -28,16 +29,9 @@ import { useStaggerReveal } from "@/components/home/scroll-reveal";
    hash. Nobody is forced into the chat; every path is a real link.
    ───────────────────────────────────────────────────────────────────────────── */
 
-const SPRING = {
-  type: "spring",
-  stiffness: 100,
-  damping: 20,
-  mass: 1,
-} as const;
-
 const container: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.08 } },
+  show: { transition: { staggerChildren: STAGGER_COPY } },
 };
 
 /* `hidden` is instant: it arms after hydration (see `useStaggerReveal`), so a

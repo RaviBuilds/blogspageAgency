@@ -12,6 +12,7 @@ import { findApprovedCity } from "@/lib/cities";
 import { NAP } from "@/lib/site";
 import { TYPE_MICRO_LABEL, TYPE_SECTION } from "@/lib/brand-type";
 import { RHYTHM_MOVEMENT } from "@/lib/section-rhythm";
+import { EASE, SPRING, STAGGER_COPY } from "@/lib/motion";
 import { useMotionReady } from "@/components/home/progress-reveal";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 
@@ -43,18 +44,9 @@ import { useStaggerReveal } from "@/components/home/scroll-reveal";
    section ourselves, and show the carried context as a chip.
    ───────────────────────────────────────────────────────────────────────────── */
 
-const SPRING = {
-  type: "spring",
-  stiffness: 100,
-  damping: 20,
-  mass: 1,
-} as const;
-
-const EASE = [0.16, 1, 0.3, 1] as const;
-
 const container: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.08 } },
+  show: { transition: { staggerChildren: STAGGER_COPY } },
 };
 
 /* `hidden` is instant: it arms after hydration (see `useStaggerReveal`), so a

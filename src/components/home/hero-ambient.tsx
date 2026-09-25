@@ -7,20 +7,13 @@ import { Button } from "@/components/ui/button";
 import { trackEvent } from "@/lib/analytics";
 import { HERO_JOURNEY } from "@/lib/homepage-data";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
+import { SPRING, STAGGER_COPY } from "@/lib/motion";
 import styles from "./hero-ambient.module.css";
-
-// Premium spring from the design system (§5 Motion Physics).
-const SPRING = {
-  type: "spring",
-  stiffness: 100,
-  damping: 20,
-  mass: 1,
-} as const;
 
 const container: Variants = {
   hidden: {},
   show: {
-    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+    transition: { staggerChildren: STAGGER_COPY, delayChildren: 0.1 },
   },
 };
 

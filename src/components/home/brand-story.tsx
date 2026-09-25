@@ -8,6 +8,7 @@ import { trackEvent } from "@/lib/analytics";
 import { BRAND_CHAPTER_ONE, BRAND_CHAPTER_TWO } from "@/lib/brand-story-data";
 import { TYPE_MICRO_LABEL, TYPE_SECTION } from "@/lib/brand-type";
 import { RHYTHM_CONTINUE } from "@/lib/section-rhythm";
+import { SPRING, STAGGER_COPY } from "@/lib/motion";
 import {
   BrandOrbit,
   PhysicalToDigitalPanel,
@@ -27,11 +28,9 @@ import { useStaggerReveal } from "@/components/home/scroll-reveal";
    window to its settled end state; nothing here is a card grid.
    ───────────────────────────────────────────────────────────────────────── */
 
-const SPRING = { type: "spring", stiffness: 100, damping: 20, mass: 1 } as const;
-
 const container: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.08 } },
+  show: { transition: { staggerChildren: STAGGER_COPY } },
 };
 
 /* `hidden` is instant on purpose. These blocks arm their hidden state *after*

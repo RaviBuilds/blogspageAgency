@@ -17,6 +17,7 @@ import {
   TYPE_SECTION,
 } from "@/lib/brand-type";
 import { RHYTHM_MOVEMENT } from "@/lib/section-rhythm";
+import { SPRING, STAGGER_SEQUENCE } from "@/lib/motion";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 import {
   BriefArtifact,
@@ -61,11 +62,11 @@ import {
    the heading + selective-gradient treatment, the `You end with:` outcome
    rows, §5 spring system, reduced-motion readability.
    ─────────────────────────────────────────────────────────────────────────── */
-const SPRING = { type: "spring", stiffness: 100, damping: 20, mass: 1 } as const;
-
 const container: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.1 } },
+  /* SEQUENCE: the arrival order of the journey stages is information here, so
+     it is worth the extra beat between children. */
+  show: { transition: { staggerChildren: STAGGER_SEQUENCE } },
 };
 
 /* `hidden` is instant: it arms after hydration (see `useStaggerReveal`), so a

@@ -9,6 +9,7 @@ import {
 import { useRef, type ReactNode } from "react";
 
 import { useMotionReady } from "@/components/home/progress-reveal";
+import { EASE } from "@/lib/motion";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    ScrollReveal — a mount-safe fade-up for one content block.
@@ -23,8 +24,6 @@ import { useMotionReady } from "@/components/home/progress-reveal";
    `prefers-reduced-motion` resolves to the settled state with no delay.
    `once: true` — a review never fades back out on upward scroll.
    ───────────────────────────────────────────────────────────────────────────── */
-
-const EASE = [0.16, 1, 0.3, 1] as const;
 
 /**
  * SSR-safe reveal wiring for a *staggered* container.

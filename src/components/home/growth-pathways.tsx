@@ -33,6 +33,7 @@ import {
   TYPE_SECTION,
 } from "@/lib/brand-type";
 import { RHYTHM_CONTINUE } from "@/lib/section-rhythm";
+import { EASE, STAGGER_COPY } from "@/lib/motion";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 
 /**
@@ -57,8 +58,6 @@ import { useStaggerReveal } from "@/components/home/scroll-reveal";
  * every element mounts in its final state with no transform or fade. No
  * scroll-progress system here: `#process` owns the page's one scroll system.
  */
-
-const EASE = [0.16, 1, 0.3, 1] as const;
 
 /** The continuous START → BUILD → SCALE rail (cyan → blue → violet). */
 const RAIL_GRADIENT =
@@ -94,7 +93,7 @@ const worldRise: Variants = {
 
 const chainStagger: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.3 } },
+  visible: { transition: { staggerChildren: STAGGER_COPY, delayChildren: 0.3 } },
 };
 
 const chainNodeRise: Variants = {

@@ -22,6 +22,7 @@ import {
   TYPE_SECTION,
 } from "@/lib/brand-type";
 import { RHYTHM_SECTION } from "@/lib/section-rhythm";
+import { SPRING, STAGGER_FIELD } from "@/lib/motion";
 import { projects } from "@/lib/featured-work-data";
 import {
   DEFAULT_INDUSTRY_ACCENT,
@@ -55,11 +56,11 @@ import { cn } from "@/lib/utils";
    rewritten.
    ──────────────────────────────────────────────────────────────────────────── */
 
-const SPRING = { type: "spring", stiffness: 100, damping: 20, mass: 1 } as const;
-
 const fieldVariants: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.05 } },
+  /* FIELD: ten industry entries — the shortest interval, so the index reads as
+     one surface resolving rather than ten items queueing. */
+  show: { transition: { staggerChildren: STAGGER_FIELD } },
 };
 
 /* `hidden` is instant: it arms after hydration (see `useStaggerReveal`), so a
