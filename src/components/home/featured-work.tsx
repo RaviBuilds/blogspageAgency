@@ -19,6 +19,7 @@ import {
   TYPE_EYEBROW,
   TYPE_SECTION,
 } from "@/lib/brand-type";
+import { RHYTHM_MOVEMENT } from "@/lib/section-rhythm";
 import { trackEvent } from "@/lib/analytics";
 import { SystemFlow } from "@/components/home/system-flow";
 import {
@@ -717,7 +718,10 @@ export function FeaturedProof() {
   return (
     <section
       id="work"
-      className="dark relative scroll-mt-24 overflow-hidden border-t border-border bg-background py-24 lg:py-32"
+      className={cn(
+        "dark relative scroll-mt-24 overflow-hidden border-t border-border bg-background",
+        RHYTHM_MOVEMENT,
+      )}
     >
       {/* Section seam — the light page tone dissolves into the gallery as the
           section enters, and re-forms on the way back up, so the dark island

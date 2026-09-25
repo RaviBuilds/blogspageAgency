@@ -6,6 +6,7 @@ import { SUPPORTING, SUPPORTING_PROJECT_IDS } from "@/lib/homepage-data";
 import { TrackedLink } from "@/components/home/tracked-link";
 import { ProgressReveal } from "@/components/home/progress-reveal";
 import { SectionSeam } from "@/components/home/section-seam";
+import { RHYTHM_CONTINUE } from "@/lib/section-rhythm";
 import { cn } from "@/lib/utils";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -43,7 +44,12 @@ export function SupportingWork() {
   return (
     <section
       id="more-work"
-      className="dark relative scroll-mt-24 border-t border-border-subtle bg-background py-20 lg:py-24"
+      className={cn(
+        "dark relative scroll-mt-24 border-t border-border-subtle bg-background",
+        /* CONTINUE: the archive is the second half of the flagship gallery
+           above, not a new movement. The tight top pad binds the two. */
+        RHYTHM_CONTINUE,
+      )}
     >
       {/* R6.1: a slightly cooler tonal band opens the archive — a quiet shift
           out of the flagship chapters, still one dark language. */}

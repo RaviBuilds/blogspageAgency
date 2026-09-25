@@ -4,6 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 import { client } from "@/sanity/lib/client";
 import { LATEST_POSTS_QUERY, type LatestPost } from "@/sanity/lib/queries";
 import { TYPE_MICRO_LABEL, TYPE_QUIET } from "@/lib/brand-type";
+import { RHYTHM_QUIET } from "@/lib/section-rhythm";
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("en-US", {
@@ -33,7 +34,7 @@ export async function LatestBlogs() {
 
   return (
     <section className="border-t border-border bg-background">
-      <div className="mx-auto max-w-6xl px-6 py-20 lg:px-8 lg:py-24">
+      <div className={`mx-auto max-w-6xl px-6 lg:px-8 ${RHYTHM_QUIET}`}>
         <div className="mb-12 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className={TYPE_MICRO_LABEL}>Journal</p>

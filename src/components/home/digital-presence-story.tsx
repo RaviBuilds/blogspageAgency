@@ -10,6 +10,7 @@ import {
   TYPE_MICRO_LABEL,
   TYPE_SECTION,
 } from "@/lib/brand-type";
+import { RHYTHM_SECTION } from "@/lib/section-rhythm";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 import { DigitalHomeVisual } from "./digital-home-visual";
 
@@ -74,13 +75,14 @@ export function DigitalPresenceStory() {
   return (
     <section
       id={PRESENCE_STORY.anchorId}
-      className="scroll-mt-24 border-t border-border-subtle bg-background-subtle py-24 lg:py-32"
+      className={`scroll-mt-24 border-t border-border-subtle bg-background-subtle ${RHYTHM_SECTION}`}
     >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <motion.div
           variants={container}
           {...header}
-          className="mx-auto max-w-2xl text-center"
+          /* Left-aligned — narrative movement, see brand-story.tsx. */
+          className="max-w-2xl"
         >
           {/* Not a scanning anchor — muted micro label, see bento-grid. */}
           <motion.p variants={fadeUp} className={TYPE_MICRO_LABEL}>

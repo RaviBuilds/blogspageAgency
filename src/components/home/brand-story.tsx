@@ -7,6 +7,7 @@ import { ArrowRight } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { BRAND_CHAPTER_ONE, BRAND_CHAPTER_TWO } from "@/lib/brand-story-data";
 import { TYPE_MICRO_LABEL, TYPE_SECTION } from "@/lib/brand-type";
+import { RHYTHM_CONTINUE, RHYTHM_SECTION } from "@/lib/section-rhythm";
 import {
   BrandOrbit,
   PhysicalToDigitalPanel,
@@ -73,13 +74,16 @@ export function BrandStory() {
       {/* ── Chapter 1 — Built for the long run ─────────────────────────── */}
       <section
         id={BRAND_CHAPTER_ONE.anchorId}
-        className="scroll-mt-24 border-t border-border-subtle bg-background py-24 lg:py-32"
+        className={`scroll-mt-24 border-t border-border-subtle bg-background ${RHYTHM_SECTION}`}
       >
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <motion.div
             variants={container}
             {...chapterOneHeader}
-            className="mx-auto max-w-2xl text-center"
+            /* Left-aligned: centered headers are now reserved for the three
+               scanning anchors and the closing call. A narrative movement reads
+               as prose, so it starts at the measure's left edge. */
+            className="max-w-2xl"
           >
             {/* Not a scanning anchor — muted micro label, see bento-grid. */}
             <motion.p variants={fadeUp} className={TYPE_MICRO_LABEL}>
@@ -135,7 +139,10 @@ export function BrandStory() {
       {/* ── Chapter 2 — Your website is your digital office ────────────── */}
       <section
         id={BRAND_CHAPTER_TWO.anchorId}
-        className="scroll-mt-24 border-t border-border-subtle bg-background-subtle py-24 lg:py-32"
+        /* CONTINUE: chapter 2 is literally the same story as chapter 1 — they
+           already share one scroll progress value. The tight top pad stops the
+           page from reading them as two separate lessons. */
+        className={`scroll-mt-24 border-t border-border-subtle bg-background-subtle ${RHYTHM_CONTINUE}`}
       >
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <div className="grid gap-10 lg:grid-cols-12 lg:items-center lg:gap-12">

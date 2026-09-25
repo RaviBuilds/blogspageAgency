@@ -31,6 +31,7 @@ import {
   TYPE_EYEBROW,
   TYPE_SECTION,
 } from "@/lib/brand-type";
+import { RHYTHM_MOVEMENT } from "@/lib/section-rhythm";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 import {
   CapabilitySpine,
@@ -517,7 +518,10 @@ export function ServiceVerticals() {
     <section
       ref={sectionRef}
       id="services"
-      className="relative scroll-mt-24 overflow-hidden border-t border-border bg-background py-24 lg:py-32"
+      className={cn(
+        "relative scroll-mt-24 overflow-hidden border-t border-border bg-background",
+        RHYTHM_MOVEMENT,
+      )}
     >
       {/* R5.2 brand atmosphere — one very light triad wash across the whole
           section, in the same cyan → blue → violet sweep and the same light

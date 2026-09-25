@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
 import { AUDIENCE } from "@/lib/homepage-data";
 import { TYPE_MICRO_LABEL, TYPE_SECTION } from "@/lib/brand-type";
+import { RHYTHM_MOVEMENT } from "@/lib/section-rhythm";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -539,7 +540,10 @@ export function AudiencePathways() {
   const cards = useStaggerReveal();
 
   return (
-    <section className="relative overflow-hidden border-t border-border bg-background py-24 lg:py-32">
+    <section className={cn(
+      "relative overflow-hidden border-t border-border bg-background",
+      RHYTHM_MOVEMENT,
+    )}>
       {/*
         R3A.1 — editorial technology atmosphere. Pure CSS, zero JS, zero
         animation, `aria-hidden` and pointer-inert. Three barely-there layers

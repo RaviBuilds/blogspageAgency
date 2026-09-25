@@ -21,6 +21,7 @@ import {
   TYPE_MICRO_LABEL,
   TYPE_SECTION,
 } from "@/lib/brand-type";
+import { RHYTHM_SECTION } from "@/lib/section-rhythm";
 import { projects } from "@/lib/featured-work-data";
 import {
   DEFAULT_INDUSTRY_ACCENT,
@@ -141,7 +142,10 @@ export function BentoGrid() {
     <section
       ref={sectionRef}
       id="solutions"
-      className="relative scroll-mt-24 overflow-hidden border-t border-border-subtle bg-background-subtle py-24 lg:py-32"
+      className={cn(
+        "relative scroll-mt-24 overflow-hidden border-t border-border-subtle bg-background-subtle",
+        RHYTHM_SECTION,
+      )}
     >
       {/* R7 environment: light editorial field with a restrained cyan/blue
           atmosphere behind the opening — decorative, aria-hidden; R9: its
@@ -168,7 +172,9 @@ export function BentoGrid() {
       <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
         {/* Section header (Blueprint §15 approved wording). R9: establishes
             with scroll, like every other section on the page. */}
-        <ProgressReveal className="mx-auto max-w-2xl text-center">
+        {/* Left-aligned — a bridge into the solution index, not a scanning
+            anchor. See brand-story.tsx. */}
+        <ProgressReveal className="max-w-2xl">
           {/* Not a scanning anchor — demoted to the muted micro label so the
               primary eyebrow stays reserved for Services, Work and Process. */}
           <p className={TYPE_MICRO_LABEL}>{BRIDGE.eyebrow}</p>

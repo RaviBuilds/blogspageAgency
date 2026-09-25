@@ -4,6 +4,7 @@ import { ScrollReveal } from "@/components/home/scroll-reveal";
 import { AmbientFade, ReviewStars } from "@/components/home/review-stars";
 import { TESTIMONIALS, type Testimonial } from "@/lib/testimonials-data";
 import { BRAND_TEXT_GRADIENT, TYPE_SECTION } from "@/lib/brand-type";
+import { RHYTHM_SECTION } from "@/lib/section-rhythm";
 
 import ambient from "./testimonials-ambient.module.css";
 
@@ -189,7 +190,7 @@ export function Testimonials() {
   }
 
   return (
-    <section className="relative overflow-hidden border-t border-border bg-background py-24 lg:py-32">
+    <section className={`relative overflow-hidden border-t border-border bg-background ${RHYTHM_SECTION}`}>
       {/* Atmosphere — a quiet "local-business reputation map": two faint
           breathing glows (Google blue / green), the single signature ghost-"G"
           clipped by the right edge, faint route lines with location-pin and

@@ -11,6 +11,7 @@ import {
   TYPE_MICRO_LABEL,
   TYPE_STATEMENT,
 } from "@/lib/brand-type";
+import { RHYTHM_MOVEMENT } from "@/lib/section-rhythm";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -65,7 +66,7 @@ export function FinalCTA() {
   const reveal = useStaggerReveal();
 
   return (
-    <section className="border-t border-border-subtle bg-background-subtle py-24 lg:py-32">
+    <section className={`border-t border-border-subtle bg-background-subtle ${RHYTHM_MOVEMENT}`}>
       <motion.div
         variants={container}
         {...reveal}

@@ -32,6 +32,7 @@ import {
   TYPE_MICRO_LABEL,
   TYPE_SECTION,
 } from "@/lib/brand-type";
+import { RHYTHM_CONTINUE } from "@/lib/section-rhythm";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 
 /**
@@ -132,7 +133,10 @@ export function GrowthPathways() {
   return (
     <section
       id="models"
-      className="scroll-mt-24 border-t border-border-subtle bg-background-subtle py-24 lg:py-32"
+      /* CONTINUE: the growth pillars answer the process narrative directly
+         above — how a business moves through the stages it just watched being
+         built. Tight top pad reads the two as one movement. */
+      className={`scroll-mt-24 border-t border-border-subtle bg-background-subtle ${RHYTHM_CONTINUE}`}
     >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <GrowthIntro />
@@ -164,7 +168,8 @@ function GrowthIntro() {
     <motion.div
       variants={introRise}
       {...reveal}
-      className="mx-auto max-w-2xl text-center"
+      /* Left-aligned — narrative movement, see brand-story.tsx. */
+      className="max-w-2xl"
     >
       {/* Not a scanning anchor — muted micro label, see bento-grid. */}
       <p className={TYPE_MICRO_LABEL}>{GROWTH_SECTION.eyebrow}</p>

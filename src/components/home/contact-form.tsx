@@ -11,6 +11,7 @@ import { NICHES } from "@/lib/niches";
 import { findApprovedCity } from "@/lib/cities";
 import { NAP } from "@/lib/site";
 import { TYPE_MICRO_LABEL, TYPE_SECTION } from "@/lib/brand-type";
+import { RHYTHM_MOVEMENT } from "@/lib/section-rhythm";
 import { useMotionReady } from "@/components/home/progress-reveal";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 
@@ -256,7 +257,7 @@ export function ConversationExperience() {
     <section
       id="contact"
       ref={sectionRef}
-      className="scroll-mt-24 border-t border-border-subtle bg-background py-24 lg:py-32"
+      className={`scroll-mt-24 border-t border-border-subtle bg-background ${RHYTHM_MOVEMENT}`}
     >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <motion.div
