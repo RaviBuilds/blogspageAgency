@@ -6,6 +6,11 @@ import { ArrowRight } from "lucide-react";
 
 import { trackEvent } from "@/lib/analytics";
 import { FINAL_CTA } from "@/lib/homepage-data";
+import {
+  BRAND_TEXT_GRADIENT,
+  TYPE_MICRO_LABEL,
+  TYPE_STATEMENT,
+} from "@/lib/brand-type";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -54,14 +59,6 @@ const HEADING_MAIN = HEADING_TEXT.endsWith(HEADING_ACCENT)
   ? HEADING_TEXT.slice(0, HEADING_TEXT.length - HEADING_ACCENT.length)
   : "";
 
-const BRAND_TEXT_GRADIENT = {
-  backgroundImage:
-    "linear-gradient(90deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)",
-  WebkitBackgroundClip: "text" as const,
-  backgroundClip: "text",
-  color: "transparent",
-} as const;
-
 export function FinalCTA() {
   /* SSR-safe reveal gate — the prerendered HTML carries the settled, readable
      composition; the hidden state arms only after hydration. */
@@ -74,14 +71,13 @@ export function FinalCTA() {
         {...reveal}
         className="relative z-10 mx-auto max-w-4xl px-6 text-center lg:px-8"
       >
-        <motion.p variants={fadeUp} className="text-sm font-medium text-primary">
+        <motion.p variants={fadeUp} className={TYPE_MICRO_LABEL}>
           {FINAL_CTA.eyebrow}
         </motion.p>
 
-        <motion.h2
-          variants={fadeUp}
-          className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl lg:text-5xl"
-        >
+        {/* STATEMENT tier — the page's closing argument, one of only two
+            raised-voice moments on the page (the other is the manifesto). */}
+        <motion.h2 variants={fadeUp} className={`mt-3 ${TYPE_STATEMENT}`}>
           {HEADING_MAIN || FINAL_CTA.heading}
           {HEADING_MAIN && (
             <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>

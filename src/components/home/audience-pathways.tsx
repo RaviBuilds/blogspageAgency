@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
 import { AUDIENCE } from "@/lib/homepage-data";
+import { TYPE_MICRO_LABEL, TYPE_SECTION } from "@/lib/brand-type";
+import { useStaggerReveal } from "@/components/home/scroll-reveal";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    MOVEMENT 2 — "Where are you right now?" (Blueprint §9)
@@ -21,26 +23,29 @@ import { AUDIENCE } from "@/lib/homepage-data";
    behind interaction or animation.
    ───────────────────────────────────────────────────────────────────────────── */
 
-/**
- * R5.2 brand text treatment — the section heading's meaningful phrase
- * ("right now?") carries the same restrained cyan → blue → violet sweep as
- * the Hero and the R5 section heading ("Build from there."): same inline
- * background-clip mechanism and the same light-signal values, declared inline
- * because the locked `.text-gradient` island override still points the class
- * at the legacy near-white gradient. No data change — the phrase is sliced
- * from the existing `AUDIENCE.heading` string, with a safe fallback.
- */
-const HEADING_ACCENT = "right now?";
-const HEADING_MAIN = AUDIENCE.heading.endsWith(HEADING_ACCENT)
-  ? AUDIENCE.heading.slice(0, AUDIENCE.heading.length - HEADING_ACCENT.length)
-  : "";
-const BRAND_TEXT_GRADIENT = {
-  backgroundImage:
-    "linear-gradient(90deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)",
-  WebkitBackgroundClip: "text" as const,
-  backgroundClip: "text",
-  color: "transparent",
-} as const;
+/* ─────────────────────────────────────────────────────────────────────────────
+   P0-1 / P0-2 — this section is the page's first post-hero moment.
+
+   Previously it opened the way eight other sections opened: a `text-primary`
+   eyebrow, a 36px `<h2>`, a gradient phrase, all inside `max-w-2xl text-center`.
+   Coming directly out of the dark cinematic hero, that handoff was the sharpest
+   drop in register on the page — the quality claim the hero makes collapsed at
+   the first seam into three bordered cards.
+
+   It now opens at STATEMENT scale in a wide, quiet field: the question is the
+   only thing in it, left-aligned, with the supporting line set beneath at a
+   measure that reads as editorial body rather than a centered deck.
+
+   What did *not* change: every word. `AUDIENCE.heading`, `AUDIENCE.eyebrow` and
+   `AUDIENCE.sub` all still render, all still server-side, and the element is
+   still an `<h2>`. The bigger tier is presentational — it does not promote this
+   heading in the document outline.
+
+   The gradient phrase is retired here. Rendering `AUDIENCE.heading` whole is
+   provably text-identical to the previous `MAIN + ACCENT` split (the split was
+   `slice(0, len - accent.len)` + `accent`), so no crawlable text is lost — the
+   page simply stops spending its one accent mechanism nine times over.
+   ───────────────────────────────────────────────────────────────────────────── */
 
 const SPRING = {
   type: "spring",
@@ -54,8 +59,11 @@ const container: Variants = {
   show: { transition: { staggerChildren: 0.08 } },
 };
 
+/* `hidden` is instant: it arms after hydration (see `useStaggerReveal`), so a
+   timed hidden transition would animate *away* from the painted server
+   composition. Only `show` carries the spring. */
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 24, transition: { duration: 0 } },
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
@@ -521,10 +529,14 @@ function PathwayDiagram({ pathId }: { pathId: string }) {
 }
 
 export function AudiencePathways() {
-  const shouldReduceMotion = useReducedMotion();
   // Pre-select the first path so the reveal pattern is discoverable and no
   // card renders an empty detail state on first paint.
   const [selected, setSelected] = useState<string>(AUDIENCE.paths[0].id);
+
+  /* SSR-safe reveal gates: the prerendered HTML ships the settled composition
+     (heading readable without JS), and the hidden state arms post-hydration. */
+  const header = useStaggerReveal();
+  const cards = useStaggerReveal();
 
   return (
     <section className="relative overflow-hidden border-t border-border bg-background py-24 lg:py-32">
@@ -554,35 +566,28 @@ export function AudiencePathways() {
         className="mx-auto -mt-16 mb-10 h-16 w-px bg-gradient-to-b from-transparent via-primary/25 to-primary/40 lg:-mt-20"
       />
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-        <motion.div
-          variants={container}
-          initial={shouldReduceMotion ? "show" : "hidden"}
-          whileInView="show"
-          viewport={{ once: true, margin: "-100px" }}
-          className="mx-auto max-w-2xl text-center"
-        >
-          <motion.p variants={fadeUp} className="text-sm font-medium text-primary">
+        <motion.div variants={container} {...header} className="max-w-3xl">
+          <motion.p variants={fadeUp} className={TYPE_MICRO_LABEL}>
             {AUDIENCE.eyebrow}
           </motion.p>
-          <motion.h2
-            variants={fadeUp}
-            className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
-          >
-            {HEADING_MAIN || AUDIENCE.heading}
-            {HEADING_MAIN && (
-              <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>
-            )}
+          {/* SECTION tier, not STATEMENT: this movement is wayfinding — it
+              helps a visitor locate themselves — rather than a belief the page
+              argues. The raised voice stays reserved for the manifesto and the
+              final call. The left-aligned field is kept. */}
+          <motion.h2 variants={fadeUp} className={cn("mt-5", TYPE_SECTION)}>
+            {AUDIENCE.heading}
           </motion.h2>
-          <motion.p variants={fadeUp} className="mt-4 text-muted-foreground">
+          <motion.p
+            variants={fadeUp}
+            className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground"
+          >
             {AUDIENCE.sub}
           </motion.p>
         </motion.div>
 
         <motion.div
           variants={container}
-          initial={shouldReduceMotion ? "show" : "hidden"}
-          whileInView="show"
-          viewport={{ once: true, margin: "-100px" }}
+          {...cards}
           className="mt-16 grid gap-4 md:grid-cols-3"
         >
           {AUDIENCE.paths.map((path) => {
@@ -614,7 +619,10 @@ export function AudiencePathways() {
                   card — the strategically important marker, kept intact.
                 */}
                 <div className="flex items-start justify-between gap-3">
-                  <span className="flex items-center gap-2 pt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  {/* 12px floor: this kicker was `text-[10px]`, below
+                      comfortable reading size on a phone. Uppercase micro-label
+                      with wide tracking is still the approved pattern. */}
+                  <span className="flex items-center gap-2 pt-1 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                     <span
                       aria-hidden
                       className={cn("size-1.5 rounded-full", KICKER_DOT[path.id])}
@@ -622,7 +630,7 @@ export function AudiencePathways() {
                     {journeyMeta.kicker}
                   </span>
                   {path.featured ? (
-                    <span className="inline-flex shrink-0 items-center rounded-full border border-primary/30 bg-primary/5 px-2.5 py-1 text-[10px] font-medium text-primary">
+                    <span className="inline-flex shrink-0 items-center rounded-full border border-primary/30 bg-primary/5 px-2.5 py-1 text-xs font-medium text-primary">
                       Most common starting point
                     </span>
                   ) : null}

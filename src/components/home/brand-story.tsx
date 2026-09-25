@@ -7,6 +7,11 @@ import { ArrowRight } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { BRAND_CHAPTER_ONE, BRAND_CHAPTER_TWO } from "@/lib/brand-story-data";
 import {
+  BRAND_TEXT_GRADIENT,
+  TYPE_MICRO_LABEL,
+  TYPE_SECTION,
+} from "@/lib/brand-type";
+import {
   BrandOrbit,
   PhysicalToDigitalPanel,
   TouchpointRow,
@@ -47,13 +52,6 @@ const riseIn: Variants = {
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
-const BRAND_TEXT_GRADIENT = {
-  backgroundImage: "linear-gradient(90deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)",
-  WebkitBackgroundClip: "text" as const,
-  backgroundClip: "text",
-  color: "transparent",
-} as const;
-
 export function BrandStory() {
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -87,13 +85,11 @@ export function BrandStory() {
             {...chapterOneHeader}
             className="mx-auto max-w-2xl text-center"
           >
-            <motion.p variants={fadeUp} className="text-sm font-medium text-primary">
+            {/* Not a scanning anchor — muted micro label, see bento-grid. */}
+            <motion.p variants={fadeUp} className={TYPE_MICRO_LABEL}>
               {BRAND_CHAPTER_ONE.eyebrow}
             </motion.p>
-            <motion.h2
-              variants={fadeUp}
-              className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
-            >
+            <motion.h2 variants={fadeUp} className={`mt-3 ${TYPE_SECTION}`}>
               {BRAND_CHAPTER_ONE.question}
             </motion.h2>
             <motion.p
@@ -154,13 +150,11 @@ export function BrandStory() {
               {...chapterTwoCopy}
               className="lg:col-span-5"
             >
-              <motion.p variants={fadeUp} className="text-sm font-medium text-primary">
+              {/* Not a scanning anchor — muted micro label, see bento-grid. */}
+              <motion.p variants={fadeUp} className={TYPE_MICRO_LABEL}>
                 {BRAND_CHAPTER_TWO.eyebrow}
               </motion.p>
-              <motion.h2
-                variants={fadeUp}
-                className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
-              >
+              <motion.h2 variants={fadeUp} className={`mt-3 ${TYPE_SECTION}`}>
                 {BRAND_CHAPTER_TWO.question}
               </motion.h2>
               <motion.p variants={fadeUp} className="mt-4 text-muted-foreground">

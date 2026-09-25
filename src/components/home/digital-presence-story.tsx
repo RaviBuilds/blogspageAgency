@@ -5,6 +5,11 @@ import { motion, type Variants } from "framer-motion";
 import { ArrowRight, Check } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { PRESENCE_STORY } from "@/lib/homepage-data";
+import {
+  BRAND_TEXT_GRADIENT,
+  TYPE_MICRO_LABEL,
+  TYPE_SECTION,
+} from "@/lib/brand-type";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 import { DigitalHomeVisual } from "./digital-home-visual";
 
@@ -39,14 +44,6 @@ const HEADING_MAIN = PRESENCE_STORY.heading.endsWith(HEADING_ACCENT)
       PRESENCE_STORY.heading.length - HEADING_ACCENT.length,
     )
   : "";
-const BRAND_TEXT_GRADIENT = {
-  backgroundImage:
-    "linear-gradient(90deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)",
-  WebkitBackgroundClip: "text" as const,
-  backgroundClip: "text",
-  color: "transparent",
-} as const;
-
 const SPRING = {
   type: "spring",
   stiffness: 100,
@@ -85,13 +82,11 @@ export function DigitalPresenceStory() {
           {...header}
           className="mx-auto max-w-2xl text-center"
         >
-          <motion.p variants={fadeUp} className="text-sm font-medium text-primary">
+          {/* Not a scanning anchor — muted micro label, see bento-grid. */}
+          <motion.p variants={fadeUp} className={TYPE_MICRO_LABEL}>
             {PRESENCE_STORY.eyebrow}
           </motion.p>
-          <motion.h2
-            variants={fadeUp}
-            className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
-          >
+          <motion.h2 variants={fadeUp} className={`mt-3 ${TYPE_SECTION}`}>
             {HEADING_MAIN || PRESENCE_STORY.heading}
             {HEADING_MAIN && (
               <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>

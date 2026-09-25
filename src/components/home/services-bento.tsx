@@ -26,6 +26,11 @@ import {
   type HomeVerticalId,
 } from "@/lib/homepage-verticals";
 import { projects } from "@/lib/featured-work-data";
+import {
+  BRAND_TEXT_GRADIENT,
+  TYPE_EYEBROW,
+  TYPE_SECTION,
+} from "@/lib/brand-type";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 import {
   CapabilitySpine,
@@ -148,22 +153,6 @@ const HEADING_MAIN = HEADING_TEXT.endsWith(HEADING_ACCENT)
  * window instead of across the whole section scroll.
  */
 const VISUALS_BUILT_AT = 0.055;
-
-/**
- * R5.2 brand text treatment — the one restrained triad sweep (the Hero's and
- * the section heading's light-signal values), shared by the section heading's
- * accent phrase and each capability title's meaningful phrase. Declared
- * inline rather than via `.text-gradient` for the same documented reason the
- * Hero declares it inline: the locked `.text-gradient` island override still
- * points the class at the legacy near-white gradient.
- */
-const BRAND_TEXT_GRADIENT = {
-  backgroundImage:
-    "linear-gradient(90deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)",
-  WebkitBackgroundClip: "text" as const,
-  backgroundClip: "text",
-  color: "transparent",
-} as const;
 
 /** The meaningful phrase of each capability title (phrase-level emphasis —
     never a whole-heading gradient gimmick). Sliced from the existing title
@@ -551,13 +540,11 @@ export function ServiceVerticals() {
           {...header}
           className="mx-auto max-w-2xl text-center"
         >
-          <motion.p variants={fadeUp} className="text-sm font-medium text-primary">
+          {/* Scanning anchor — Services keeps its eyebrow. */}
+          <motion.p variants={fadeUp} className={TYPE_EYEBROW}>
             {VERTICALS_SECTION.eyebrow}
           </motion.p>
-          <motion.h2
-            variants={fadeUp}
-            className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
-          >
+          <motion.h2 variants={fadeUp} className={`mt-3 ${TYPE_SECTION}`}>
             {HEADING_MAIN || HEADING_TEXT}
             {HEADING_MAIN && (
               <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>

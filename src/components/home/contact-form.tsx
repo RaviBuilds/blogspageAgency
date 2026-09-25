@@ -10,6 +10,7 @@ import { CONVERSATION, NEED_LABELS } from "@/lib/homepage-data";
 import { NICHES } from "@/lib/niches";
 import { findApprovedCity } from "@/lib/cities";
 import { NAP } from "@/lib/site";
+import { TYPE_MICRO_LABEL, TYPE_SECTION } from "@/lib/brand-type";
 import { useMotionReady } from "@/components/home/progress-reveal";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 
@@ -265,12 +266,9 @@ export function ConversationExperience() {
         >
           {/* Left column — positioning copy */}
           <motion.div variants={fadeUp}>
-            <p className="text-sm font-medium text-primary">
-              {CONVERSATION.eyebrow}
-            </p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-              {CONVERSATION.heading}
-            </h2>
+            {/* Not a scanning anchor — muted micro label, see bento-grid. */}
+            <p className={TYPE_MICRO_LABEL}>{CONVERSATION.eyebrow}</p>
+            <h2 className={`mt-3 ${TYPE_SECTION}`}>{CONVERSATION.heading}</h2>
             <p className="mt-4 max-w-md text-muted-foreground">
               {CONVERSATION.sub}
             </p>

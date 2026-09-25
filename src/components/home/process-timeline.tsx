@@ -11,6 +11,11 @@ import {
 } from "framer-motion";
 
 import { PROCESS } from "@/lib/homepage-data";
+import {
+  BRAND_TEXT_GRADIENT,
+  TYPE_EYEBROW,
+  TYPE_SECTION,
+} from "@/lib/brand-type";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 import {
   BriefArtifact,
@@ -99,14 +104,6 @@ const HEADING_ACCENT = "You need to know what happens next.";
 const HEADING_MAIN = HEADING_TEXT.endsWith(HEADING_ACCENT)
   ? HEADING_TEXT.slice(0, HEADING_TEXT.length - HEADING_ACCENT.length)
   : "";
-
-const BRAND_TEXT_GRADIENT = {
-  backgroundImage:
-    "linear-gradient(90deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)",
-  WebkitBackgroundClip: "text" as const,
-  backgroundClip: "text",
-  color: "transparent",
-} as const;
 
 /* Stage accents in journey order (Blueprint §17 semantic progression). */
 const STAGE_META = [
@@ -378,13 +375,11 @@ export function ProcessTimeline() {
           {...header}
           className="mx-auto max-w-2xl text-center"
         >
-          <motion.p variants={fadeUp} className="text-sm font-medium text-primary">
+          {/* Scanning anchor — Process keeps its eyebrow. */}
+          <motion.p variants={fadeUp} className={TYPE_EYEBROW}>
             {PROCESS.eyebrow}
           </motion.p>
-          <motion.h2
-            variants={fadeUp}
-            className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
-          >
+          <motion.h2 variants={fadeUp} className={`mt-3 ${TYPE_SECTION}`}>
             {HEADING_MAIN || PROCESS.heading}
             {HEADING_MAIN && (
               <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>

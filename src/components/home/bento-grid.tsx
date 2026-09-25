@@ -16,6 +16,11 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { NICHES } from "@/lib/niches";
 import { trackEvent } from "@/lib/analytics";
 import { BRIDGE, FLAGSHIP_PROJECT_IDS } from "@/lib/homepage-data";
+import {
+  BRAND_TEXT_GRADIENT,
+  TYPE_MICRO_LABEL,
+  TYPE_SECTION,
+} from "@/lib/brand-type";
 import { projects } from "@/lib/featured-work-data";
 import {
   DEFAULT_INDUSTRY_ACCENT,
@@ -81,14 +86,6 @@ const HEADING_ACCENT = "different kinds of businesses.";
 const HEADING_MAIN = HEADING_TEXT.endsWith(HEADING_ACCENT)
   ? HEADING_TEXT.slice(0, HEADING_TEXT.length - HEADING_ACCENT.length)
   : "";
-
-const BRAND_TEXT_GRADIENT = {
-  backgroundImage:
-    "linear-gradient(90deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)",
-  WebkitBackgroundClip: "text" as const,
-  backgroundClip: "text",
-  color: "transparent",
-} as const;
 
 /**
  * The industry resolved into the story panel at rest — Dental & Medical,
@@ -172,8 +169,10 @@ export function BentoGrid() {
         {/* Section header (Blueprint §15 approved wording). R9: establishes
             with scroll, like every other section on the page. */}
         <ProgressReveal className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium text-primary">{BRIDGE.eyebrow}</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+          {/* Not a scanning anchor — demoted to the muted micro label so the
+              primary eyebrow stays reserved for Services, Work and Process. */}
+          <p className={TYPE_MICRO_LABEL}>{BRIDGE.eyebrow}</p>
+          <h2 className={`mt-3 ${TYPE_SECTION}`}>
             {HEADING_MAIN || BRIDGE.heading}
             {HEADING_MAIN && (
               <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>

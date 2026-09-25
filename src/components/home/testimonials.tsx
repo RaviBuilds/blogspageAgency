@@ -3,6 +3,7 @@ import { ArrowRight, Star } from "lucide-react";
 import { ScrollReveal } from "@/components/home/scroll-reveal";
 import { AmbientFade, ReviewStars } from "@/components/home/review-stars";
 import { TESTIMONIALS, type Testimonial } from "@/lib/testimonials-data";
+import { BRAND_TEXT_GRADIENT, TYPE_SECTION } from "@/lib/brand-type";
 
 import ambient from "./testimonials-ambient.module.css";
 
@@ -34,15 +35,6 @@ import ambient from "./testimonials-ambient.module.css";
    AggregateRating structured data is derived here. Review schema requires a
    separate validated SEO plan (search-visibility blueprint §17).
    ───────────────────────────────────────────────────────────────────────────── */
-
-/** The approved brand text sweep, identical to the other homepage sections. */
-const BRAND_TEXT_GRADIENT = {
-  backgroundImage:
-    "linear-gradient(90deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)",
-  WebkitBackgroundClip: "text" as const,
-  backgroundClip: "text",
-  color: "transparent",
-} as const;
 
 /* Google's brand hues, used sparingly as provenance cues on the evidence
    shelf. Restrained — the customer's own words stay the focal point. */
@@ -267,7 +259,7 @@ export function Testimonials() {
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
                   Proof, not promises
                 </p>
-                <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+                <h2 className={`mt-3 ${TYPE_SECTION}`}>
                   5-star work gets{" "}
                   <span style={BRAND_TEXT_GRADIENT}>remembered</span>.
                 </h2>

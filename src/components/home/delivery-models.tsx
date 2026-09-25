@@ -11,6 +11,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { TRUST } from "@/lib/homepage-data";
+import {
+  BRAND_TEXT_GRADIENT,
+  TYPE_MICRO_LABEL,
+  TYPE_SECTION,
+} from "@/lib/brand-type";
 
 /**
  * MOVEMENT 5 — Trust: engagement models (Blueprint §16).
@@ -57,21 +62,14 @@ const HEADING_MAIN = HEADING_TEXT.startsWith(HEADING_ACCENT)
   ? HEADING_TEXT.slice(HEADING_ACCENT.length)
   : "";
 
-const BRAND_TEXT_GRADIENT = {
-  backgroundImage:
-    "linear-gradient(90deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)",
-  WebkitBackgroundClip: "text" as const,
-  backgroundClip: "text",
-  color: "transparent",
-} as const;
-
 export function DeliveryModels() {
   return (
     <section id="models" className="scroll-mt-24 border-t border-border-subtle bg-background-subtle py-24 lg:py-32">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium text-primary">How we work</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+          {/* Not a scanning anchor — muted micro label, see bento-grid. */}
+          <p className={TYPE_MICRO_LABEL}>How we work</p>
+          <h2 className={`mt-3 ${TYPE_SECTION}`}>
             {HEADING_MAIN ? (
               <>
                 <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>

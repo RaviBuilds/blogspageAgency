@@ -27,6 +27,11 @@ import {
   type GrowthPillar,
   type GrowthPillarId,
 } from "@/lib/homepage-data";
+import {
+  BRAND_TEXT_GRADIENT,
+  TYPE_MICRO_LABEL,
+  TYPE_SECTION,
+} from "@/lib/brand-type";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 
 /**
@@ -53,15 +58,6 @@ import { useStaggerReveal } from "@/components/home/scroll-reveal";
  */
 
 const EASE = [0.16, 1, 0.3, 1] as const;
-
-/** The approved brand text sweep, identical to the other homepage sections. */
-const BRAND_TEXT_GRADIENT = {
-  backgroundImage:
-    "linear-gradient(90deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)",
-  WebkitBackgroundClip: "text" as const,
-  backgroundClip: "text",
-  color: "transparent",
-} as const;
 
 /** The continuous START → BUILD → SCALE rail (cyan → blue → violet). */
 const RAIL_GRADIENT =
@@ -170,8 +166,9 @@ function GrowthIntro() {
       {...reveal}
       className="mx-auto max-w-2xl text-center"
     >
-      <p className="text-sm font-medium text-primary">{GROWTH_SECTION.eyebrow}</p>
-      <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+      {/* Not a scanning anchor — muted micro label, see bento-grid. */}
+      <p className={TYPE_MICRO_LABEL}>{GROWTH_SECTION.eyebrow}</p>
+      <h2 className={`mt-3 ${TYPE_SECTION}`}>
         {headingMain ? (
           <>
             <span style={BRAND_TEXT_GRADIENT}>{headingAccent}</span>

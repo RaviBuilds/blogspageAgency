@@ -14,6 +14,11 @@ import {
 } from "framer-motion";
 import { projects, type FeaturedProject } from "@/lib/featured-work-data";
 import { FLAGSHIP_PROJECT_IDS, PROOF } from "@/lib/homepage-data";
+import {
+  BRAND_TEXT_GRADIENT_ISLAND,
+  TYPE_EYEBROW,
+  TYPE_SECTION,
+} from "@/lib/brand-type";
 import { trackEvent } from "@/lib/analytics";
 import { SystemFlow } from "@/components/home/system-flow";
 import {
@@ -115,13 +120,7 @@ const HEADING_MAIN = HEADING_TEXT.endsWith(HEADING_ACCENT)
   ? HEADING_TEXT.slice(0, HEADING_TEXT.length - HEADING_ACCENT.length)
   : "";
 
-const BRAND_TEXT_GRADIENT = {
-  backgroundImage:
-    "linear-gradient(94deg, #67E8F9 0%, #828FFF 48%, #A78BFA 100%)",
-  WebkitBackgroundClip: "text" as const,
-  backgroundClip: "text",
-  color: "transparent",
-} as const;
+
 
 
 
@@ -746,11 +745,12 @@ export function FeaturedProof() {
         {/* R9: the opening establishes with scroll — typography emphasis
             builds as the gallery arrives, reverses on the way up. */}
         <ProgressReveal distance={28} className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium text-primary">{PROOF.eyebrow}</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+          {/* Scanning anchor — Work keeps its eyebrow. */}
+          <p className={TYPE_EYEBROW}>{PROOF.eyebrow}</p>
+          <h2 className={`mt-3 ${TYPE_SECTION}`}>
             {HEADING_MAIN || PROOF.heading}
             {HEADING_MAIN && (
-              <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>
+              <span style={BRAND_TEXT_GRADIENT_ISLAND}>{HEADING_ACCENT}</span>
             )}
           </h2>
           <p className="mt-4 text-muted-foreground">{PROOF.sub}</p>

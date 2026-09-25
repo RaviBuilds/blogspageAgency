@@ -3,6 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 
 import { client } from "@/sanity/lib/client";
 import { LATEST_POSTS_QUERY, type LatestPost } from "@/sanity/lib/queries";
+import { TYPE_MICRO_LABEL, TYPE_QUIET } from "@/lib/brand-type";
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("en-US", {
@@ -12,24 +13,12 @@ const formatDate = (iso: string) =>
   });
 
 /**
- * Section heading treatment — parity with the other homepage sections: the
- * neutral headline stays neutral; the meaningful final phrase carries the
- * restrained brand text sweep. Sliced from the hardcoded heading with a
- * safe whole-heading fallback.
+ * Section heading treatment — the journal is deliberately the page's QUIET
+ * register. It is supporting evidence, not a claim, so it carries neither the
+ * brand text sweep nor the section-tier size: both are reserved for the
+ * movements that make an argument. The heading renders as one plain phrase.
  */
 const HEADING_TEXT = "From the journal";
-const HEADING_ACCENT = "the journal";
-const HEADING_MAIN = HEADING_TEXT.endsWith(HEADING_ACCENT)
-  ? HEADING_TEXT.slice(0, HEADING_TEXT.length - HEADING_ACCENT.length)
-  : "";
-
-const BRAND_TEXT_GRADIENT = {
-  backgroundImage:
-    "linear-gradient(90deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)",
-  WebkitBackgroundClip: "text" as const,
-  backgroundClip: "text",
-  color: "transparent",
-} as const;
 
 async function getLatestPosts(): Promise<LatestPost[]> {
   return client.fetch<LatestPost[]>(LATEST_POSTS_QUERY);
@@ -47,13 +36,8 @@ export async function LatestBlogs() {
       <div className="mx-auto max-w-6xl px-6 py-20 lg:px-8 lg:py-24">
         <div className="mb-12 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-primary">Journal</p>
-            <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-              {HEADING_MAIN || HEADING_TEXT}
-              {HEADING_MAIN && (
-                <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>
-              )}
-            </h2>
+            <p className={TYPE_MICRO_LABEL}>Journal</p>
+            <h2 className={`mt-2 ${TYPE_QUIET}`}>{HEADING_TEXT}</h2>
             <p className="mt-3 max-w-xl text-muted-foreground">
               Engineering deep-dives, local SEO playbooks, and the systems behind
               high-conversion business platforms.
