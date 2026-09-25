@@ -1,6 +1,7 @@
 import { Hero } from "@/components/home/hero";
 import { AudiencePathways } from "@/components/home/audience-pathways";
 import { DigitalPresenceStory } from "@/components/home/digital-presence-story";
+import { BrandStory } from "@/components/home/brand-story";
 import { ServiceVerticals } from "@/components/home/services-bento";
 import { FeaturedProof } from "@/components/home/featured-work";
 import { SupportingWork } from "@/components/home/supporting-work";
@@ -21,6 +22,10 @@ import { webSiteNode } from "@/lib/structured-data";
  *   Movement 1  Hero (dark island, untouched isolation wrapper)
  *   Movement 2  AudiencePathways — "Where are you right now?"
  *   Movement 2b DigitalPresenceStory — starting-from-zero story
+ *   Movement 2c BrandStory (id="brand" + id="digital-office") — the
+ *               business→brand→physical-office→digital-office storytelling
+ *               sequence; one shared reversible scroll progress across both
+ *               chapters (see `brand-story.tsx`)
  *   Movement 3  ServiceVerticals (id="services")
  *   Movement 4  FeaturedProof (id="work") + SupportingWork (id="more-work")
  *   Bridge      BentoGrid (id="solutions") — the ten solution links
@@ -50,6 +55,7 @@ export default function HomePage() {
       </div>
       <AudiencePathways />
       <DigitalPresenceStory />
+      <BrandStory />
       <ServiceVerticals />
       <FeaturedProof />
       <SupportingWork />

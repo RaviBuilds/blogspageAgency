@@ -9,7 +9,6 @@ import {
   useTransform,
   type MotionValue,
 } from "framer-motion";
-import { cn } from "@/lib/utils";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    R9 — SCROLL CONTINUITY PRIMITIVES
@@ -23,13 +22,14 @@ import { cn } from "@/lib/utils";
      MotionValues only after mount — the server always ships visible content.
    - useStage: maps one slice of a parent scroll progress to { opacity, y }.
    - ProgressReveal: self-contained reveal wrapper for one content block.
-   - BoundaryVeil: a tone-matched gradient that dissolves a dark↔light section
-     boundary in/out with scroll, so theme handoffs stop being hard cuts.
+
+   Section-boundary transitions live in `section-seam.tsx` (`SectionSeam`) and
+   share this file's SSR and reduced-motion contract.
 
    Performance contract: opacity / transform only; MotionValues flow outside
    React state; one `useScroll` per primitive; no layout animation.
    Reduced motion: every primitive resolves to its settled state (fully
-   visible content, no veils).
+   visible content).
    ──────────────────────────────────────────────────────────────────────────── */
 
 const useIsomorphicLayoutEffect =
@@ -103,59 +103,7 @@ export function ProgressReveal({
   );
 }
 
-/**
- * Boundary veil — dissolves a section edge into the adjacent page tone.
- *
- * `edge="top"` (light page → dark island): the veil is strongest while the
- * section is entering and fades to nothing once its top reaches 30% of the
- * viewport. `edge="bottom"` (dark island → light page): the veil fades in as
- * the section's bottom edge rises from the fold toward 45% of the viewport.
- *
- * The veil sits behind the section's content (`relative` children paint
- * above it), so text and cards stay readable while the *background tone*
- * transitions. Decorative; opacity-only; settled to invisible under reduced
- * motion.
- */
-export function BoundaryVeil({
-  edge,
-  tone,
-  className,
-  height = "40vh",
-}: {
-  edge: "top" | "bottom";
-  tone: string;
-  className?: string;
-  height?: string;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const shouldReduceMotion = useReducedMotion();
-  const settled = useMotionValue(edge === "top" ? 1 : 0);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: edge === "top" ? ["start end", "start 0.3"] : ["end end", "end 0.45"],
-  });
-  const progress = shouldReduceMotion ? settled : scrollYProgress;
-  const opacity = useTransform(progress, [0, 1], edge === "top" ? [1, 0] : [0, 1], {
-    clamp: true,
-  });
-
-  return (
-    <motion.div
-      ref={ref}
-      aria-hidden
-      className={cn(
-        "pointer-events-none absolute inset-x-0",
-        edge === "top" ? "top-0" : "bottom-0",
-        className,
-      )}
-      style={{
-        height,
-        opacity,
-        background:
-          edge === "top"
-            ? `linear-gradient(180deg, ${tone} 0%, transparent 100%)`
-            : `linear-gradient(0deg, ${tone} 0%, transparent 100%)`,
-      }}
-    />
-  );
-}
+/* `BoundaryVeil` used to live here. It is now `SectionSeam` in
+   `section-seam.tsx`, which names the neighbouring surface through a shared
+   token map instead of taking a raw hex per call site, and fixes the height
+   being passed two different ways at once. */

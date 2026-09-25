@@ -4,7 +4,8 @@ import { ArrowUpRight } from "lucide-react";
 import { projects, type FeaturedProject } from "@/lib/featured-work-data";
 import { SUPPORTING, SUPPORTING_PROJECT_IDS } from "@/lib/homepage-data";
 import { TrackedLink } from "@/components/home/tracked-link";
-import { BoundaryVeil, ProgressReveal } from "@/components/home/progress-reveal";
+import { ProgressReveal } from "@/components/home/progress-reveal";
+import { SectionSeam } from "@/components/home/section-seam";
 import { cn } from "@/lib/utils";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -50,11 +51,12 @@ export function SupportingWork() {
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white/[0.015] to-transparent"
       />
-      {/* R9 boundary veil — the dark island dissolves back into the light
-          page tone as its bottom edge rises toward mid-viewport, so the
-          handoff into By Industry reads as one continuous tonal shift
-          instead of a hard theme flip. Decorative, behind content. */}
-      <BoundaryVeil edge="bottom" tone="#EDF1F6" className="h-[38vh]" />
+      {/* Section seam — the dark island dissolves back into the light page
+          tone as its bottom edge rises toward mid-viewport, so the handoff
+          into By Industry reads as one continuous tonal shift instead of a
+          hard theme flip. `neighbour="subtle"` is BentoGrid's surface directly
+          below. Decorative, behind content. */}
+      <SectionSeam edge="bottom" neighbour="subtle" depth="md" />
       <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
         <ProgressReveal distance={20}>
           <div className="flex items-end justify-between gap-8">

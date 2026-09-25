@@ -10,6 +10,8 @@ import { CONVERSATION, NEED_LABELS } from "@/lib/homepage-data";
 import { NICHES } from "@/lib/niches";
 import { findApprovedCity } from "@/lib/cities";
 import { NAP } from "@/lib/site";
+import { useMotionReady } from "@/components/home/progress-reveal";
+import { useStaggerReveal } from "@/components/home/scroll-reveal";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    MOVEMENT 6 — Conversation (Blueprint §21)
@@ -53,8 +55,11 @@ const container: Variants = {
   show: { transition: { staggerChildren: 0.08 } },
 };
 
+/* `hidden` is instant: it arms after hydration (see `useStaggerReveal`), so a
+   timed hidden transition would animate *away* from the painted server
+   composition. Only `show` carries the spring. */
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 24, transition: { duration: 0 } },
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
@@ -154,7 +159,14 @@ function TypedLine({
 
 /* System-message reveal: the ✓ lines arrive (fade + 6px rise) rather than
    typing — believable system behaviour, and zero layout shift because the
-   full text is laid out from first paint. */
+   full text is laid out from first paint.
+
+   SSR contract: `initial` is `false`, not `{ opacity: 0 }`. A literal `initial`
+   object is unconditional, so Framer Motion serialised it into the server HTML
+   and both ✓ lines — "Sweety is online" and "A real person reads every
+   conversation", real trust copy — shipped invisible. Gating through
+   `useMotionReady` means the prerendered HTML carries them settled and the
+   hidden state arms after hydration, before paint. */
 function StatusLine({
   text,
   visible,
@@ -166,11 +178,18 @@ function StatusLine({
   delay?: number;
   className?: string;
 }) {
+  const armed = useMotionReady();
+  /* Before arming, the settled state is the only thing that has ever painted. */
+  const settled = !armed || visible;
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 }}
-      transition={{ duration: 0.35, ease: EASE, delay }}
+      initial={false}
+      animate={settled ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 }}
+      /* Hiding is instant (pre-paint arming only); only the arrival animates. */
+      transition={
+        settled ? { duration: 0.35, ease: EASE, delay } : { duration: 0 }
+      }
       className={className}
     >
       {text}
@@ -188,6 +207,13 @@ export function ConversationExperience() {
      in its final state with no animation. */
   const inView = useInView(sectionRef, { once: true, margin: "-100px" });
   const ready = shouldReduceMotion || Boolean(inView);
+
+  /* SSR-safe reveal gate for the staggered copy/form grid — the prerendered
+     HTML carries the settled, readable composition (the `#contact` heading and
+     the form labels are the highest-value crawlable content on the route), and
+     the hidden state arms only after hydration. `shouldReduceMotion` above is
+     still needed: it drives the terminal arc's `ready` flag and `seq()`. */
+  const reveal = useStaggerReveal();
 
   /* Sequence helper — delays (ms) and durations collapse to zero under
      reduced motion so nothing animates. */
@@ -234,9 +260,7 @@ export function ConversationExperience() {
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <motion.div
           variants={container}
-          initial={shouldReduceMotion ? "show" : "hidden"}
-          whileInView="show"
-          viewport={{ once: true, margin: "-100px" }}
+          {...reveal}
           className="grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-16"
         >
           {/* Left column — positioning copy */}

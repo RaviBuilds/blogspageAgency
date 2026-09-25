@@ -83,13 +83,18 @@ export function Navbar() {
           aria-label="Blogspage AI — home"
           onClick={() => setOpen(false)}
         >
+          {/* `priority` is correct here: the navbar mark is above the fold on
+              every route. `quality` stays explicit but drops from 100 — at 100
+              the optimizer emits near-lossless AVIF/WebP for a mark that paints
+              at ~147x44 CSS px, which is spend with no visible return. 90 keeps
+              the wordmark's fine strokes clean at DPR 3. */}
           <Image
             src="/blogspage-logo.png"
             alt="Blogspage AI"
             width={320}
             height={96}
             priority
-            quality={100}
+            quality={90}
             className="h-11 w-auto rounded-xl"
           />
         </Link>

@@ -82,22 +82,59 @@ const WORDS = [
  * With a maximum token length well under the 41-character window, some space
  * always falls inside [120, 160], which is the condition under which the
  * word-boundary clause is exactly true.
+ *
+ * The word count is a parameter because the clamp's branches are selected by
+ * *length*. A single generator wide enough to include one-word input cannot
+ * reach the 160-character ceiling often enough to exercise the cutting
+ * branches: `fc.array` biases toward short arrays, so `maxLength: 90` averaged
+ * 6.3 words and topped out at 108 characters across 3000 samples. Each call
+ * site below therefore draws from the range that makes its own filter
+ * satisfiable, which keeps every filter an exact guard rather than the thing
+ * that has to go looking for a valid sample.
  */
-const prose = fc
-  .array(fc.constantFrom(...WORDS), { minLength: 1, maxLength: 90 })
-  .chain((words) =>
-    fc
-      .array(fc.constantFrom(" ", "  ", "\n", "\t", " \n ", "\u00a0"), {
-        minLength: words.length,
-        maxLength: words.length,
-      })
-      .map((separators) =>
-        words.map((word, index) => `${word}${separators[index]}`).join(""),
-      ),
-  );
+const proseOf = (minWords: number, maxWords: number) =>
+  fc
+    .array(fc.constantFrom(...WORDS), {
+      minLength: minWords,
+      maxLength: maxWords,
+    })
+    .chain((words) =>
+      fc
+        .array(fc.constantFrom(" ", "  ", "\n", "\t", " \n ", "\u00a0"), {
+          minLength: words.length,
+          maxLength: words.length,
+        })
+        .map((separators) =>
+          words.map((word, index) => `${word}${separators[index]}`).join(""),
+        ),
+    );
 
-/** Prose padded to guarantee the input clears the 120-character floor. */
-const longProse = prose.filter((text) => collapse(text).length > DESCRIPTION_MAX);
+/** The original shape, spanning one word to ninety. */
+const prose = proseOf(1, 90);
+
+/**
+ * Prose padded to guarantee the input clears the 160-character ceiling, so
+ * `clampDescription` takes a cutting branch.
+ *
+ * Fifty-four words is the floor that makes the predicate hold by construction
+ * rather than by luck: the shortest entry in `WORDS` is two characters, so 54
+ * words joined by single spaces is `54 * 3 - 1 = 161` characters in the worst
+ * case, already past `DESCRIPTION_MAX`. The filter is kept as the guard that
+ * states the requirement, but it now rejects nothing.
+ */
+const longProse = proseOf(54, 90).filter(
+  (text) => collapse(text).length > DESCRIPTION_MAX,
+);
+
+/**
+ * Prose that already lands inside [120, 160], exercising the
+ * return-collapsed-text-unchanged branch. Eighteen to twenty-four words falls
+ * in the window for roughly 72% of samples, so the filter converges at once.
+ */
+const windowProse = proseOf(18, 24).filter((text) => {
+  const length = collapse(text).length;
+  return length >= DESCRIPTION_MIN && length <= DESCRIPTION_MAX;
+});
 
 /** Prose that collapses to under the floor, exercising the return-as-is branch. */
 const shortProse = prose.filter((text) => collapse(text).length < DESCRIPTION_MIN);
@@ -191,15 +228,9 @@ describe("Property 17: Description clamping lands inside the window", () => {
 
   it("returns collapsed text unchanged when it already fits the window", () => {
     fc.assert(
-      fc.property(
-        prose.filter((text) => {
-          const length = collapse(text).length;
-          return length >= DESCRIPTION_MIN && length <= DESCRIPTION_MAX;
-        }),
-        (text) => {
-          expect(clampDescription(text)).toBe(collapse(text));
-        },
-      ),
+      fc.property(windowProse, (text) => {
+        expect(clampDescription(text)).toBe(collapse(text));
+      }),
       { numRuns: 200 },
     );
   });

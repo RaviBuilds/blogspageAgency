@@ -17,11 +17,11 @@ import { FLAGSHIP_PROJECT_IDS, PROOF } from "@/lib/homepage-data";
 import { trackEvent } from "@/lib/analytics";
 import { SystemFlow } from "@/components/home/system-flow";
 import {
-  BoundaryVeil,
   ProgressReveal,
   useMotionReady,
   useStage,
 } from "@/components/home/progress-reveal";
+import { SectionSeam } from "@/components/home/section-seam";
 import { cn } from "@/lib/utils";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -419,26 +419,17 @@ function StoryCta({
 function StoryArticle({
   project,
   layout,
-  priority,
   chapter,
 }: {
   project: FeaturedProject;
   layout: StoryLayout;
-  priority: boolean;
   chapter: number;
 }) {
   /* NeoDent routes to its own art-directed composition. */
   if (layout === "brand") {
-    return <BrandStory project={project} chapter={chapter} />;
+    return <BrandCaseStory project={project} chapter={chapter} />;
   }
-  return (
-    <SequenceStory
-      project={project}
-      layout={layout}
-      priority={priority}
-      chapter={chapter}
-    />
-  );
+  return <SequenceStory project={project} layout={layout} chapter={chapter} />;
 }
 
 /* "system" (ArogyaDiet) / "narrative" (Phixl) compositions, now driven by the
@@ -448,12 +439,10 @@ function StoryArticle({
 function SequenceStory({
   project,
   layout,
-  priority,
   chapter,
 }: {
   project: FeaturedProject;
   layout: StoryLayout;
-  priority: boolean;
   chapter: number;
 }) {
   const ready = useMotionReady();
@@ -524,11 +513,15 @@ function SequenceStory({
             <ScreenshotStage accent={project.accent} className="h-full">
               <BrowserChrome>
                 <div className="relative h-full w-full">
+                  {/* No `priority`. This gallery sits well below the fold —
+                      preloading the first screenshot competed with the hero for
+                      bandwidth during the LCP window without ever being the LCP
+                      element itself. `next/image` lazy-loads by default, which
+                      is the correct behaviour here. */}
                   <Image
                     src={project.image}
                     alt={`${project.headline} — live product screenshot`}
                     fill
-                    priority={priority}
                     sizes="(min-width: 1024px) 640px, 100vw"
                     className="object-contain object-center"
                   />
@@ -600,8 +593,14 @@ function SequenceStory({
 
 /* NeoDent "brand" composition: header → full-width brand plate → detail band
    + horizontal Brand → Website → Trust → Enquiry ribbon. R9: the whole
-   chapter is driven by the article's own scroll progress. */
-function BrandStory({
+   chapter is driven by the article's own scroll progress.
+
+   Named `BrandCaseStory`, not `BrandStory`: the homepage now also has a
+   top-level `BrandStory` section (`brand-story.tsx`, the business→brand→
+   digital-office narrative). They are unrelated, and two components with the
+   same name in the same feature folder is a trap for the next reader. This one
+   is a *case study* layout variant, hence the name. */
+function BrandCaseStory({
   project,
   chapter,
 }: {
@@ -721,11 +720,12 @@ export function FeaturedProof() {
       id="work"
       className="dark relative scroll-mt-24 overflow-hidden border-t border-border bg-background py-24 lg:py-32"
     >
-      {/* R9 boundary veil — the light page tone dissolves into the gallery
-          as the section enters, and re-forms on the way back up, so the
-          dark island no longer starts as a hard cut behind a hairline.
-          Static tone, scroll-linked opacity, decorative, behind content. */}
-      <BoundaryVeil edge="top" tone="#F7F8FA" className="h-[40vh]" />
+      {/* Section seam — the light page tone dissolves into the gallery as the
+          section enters, and re-forms on the way back up, so the dark island
+          no longer starts as a hard cut behind a hairline. `neighbour="page"`
+          is ServiceVerticals' surface directly above. Decorative, behind
+          content. */}
+      <SectionSeam edge="top" neighbour="page" depth="lg" />
 
       {/* R6.1 environment: a tonal entry band plus a soft blue-violet field
           behind the opening — the visitor enters a designed gallery, not
@@ -765,7 +765,6 @@ export function FeaturedProof() {
                 STORY_LAYOUTS[project.id] ??
                 (index % 2 === 0 ? "system" : "narrative")
               }
-              priority={index === 0}
               chapter={index}
             />
           ))}

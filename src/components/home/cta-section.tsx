@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
 import { trackEvent } from "@/lib/analytics";
 import { FINAL_CTA } from "@/lib/homepage-data";
+import { useStaggerReveal } from "@/components/home/scroll-reveal";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    MOVEMENT 7 — Final conversion (Blueprint §20)
@@ -33,8 +34,11 @@ const container: Variants = {
   show: { transition: { staggerChildren: 0.08 } },
 };
 
+/* `hidden` is instant: it arms after hydration (see `useStaggerReveal`), so a
+   timed hidden transition would animate *away* from the painted server
+   composition. Only `show` carries the spring. */
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 32 },
+  hidden: { opacity: 0, y: 32, transition: { duration: 0 } },
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
@@ -59,15 +63,15 @@ const BRAND_TEXT_GRADIENT = {
 } as const;
 
 export function FinalCTA() {
-  const shouldReduceMotion = useReducedMotion();
+  /* SSR-safe reveal gate — the prerendered HTML carries the settled, readable
+     composition; the hidden state arms only after hydration. */
+  const reveal = useStaggerReveal();
 
   return (
     <section className="border-t border-border-subtle bg-background-subtle py-24 lg:py-32">
       <motion.div
         variants={container}
-        initial={shouldReduceMotion ? "show" : "hidden"}
-        whileInView="show"
-        viewport={{ once: true, margin: "-100px" }}
+        {...reveal}
         className="relative z-10 mx-auto max-w-4xl px-6 text-center lg:px-8"
       >
         <motion.p variants={fadeUp} className="text-sm font-medium text-primary">

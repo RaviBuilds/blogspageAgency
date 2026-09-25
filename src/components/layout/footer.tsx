@@ -92,12 +92,15 @@ export function Footer() {
               className="inline-flex items-center"
               aria-label="Blogspage AI — home"
             >
+              {/* Footer mark is always below the fold, so it stays lazy (no
+                  `priority`) and drops from quality 100 for the same reason as
+                  the navbar. */}
               <Image
                 src="/blogspage-logo.png"
                 alt="Blogspage AI"
                 width={400}
                 height={120}
-                quality={100}
+                quality={90}
                 className="h-10 w-auto"
               />
             </Link>

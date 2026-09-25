@@ -24,6 +24,7 @@ import {
 import { IndustryStoryStrip, RealWorkVisual } from "@/components/home/industry-visual";
 import { ConceptVisual } from "@/components/home/industry-system-visuals";
 import { ProgressReveal } from "@/components/home/progress-reveal";
+import { useStaggerReveal } from "@/components/home/scroll-reveal";
 import { cn } from "@/lib/utils";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -55,8 +56,11 @@ const fieldVariants: Variants = {
   show: { transition: { staggerChildren: 0.05 } },
 };
 
+/* `hidden` is instant: it arms after hydration (see `useStaggerReveal`), so a
+   timed hidden transition would animate *away* from the painted server
+   composition. Only `show` carries the spring. */
 const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 16 },
+  hidden: { opacity: 0, y: 16, transition: { duration: 0 } },
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
@@ -103,6 +107,12 @@ function proofDestination(projectId: string): "#work" | "#more-work" {
 export function BentoGrid() {
   const shouldReduceMotion = useReducedMotion();
   const [selectedId, setSelectedId] = useState<string>(DEFAULT_SELECTED_ID);
+
+  /* SSR-safe reveal gate — the ten industry links ship visible and crawlable in
+     the prerendered HTML; the hidden state arms only after hydration.
+     `shouldReduceMotion` above is still needed for the atmosphere opacity and
+     the panel crossfade. */
+  const field = useStaggerReveal<HTMLOListElement>();
 
   /* R9: the section's cyan/blue atmosphere builds with scroll as the light
      page tone takes over from the dark island above — the boundary breathes
@@ -180,9 +190,7 @@ export function BentoGrid() {
               so nothing here is hover-only. */}
           <motion.ol
             variants={fieldVariants}
-            initial={shouldReduceMotion ? "show" : "hidden"}
-            whileInView="show"
-            viewport={{ once: true, margin: "-100px" }}
+            {...field}
             className="order-2 grid list-none content-start gap-1.5 md:grid-cols-2 md:gap-x-6 lg:order-1 lg:col-span-5 lg:grid-cols-1"
           >
             {NICHES.map((niche, index) => {

@@ -11,6 +11,7 @@ import {
 } from "framer-motion";
 
 import { PROCESS } from "@/lib/homepage-data";
+import { useStaggerReveal } from "@/components/home/scroll-reveal";
 import {
   BriefArtifact,
   BuildArtifact,
@@ -61,9 +62,30 @@ const container: Variants = {
   show: { transition: { staggerChildren: 0.1 } },
 };
 
+/* `hidden` is instant: it arms after hydration (see `useStaggerReveal`), so a
+   timed hidden transition would animate *away* from the painted server
+   composition. Only `show` carries the spring. */
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 24, transition: { duration: 0 } },
   show: { opacity: 1, y: 0, transition: SPRING },
+};
+
+/**
+ * Stage-row entrance, as variants rather than a raw `initial` object.
+ *
+ * A literal `initial={{ opacity: 0, x: -20 }}` is unconditional, so Framer
+ * Motion serialised it into the server HTML and every phase `<article>` — each
+ * containing an `<h3>` and the phase copy — shipped invisible. Variants let the
+ * SSR-safe gate resolve to `show` on the server instead. `custom` carries the
+ * per-row stagger delay that used to live in the inline `transition`.
+ */
+const stageRise: Variants = {
+  hidden: { opacity: 0, x: -20, transition: { duration: 0 } },
+  show: (index: number) => ({
+    opacity: 1,
+    x: 0,
+    transition: { ...SPRING, delay: index * 0.05 },
+  }),
 };
 
 /*
@@ -174,13 +196,15 @@ function StageRow({
   const meta = STAGE_META[index];
   const reached = useReached(progress, STAGE_WINDOWS["understand"][0] + index * 0.22);
   const Artifact = PHASE_ARTIFACTS[index];
+  /* SSR-safe gate: the phase heading and copy ship visible and crawlable; the
+     hidden state arms only after hydration. */
+  const reveal = useStaggerReveal<HTMLElement>({ margin: "-80px" });
 
   return (
     <motion.article
-      initial={{ opacity: 0, x: -20 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ ...SPRING, delay: index * 0.05 }}
+      custom={index}
+      variants={stageRise}
+      {...reveal}
       className="relative pl-12 md:pl-16"
     >
       {/* Spine node: neutral ring; the accent dot + ring fill on reach. */}
@@ -290,6 +314,10 @@ function TerminalFrame({ progress }: { progress: MotionValue<number> }) {
 export function ProcessTimeline() {
   const sectionRef = useRef<HTMLElement>(null);
 
+  /* SSR-safe reveal gate — the prerendered HTML carries the settled, readable
+     header; the hidden state arms only after hydration. */
+  const header = useStaggerReveal();
+
   /* ONE section-level progress value drives the artifact panel, spine and
       stage states, and it is deliberately REVERSIBLE: scrolling back up winds
       the whole narrative backwards. Reduced motion is handled inside the
@@ -347,9 +375,7 @@ export function ProcessTimeline() {
             becoming a second service list. */}
         <motion.div
           variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-100px" }}
+          {...header}
           className="mx-auto max-w-2xl text-center"
         >
           <motion.p variants={fadeUp} className="text-sm font-medium text-primary">

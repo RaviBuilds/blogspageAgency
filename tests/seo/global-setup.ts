@@ -13,6 +13,8 @@
  */
 
 import { spawn, type ChildProcess } from "node:child_process";
+import { fileURLToPath } from "node:url";
+
 import { setBaseUrl } from "./base-url";
 
 let child: ChildProcess | null = null;
@@ -58,8 +60,26 @@ export async function setup(): Promise<void> {
     return;
   }
 
-  // Spawn `next start` on the configured port.
-  child = spawn("npx", ["next", "start", "-p", String(PORT)], {
+  /* Spawn `next start` on the configured port.
+   *
+   * Runs Next's own bin script with the *current* Node executable rather than
+   * going through an `npx` shim. Two reasons, both platform bugs this used to
+   * hit on Windows:
+   *
+   * - `spawn("npx", ...)` fails with `ENOENT`, because `spawn` does not resolve
+   *   PATHEXT and the installed shim is `npx.cmd`.
+   * - `spawn("npx.cmd", ...)` then fails with `EINVAL`: since the fix for
+   *   CVE-2024-27980, Node refuses to spawn `.bat`/`.cmd` files without
+   *   `shell: true`, and enabling a shell would hand this argument list to a
+   *   command interpreter for no benefit.
+   *
+   * `process.execPath` sidesteps both and also guarantees the server runs on
+   * the same Node version as the suite. */
+  const nextBin = fileURLToPath(
+    new URL("../../node_modules/next/dist/bin/next", import.meta.url),
+  );
+
+  child = spawn(process.execPath, [nextBin, "start", "-p", String(PORT)], {
     stdio: "pipe",
     cwd: process.cwd(),
     env: { ...process.env, NODE_ENV: "production" },

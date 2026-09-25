@@ -67,9 +67,24 @@ function fallbackPath(raw: string): string {
   return rest;
 }
 
-/** Lowercase, single-slashed, leading-slashed, no trailing slash. */
+/**
+ * Lowercase, single-slashed, leading-slashed, no trailing slash.
+ *
+ * Backslashes are folded to forward slashes first, because the canonical URL
+ * this feeds is always `https` — a *special* scheme, in which the WHATWG
+ * parser treats `\` as a path separator. Without the fold, a non-special
+ * scheme input (`a:\/`) keeps its raw `\` through the opaque path the first
+ * parse returns, and `/\` then reads as an empty authority (`//`) to the https
+ * parser on the second pass: it throws, the raw backslash reaches the output,
+ * and the *next* call folds it and collapses to the bare origin — so the
+ * function was not a fixed point. Folding here also restores the invariant the
+ * second parse below documents (a single leading slash, so no foreign host can
+ * be picked up). Percent-encoded backslashes (`%5C`) are deliberately left
+ * alone; only literal separators are structural.
+ */
 function normalisePath(raw: string): string {
   const path = raw
+    .replace(/\\/g, "/")
     .toLowerCase()
     .replace(/\/{2,}/g, "/")
     .replace(/\/+$/, "");

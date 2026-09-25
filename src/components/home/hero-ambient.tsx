@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trackEvent } from "@/lib/analytics";
 import { HERO_JOURNEY } from "@/lib/homepage-data";
+import { useStaggerReveal } from "@/components/home/scroll-reveal";
 import styles from "./hero-ambient.module.css";
 
 // Premium spring from the design system (§5 Motion Physics).
@@ -23,8 +24,11 @@ const container: Variants = {
   },
 };
 
+/* `hidden` is instant: it arms after hydration (see `useStaggerReveal`), so a
+   timed hidden transition would animate *away* from the painted server
+   composition. Only `show` carries the spring. */
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 24, transition: { duration: 0 } },
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
@@ -185,22 +189,21 @@ export function HeroGradients() {
  * hands off to "Where are you right now?" is already website-shaped — the
  * scroll reads as one continuing narrative rather than two unrelated sections.
  *
- * `useReducedMotion()` gates the entrance animation: when the visitor has
- * requested reduced motion, `initial` matches the `show` variant state so
- * the strip mounts fully visible with no transform or fade, satisfying the
- * same guarantee `.hero-word`'s media-query guard gives the headline.
+ * The entrance is wired through `useStaggerReveal`, so the settled strip is
+ * what gets serialised into the prerendered HTML and the hidden state arms only
+ * after hydration. That matters more here than anywhere else on the page: this
+ * strip is above the fold, so the previous `initial={shouldReduceMotion ?
+ * "show" : "hidden"}` form shipped the hero's proof line as
+ * `style="opacity:0"` — `useReducedMotion()` is `false` on the server, so
+ * `initial` always resolved to `"hidden"` during SSR. Reduced motion still
+ * mounts fully visible with no transform or fade, the same guarantee
+ * `.hero-word`'s media-query guard gives the headline.
  */
 export function HeroJourneyProof() {
-  const shouldReduceMotion = useReducedMotion();
+  const reveal = useStaggerReveal({ margin: "-80px" });
 
   return (
-    <motion.div
-      variants={container}
-      initial={shouldReduceMotion ? "show" : "hidden"}
-      whileInView="show"
-      viewport={{ once: true, margin: "-80px" }}
-      className="mt-10 lg:mt-12"
-    >
+    <motion.div variants={container} {...reveal} className="mt-10 lg:mt-12">
       <motion.p
         variants={fadeUp}
         className="flex items-center gap-3 text-[0.6875rem] font-medium uppercase tracking-[0.24em] text-muted-foreground"

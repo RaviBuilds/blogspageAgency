@@ -27,6 +27,7 @@ import {
   type GrowthPillar,
   type GrowthPillarId,
 } from "@/lib/homepage-data";
+import { useStaggerReveal } from "@/components/home/scroll-reveal";
 
 /**
  * MOVEMENT 5b — "How your business grows" (`id="models"`).
@@ -81,8 +82,12 @@ const PILLAR_CHAIN_ICONS: Record<
 
 /* Motion variants — a function variant lets each world join the sequence with
    its index-based delay (START → BUILD → SCALE) when they share a viewport. */
+/* Every `hidden` below is instant. These scenes arm their hidden state *after*
+   hydration (see `useStaggerReveal`), so a timed `hidden` would read as an
+   animation away from the already-painted server composition. Only `visible`
+   carries a duration. */
 const worldRise: Variants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 24, transition: { duration: 0 } },
   visible: (index: number) => ({
     opacity: 1,
     y: 0,
@@ -96,12 +101,36 @@ const chainStagger: Variants = {
 };
 
 const chainNodeRise: Variants = {
-  hidden: { opacity: 0, y: 8 },
+  hidden: { opacity: 0, y: 8, transition: { duration: 0 } },
   visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: EASE } },
 };
 
-/** Re-arms when leaving the viewport, so upward scroll reverses the scene. */
+/** Section intro + closing blocks: one shared rise. */
+const introRise: Variants = {
+  hidden: { opacity: 0, y: 16, transition: { duration: 0 } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
+};
+
+const quietRise: Variants = {
+  hidden: { opacity: 0, y: 12, transition: { duration: 0 } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
+};
+
+/**
+ * These scenes re-arm when they leave the viewport, so an upward scroll
+ * reverses them. `SEQUENCE_VIEWPORT` still drives the decorative rails below;
+ * the text-bearing blocks pass the same `once: false` through the SSR-safe
+ * reveal gate instead, which is what keeps their headings out of the server
+ * HTML's hidden state.
+ */
 const SEQUENCE_VIEWPORT = { once: false as const, margin: "-100px" };
+
+/** Shared options for this section's reversible, text-bearing reveals. */
+const SEQUENCE_REVEAL = {
+  once: false,
+  margin: "-100px",
+  shownLabel: "visible",
+} as const;
 
 export function GrowthPathways() {
   return (
@@ -127,18 +156,18 @@ export function GrowthPathways() {
 }
 
 function GrowthIntro() {
-  const reduce = Boolean(useReducedMotion());
   const { heading, headingAccent } = GROWTH_SECTION;
   const headingMain = heading.startsWith(headingAccent)
     ? heading.slice(headingAccent.length)
     : "";
+  /* SSR-safe gate: this block holds the section's `<h2>`, so the server HTML
+     must ship it visible. */
+  const reveal = useStaggerReveal(SEQUENCE_REVEAL);
 
   return (
     <motion.div
-      initial={reduce ? false : { opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={SEQUENCE_VIEWPORT}
-      transition={{ duration: 0.5, ease: EASE }}
+      variants={introRise}
+      {...reveal}
       className="mx-auto max-w-2xl text-center"
     >
       <p className="text-sm font-medium text-primary">{GROWTH_SECTION.eyebrow}</p>
@@ -231,6 +260,11 @@ function GrowthWorld({
 }) {
   const reduce = Boolean(useReducedMotion());
   const icons = PILLAR_CHAIN_ICONS[pillar.id];
+  /* SSR-safe gate: this article holds the pillar's `<h3>` and promise copy, so
+     the server HTML must ship it visible. `reduce` above still drives the
+     decorative rails, which carry no text. */
+  const worldReveal = useStaggerReveal<HTMLElement>(SEQUENCE_REVEAL);
+  const chainReveal = useStaggerReveal(SEQUENCE_REVEAL);
 
   return (
     <div className="relative">
@@ -250,9 +284,7 @@ function GrowthWorld({
       <motion.article
         custom={index}
         variants={worldRise}
-        initial={reduce ? "visible" : "hidden"}
-        whileInView="visible"
-        viewport={SEQUENCE_VIEWPORT}
+        {...worldReveal}
         className="group relative rounded-2xl border border-border bg-card p-6 sm:p-8"
       >
         {/* Hover activation — pre-painted accent layers, opacity-only. */}
@@ -308,9 +340,7 @@ function GrowthWorld({
           </p>
           <motion.div
             variants={chainStagger}
-            initial={reduce ? "visible" : "hidden"}
-            whileInView="visible"
-            viewport={SEQUENCE_VIEWPORT}
+            {...chainReveal}
             className="mt-3 flex items-start justify-between gap-1"
           >
             {pillar.chain.map((step, stepIndex) => {
@@ -396,14 +426,13 @@ function GrowthWorld({
 
 /** The three assurances, as one quiet line — reuses the existing TRUST titles. */
 function TrustLine() {
-  const reduce = Boolean(useReducedMotion());
+  /* SSR-safe gate: this is real trust copy, so it ships visible. */
+  const reveal = useStaggerReveal<HTMLParagraphElement>(SEQUENCE_REVEAL);
 
   return (
     <motion.p
-      initial={reduce ? false : { opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={SEQUENCE_VIEWPORT}
-      transition={{ duration: 0.5, ease: EASE }}
+      variants={quietRise}
+      {...reveal}
       className="mt-14 text-center text-sm text-muted-foreground"
     >
       {TRUST.assurances.map((assurance) => assurance.title).join("  ·  ")}
@@ -413,16 +442,11 @@ function TrustLine() {
 
 /** One section-level conversation CTA — no per-pillar routes (ServiceVerticals owns those). */
 function SectionCta() {
-  const reduce = Boolean(useReducedMotion());
+  /* SSR-safe gate: the CTA is a real crawlable link. */
+  const reveal = useStaggerReveal(SEQUENCE_REVEAL);
 
   return (
-    <motion.div
-      initial={reduce ? false : { opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={SEQUENCE_VIEWPORT}
-      transition={{ duration: 0.5, ease: EASE }}
-      className="mt-8 text-center"
-    >
+    <motion.div variants={quietRise} {...reveal} className="mt-8 text-center">
       <Button variant="outline" asChild>
         <Link href={GROWTH_SECTION.ctaHref}>
           {GROWTH_SECTION.ctaLabel}

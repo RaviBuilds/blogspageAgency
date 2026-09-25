@@ -129,7 +129,7 @@ export const projects: FeaturedProject[] = [
   },
   {
     id: "best100movies",
-    image: "/movieDB.png",
+    image: "/movieDB.jpg",
     tag: "SEO Content Platform",
     headline: "Best100Movies - Dynamic Media Hub",
     description:

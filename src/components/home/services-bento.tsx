@@ -26,6 +26,7 @@ import {
   type HomeVerticalId,
 } from "@/lib/homepage-verticals";
 import { projects } from "@/lib/featured-work-data";
+import { useStaggerReveal } from "@/components/home/scroll-reveal";
 import {
   CapabilitySpine,
   GrowVisual,
@@ -99,13 +100,17 @@ const gridVariants: Variants = {
   show: { transition: { staggerChildren: 0.35 } },
 };
 
+/* `hidden` is instant on both: these blocks arm their hidden state *after*
+   hydration (see `useStaggerReveal`), so a timed hidden transition would read
+   as an animation away from the already-painted server composition. Only
+   `show` carries the spring. */
 const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 40 },
+  hidden: { opacity: 0, y: 40, transition: { duration: 0 } },
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 24, transition: { duration: 0 } },
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
@@ -431,6 +436,12 @@ export function ServiceVerticals() {
   const shouldReduceMotion = useReducedMotion();
   const [activeId, setActiveId] = useState<HomeVerticalId | null>(null);
 
+  /* SSR-safe reveal gates — the prerendered HTML carries the settled, readable
+     composition; the hidden state arms only after hydration. `shouldReduceMotion`
+     above is still needed: it drives `journeyDone` for the capability spine. */
+  const header = useStaggerReveal();
+  const cards = useStaggerReveal();
+
   /* R5.1 — scroll-driven START → GROW → SCALE progression.
      One scroll listener for the whole section (the established Framer Motion
      pattern, as in process-timeline.tsx). No pinning, no scroll hijacking:
@@ -537,9 +548,7 @@ export function ServiceVerticals() {
       <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
         <motion.div
           variants={gridVariants}
-          initial={shouldReduceMotion ? "show" : "hidden"}
-          whileInView="show"
-          viewport={{ once: true, margin: "-100px" }}
+          {...header}
           className="mx-auto max-w-2xl text-center"
         >
           <motion.p variants={fadeUp} className="text-sm font-medium text-primary">
@@ -568,9 +577,7 @@ export function ServiceVerticals() {
         <motion.div
           className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3"
           variants={gridVariants}
-          initial={shouldReduceMotion ? "show" : "hidden"}
-          whileInView="show"
-          viewport={{ once: true, margin: "-100px" }}
+          {...cards}
         >
           {HOME_VERTICALS.map((vertical, index) => (
             <VerticalCard

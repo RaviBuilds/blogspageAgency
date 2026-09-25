@@ -20,6 +20,15 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     include: ["tests/**/*.{test,spec}.{ts,tsx}"],
+    /*
+     * `tests/seo/**` is owned by `vitest.seo.config.ts`, which boots a served
+     * production build in `globalSetup`. Those specs cannot run here: this
+     * harness starts no server, so every route fetch would fail.
+     *
+     * The exclusion was not needed until now only because `tests/seo/` held
+     * helpers and no spec file, so the glob above matched nothing there.
+     */
+    exclude: ["**/node_modules/**", "**/dist/**", "tests/seo/**"],
     globals: false,
     watch: false,
   },

@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { ArrowRight, Check } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { PRESENCE_STORY } from "@/lib/homepage-data";
+import { useStaggerReveal } from "@/components/home/scroll-reveal";
 import { DigitalHomeVisual } from "./digital-home-visual";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -58,13 +59,20 @@ const container: Variants = {
   show: { transition: { staggerChildren: 0.08 } },
 };
 
+/* `hidden` is instant: it arms after hydration (see `useStaggerReveal`), so a
+   timed hidden transition would animate *away* from the painted server
+   composition. Only `show` carries the spring. */
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 24, transition: { duration: 0 } },
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
 export function DigitalPresenceStory() {
-  const shouldReduceMotion = useReducedMotion();
+  /* SSR-safe reveal gates — the prerendered HTML carries the settled, readable
+     composition; the hidden state arms only after hydration. */
+  const header = useStaggerReveal();
+  const benefits = useStaggerReveal<HTMLUListElement>({ margin: "-80px" });
+  const cta = useStaggerReveal({ margin: "-60px" });
 
   return (
     <section
@@ -74,9 +82,7 @@ export function DigitalPresenceStory() {
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <motion.div
           variants={container}
-          initial={shouldReduceMotion ? "show" : "hidden"}
-          whileInView="show"
-          viewport={{ once: true, margin: "-100px" }}
+          {...header}
           className="mx-auto max-w-2xl text-center"
         >
           <motion.p variants={fadeUp} className="text-sm font-medium text-primary">
@@ -102,9 +108,7 @@ export function DigitalPresenceStory() {
         {/* Benefits — real text, business language (Blueprint §10) */}
         <motion.ul
           variants={container}
-          initial={shouldReduceMotion ? "show" : "hidden"}
-          whileInView="show"
-          viewport={{ once: true, margin: "-80px" }}
+          {...benefits}
           className="mx-auto mt-14 grid max-w-3xl gap-3 sm:grid-cols-2"
         >
           {PRESENCE_STORY.benefits.map((benefit) => (
@@ -121,9 +125,7 @@ export function DigitalPresenceStory() {
 
         <motion.div
           variants={fadeUp}
-          initial={shouldReduceMotion ? "show" : "hidden"}
-          whileInView="show"
-          viewport={{ once: true, margin: "-60px" }}
+          {...cta}
           className="mt-10 flex justify-center"
         >
           <Link
