@@ -7,7 +7,7 @@ import { ArrowRight } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { BRAND_CHAPTER_ONE, BRAND_CHAPTER_TWO } from "@/lib/brand-story-data";
 import { TYPE_MICRO_LABEL, TYPE_SECTION } from "@/lib/brand-type";
-import { RHYTHM_CONTINUE, RHYTHM_SECTION } from "@/lib/section-rhythm";
+import { RHYTHM_CONTINUE } from "@/lib/section-rhythm";
 import {
   BrandOrbit,
   PhysicalToDigitalPanel,
@@ -74,7 +74,10 @@ export function BrandStory() {
       {/* ── Chapter 1 — Built for the long run ─────────────────────────── */}
       <section
         id={BRAND_CHAPTER_ONE.anchorId}
-        className={`scroll-mt-24 border-t border-border-subtle bg-background ${RHYTHM_SECTION}`}
+        /* CONTINUE, and no top border: this is the second beat of the teaching
+           movement that DigitalPresenceStory opens (see that file). A border
+           here would re-announce a lesson the reader is already inside. */
+        className={`scroll-mt-24 bg-background ${RHYTHM_CONTINUE}`}
       >
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <motion.div
@@ -139,10 +142,10 @@ export function BrandStory() {
       {/* ── Chapter 2 — Your website is your digital office ────────────── */}
       <section
         id={BRAND_CHAPTER_TWO.anchorId}
-        /* CONTINUE: chapter 2 is literally the same story as chapter 1 — they
-           already share one scroll progress value. The tight top pad stops the
-           page from reading them as two separate lessons. */
-        className={`scroll-mt-24 border-t border-border-subtle bg-background-subtle ${RHYTHM_CONTINUE}`}
+        /* CONTINUE, and no top border: chapter 2 is literally the same story as
+           chapter 1 — they already share one scroll progress value. The surface
+           change to `background-subtle` is the only boundary cue needed. */
+        className={`scroll-mt-24 bg-background-subtle ${RHYTHM_CONTINUE}`}
       >
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <div className="grid gap-10 lg:grid-cols-12 lg:items-center lg:gap-12">

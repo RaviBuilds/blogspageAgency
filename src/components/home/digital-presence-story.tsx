@@ -10,7 +10,7 @@ import {
   TYPE_MICRO_LABEL,
   TYPE_SECTION,
 } from "@/lib/brand-type";
-import { RHYTHM_SECTION } from "@/lib/section-rhythm";
+import { RHYTHM_MOVEMENT } from "@/lib/section-rhythm";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 import { DigitalHomeVisual } from "./digital-home-visual";
 
@@ -75,7 +75,11 @@ export function DigitalPresenceStory() {
   return (
     <section
       id={PRESENCE_STORY.anchorId}
-      className={`scroll-mt-24 border-t border-border-subtle bg-background-subtle ${RHYTHM_SECTION}`}
+      /* MOVEMENT: this opens the page's teaching block. BrandStory's two
+         chapters below both sit at CONTINUE and drop their top borders, so the
+         three sections read as one movement with three beats rather than three
+         separate lessons each announcing itself. */
+      className={`scroll-mt-24 border-t border-border-subtle bg-background-subtle ${RHYTHM_MOVEMENT}`}
     >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <motion.div
