@@ -109,3 +109,43 @@ export const STAGGER_SEQUENCE = 0.1;
  * `STAGGER_COPY`.
  */
 export const STAGGER_STAGED = 0.35;
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   REVEAL DISTANCE
+
+   How far a block travels on arrival. The page had accumulated four values —
+   20, 24, 28 and 32 — picked per file, so two adjacent sections could rise by
+   different amounts for no reason a reader could perceive as intentional.
+
+   Distance should track the *weight* of what is arriving: a display-scale
+   statement can afford a longer rise because it is physically large and it is
+   the only thing moving, while a dense index of cards needs a short one or the
+   grid appears to slide rather than settle.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * The default rise for content: headers, copy blocks, cards, panels.
+ *
+ * This is the value the majority of the page already used, and it stays the
+ * right answer for anything that is not one of the two bookends.
+ */
+export const RISE_DEFAULT = 24;
+
+/**
+ * The short rise, for dense fields and quiet registers — a grid of peer items,
+ * an archive index, a row of tags.
+ *
+ * Paired with `STAGGER_FIELD`: many items each travelling a long way reads as
+ * churn, so the field resolves in place instead.
+ */
+export const RISE_TIGHT = 16;
+
+/**
+ * The long rise, reserved for the two `TYPE_DISPLAY` bookends and the gallery's
+ * opening title card.
+ *
+ * At display scale a 24px rise is nearly invisible against the height of the
+ * type itself, so the page's most important arrivals were its least noticeable.
+ * Use this only where the block genuinely is the moment.
+ */
+export const RISE_DISPLAY = 40;

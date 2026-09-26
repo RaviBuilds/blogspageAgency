@@ -77,14 +77,45 @@ export const BRAND_TEXT_GRADIENT_ISLAND = {
    ───────────────────────────────────────────────────────────────────────────── */
 
 /**
- * Tier 1 — STATEMENT. The page's raised voice, reserved for the few moments
- * that carry a belief rather than a label: the manifesto beat and the final
- * call. Fluid so it never needs a breakpoint ladder, floored at 2rem so it
- * stays a statement on a phone, and capped well below the hero's 5.75rem cap
- * so nothing competes with the H1.
+ * Tier 0 — DISPLAY. The page's two editorial bookends: the manifesto that
+ * opens the argument and the final call that closes it.
  *
- * Use sparingly. Three of these on one page is already the limit; the fourth
- * turns emphasis back into wallpaper.
+ * ## Why a tier above STATEMENT exists
+ *
+ * STATEMENT was introduced as the raised voice and then spent on both the
+ * manifesto and the final CTA — which meant the page's opening belief and its
+ * closing argument rendered at the same size as each other *and* only one step
+ * above the eleven `TYPE_SECTION` headings between them. The bookends never
+ * read as bookends.
+ *
+ * DISPLAY is that missing step. It is close enough to the hero's fluid H1 to
+ * feel like the same voice returning, and far enough below its 5.75rem cap that
+ * the H1 is still unambiguously the largest type on the page.
+ *
+ * `leading-[0.95]` is deliberate and only safe at this size: at display scale
+ * the natural gap between lines is already generous, and normal leading makes a
+ * three-line statement sprawl instead of reading as one block. Do not copy this
+ * leading down to the smaller tiers.
+ *
+ * Reserved for exactly two uses — Manifesto and FinalCTA. A third instance is
+ * the point at which the page has two openings, which is the same problem as
+ * having none.
+ */
+export const TYPE_DISPLAY =
+  "text-[clamp(2.5rem,6.2vw,4.75rem)] font-semibold leading-[0.95] tracking-[-0.02em] text-balance";
+
+/**
+ * Tier 1 — STATEMENT. The page's raised voice, reserved for the few moments
+ * that carry a belief rather than a label.
+ *
+ * Now that DISPLAY owns the manifesto and the final call, this tier's job
+ * changed: it is the *peak of the page's middle* — the two scanning anchors
+ * that a visitor is most likely to be looking for (`#services`, `#work`) and
+ * the trust movement's claim. Those sections used to share one size with the
+ * nine sections around them, so nothing in the middle of the page had a summit.
+ *
+ * Fluid so it never needs a breakpoint ladder, floored at 2rem so it stays a
+ * statement on a phone.
  */
 export const TYPE_STATEMENT =
   "text-[clamp(2rem,4.6vw,3.5rem)] font-semibold leading-[1.05] tracking-tight text-balance";
@@ -141,3 +172,40 @@ export const TYPE_MICRO_LABEL =
  * every section on the page.
  */
 export const TYPE_EYEBROW = "text-sm font-medium text-primary";
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SUPPORTING PROSE
+
+   The scale above governs headings. These two tokens govern the paragraph that
+   follows a heading — the other half of a section's typographic hierarchy, and
+   the half the page had left unspecified.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * The lead paragraph under a DISPLAY or STATEMENT heading.
+ *
+ * Section leads had accumulated four different treatments — bare
+ * `text-muted-foreground`, `text-lg`, `text-xl font-medium`, and
+ * `text-lg leading-relaxed` — chosen per file rather than per role. At display
+ * scale a default-size lead looks like a caption that fell off the heading, so
+ * this token sets the one relationship that matters: noticeably larger than
+ * body copy, clearly quieter than any heading.
+ *
+ * `max-w-*` is intentionally NOT baked in. Measure depends on whether the lead
+ * sits in a single column or a grid cell, so the call site owns it.
+ */
+export const TYPE_LEAD =
+  "text-lg leading-[1.6] text-muted-foreground sm:text-xl sm:leading-[1.55]";
+
+/**
+ * Metadata: a date, a role, a location, a source note, a caption.
+ *
+ * Distinct from `TYPE_MICRO_LABEL` because metadata is sentence-case running
+ * text that happens to be small, not an uppercase structural marker. Keeping
+ * them apart is what stops every small string on the page from becoming another
+ * wide-tracked all-caps label.
+ *
+ * Holds the same 12px floor as the micro tier — the page had `text-[10px]` and
+ * `text-[11px]` metadata that is uncomfortable on a phone.
+ */
+export const TYPE_META = "text-xs leading-relaxed text-text-subtle";

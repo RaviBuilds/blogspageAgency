@@ -7,9 +7,9 @@ import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
 import { AUDIENCE } from "@/lib/homepage-data";
-import { TYPE_MICRO_LABEL, TYPE_SECTION } from "@/lib/brand-type";
+import { TYPE_LEAD, TYPE_MICRO_LABEL, TYPE_SECTION } from "@/lib/brand-type";
 import { RHYTHM_MOVEMENT } from "@/lib/section-rhythm";
-import { SPRING, STAGGER_COPY } from "@/lib/motion";
+import { RISE_DEFAULT, SPRING, STAGGER_COPY } from "@/lib/motion";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -58,7 +58,7 @@ const container: Variants = {
    timed hidden transition would animate *away* from the painted server
    composition. Only `show` carries the spring. */
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 24, transition: { duration: 0 } },
+  hidden: { opacity: 0, y: RISE_DEFAULT, transition: { duration: 0 } },
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
@@ -575,10 +575,7 @@ export function AudiencePathways() {
           <motion.h2 variants={fadeUp} className={cn("mt-5", TYPE_SECTION)}>
             {AUDIENCE.heading}
           </motion.h2>
-          <motion.p
-            variants={fadeUp}
-            className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground"
-          >
+          <motion.p variants={fadeUp} className={`mt-6 max-w-xl ${TYPE_LEAD}`}>
             {AUDIENCE.sub}
           </motion.p>
         </motion.div>

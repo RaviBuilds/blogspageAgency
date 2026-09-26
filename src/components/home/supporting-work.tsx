@@ -6,6 +6,8 @@ import { SUPPORTING, SUPPORTING_PROJECT_IDS } from "@/lib/homepage-data";
 import { TrackedLink } from "@/components/home/tracked-link";
 import { ProgressReveal } from "@/components/home/progress-reveal";
 import { SectionSeam } from "@/components/home/section-seam";
+import { TYPE_MICRO_LABEL, TYPE_QUIET } from "@/lib/brand-type";
+import { RISE_TIGHT } from "@/lib/motion";
 import { RHYTHM_CONTINUE } from "@/lib/section-rhythm";
 import { cn } from "@/lib/utils";
 
@@ -64,21 +66,24 @@ export function SupportingWork() {
           below. Decorative, behind content. */}
       <SectionSeam edge="bottom" neighbour="subtle" depth="md" />
       <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
-        <ProgressReveal distance={20}>
-          <div className="flex items-end justify-between gap-8">
-            <div className="max-w-2xl">
-              <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-                {SUPPORTING.heading}
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground lg:text-base">
-                {SUPPORTING.sub}
-              </p>
-            </div>
-            {/* Editorial hairline — the archive reads as a curated index. */}
-            <div
+        <ProgressReveal distance={RISE_TIGHT}>
+          {/* Running head. The archive is an index, so its label sits inline
+              with a rule that spans the field — the same treatment as the
+              journal and the industry directory, and deliberately NOT the
+              stacked header the argued sections use. `TYPE_QUIET` keeps the
+              archive below the flagship gallery it continues. */}
+          <div className="flex items-center gap-4">
+            <p className={`shrink-0 ${TYPE_MICRO_LABEL}`}>Archive</p>
+            <span
               aria-hidden
-              className="mb-2 hidden h-px flex-1 bg-gradient-to-r from-border to-transparent lg:block"
+              className="h-px flex-1 bg-gradient-to-r from-white/15 to-transparent"
             />
+          </div>
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <h2 className={TYPE_QUIET}>{SUPPORTING.heading}</h2>
+            <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
+              {SUPPORTING.sub}
+            </p>
           </div>
         </ProgressReveal>
 
@@ -89,7 +94,7 @@ export function SupportingWork() {
               className={index === 0 ? "lg:col-span-3" : "lg:col-span-2"}
               enterAt={index * 0.12}
               completeBy={0.55 + index * 0.12}
-              distance={20}
+              distance={RISE_TIGHT}
             >
               <SupportingCard project={project} wide={index === 0} />
             </ProgressReveal>

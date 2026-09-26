@@ -14,10 +14,12 @@ import { PROCESS } from "@/lib/homepage-data";
 import {
   BRAND_TEXT_GRADIENT,
   TYPE_EYEBROW,
+  TYPE_LEAD,
+  TYPE_META,
   TYPE_SECTION,
 } from "@/lib/brand-type";
 import { RHYTHM_MOVEMENT } from "@/lib/section-rhythm";
-import { SPRING, STAGGER_SEQUENCE } from "@/lib/motion";
+import { RISE_DEFAULT, SPRING, STAGGER_SEQUENCE } from "@/lib/motion";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 import {
   BriefArtifact,
@@ -73,7 +75,7 @@ const container: Variants = {
    timed hidden transition would animate *away* from the painted server
    composition. Only `show` carries the spring. */
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 24, transition: { duration: 0 } },
+  hidden: { opacity: 0, y: RISE_DEFAULT, transition: { duration: 0 } },
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
@@ -372,27 +374,34 @@ export function ProcessTimeline() {
         {/* Section header — canonical copy, staggered once. The scopeNote
             keeps the process relevant to every kind of build without
             becoming a second service list. */}
-        <motion.div
-          variants={container}
-          {...header}
-          className="mx-auto max-w-2xl text-center"
-        >
-          {/* Scanning anchor — Process keeps its eyebrow. */}
-          <motion.p variants={fadeUp} className={TYPE_EYEBROW}>
-            {PROCESS.eyebrow}
-          </motion.p>
-          <motion.h2 variants={fadeUp} className={`mt-3 ${TYPE_SECTION}`}>
-            {HEADING_MAIN || PROCESS.heading}
-            {HEADING_MAIN && (
-              <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>
-            )}
-          </motion.h2>
-          <motion.p variants={fadeUp} className="mt-4 text-muted-foreground">
-            {PROCESS.sub}
-          </motion.p>
-          <motion.p variants={fadeUp} className="mt-3 text-sm text-text-subtle">
-            {PROCESS.scopeNote}
-          </motion.p>
+        {/* Heading left, lead right — the same split composition as the
+            teaching movement's opening, because this section does the same job
+            at the other end of the page: it narrates rather than indexes. The
+            scope note stays with the lead as genuine metadata (TYPE_META), not
+            as a third paragraph competing with it. */}
+        <motion.div variants={container} {...header}>
+          <div className="lg:grid lg:grid-cols-12 lg:items-baseline lg:gap-10">
+            <div className="lg:col-span-7">
+              {/* Scanning anchor — Process keeps its eyebrow. */}
+              <motion.p variants={fadeUp} className={TYPE_EYEBROW}>
+                {PROCESS.eyebrow}
+              </motion.p>
+              <motion.h2 variants={fadeUp} className={`mt-4 ${TYPE_SECTION}`}>
+                {HEADING_MAIN || PROCESS.heading}
+                {HEADING_MAIN && (
+                  <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>
+                )}
+              </motion.h2>
+            </div>
+            <div className="mt-6 lg:col-span-5 lg:col-start-8 lg:mt-0">
+              <motion.p variants={fadeUp} className={TYPE_LEAD}>
+                {PROCESS.sub}
+              </motion.p>
+              <motion.p variants={fadeUp} className={`mt-4 ${TYPE_META}`}>
+                {PROCESS.scopeNote}
+              </motion.p>
+            </div>
+          </div>
         </motion.div>
 
         {/* Journey: the evolving artifact beside the typographic stage list,

@@ -1,12 +1,6 @@
-"use client";
+﻿"use client";
 
-import {
-  motion,
-  useMotionValue,
-  useReducedMotion,
-  useTransform,
-  type MotionValue,
-} from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { PRESENCE_STORY } from "@/lib/homepage-data";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -21,16 +15,12 @@ import { PRESENCE_STORY } from "@/lib/homepage-data";
        → one signal enters the site
        → outcomes appear: Enquiries · Bookings · Content · SEO foundation
 
-   Motion rules (R12: rebuilt to match `brand-story-visuals.tsx`):
-   - driven entirely by ONE shared, reversible `scrollYProgress` MotionValue
-     passed down from `digital-presence-story.tsx` — no independent
-     `useScroll` call and no wall-clock timeline. Every element maps a slice
-     ("window") of that single 0→1 value through `useTransform`, so the
-     drawing/entrance scrubs directly with scroll position and reverses
-     cleanly on scroll-up, exactly like the brand-story orbit/panel visuals.
-   - reduced motion collapses the shared value to a constant `1` (fully
-     settled), matching `system-flow.tsx` / `brand-story-visuals.tsx`.
-   - compositor-friendly: opacity / transform / SVG path drawing only.
+   Motion rules:
+   - a single one-shot timeline, driven by one parent `whileInView` trigger;
+     every descendant inherits the hidden/show variant labels from it
+   - nothing loops; after the sequence the system settles into a complete
+     rest state (channels, business, website and outcomes are all visible)
+   - compositor-friendly: opacity / transform / SVG path drawing only
 
    The whole visual is `aria-hidden` — the section's real copy (heading,
    lead, benefits, CTA) carries the meaning; this is the illustrated echo.
@@ -41,22 +31,31 @@ import { PRESENCE_STORY } from "@/lib/homepage-data";
    violet = intelligence / future capability (content)
    ───────────────────────────────────────────────────────────────────────────── */
 
-type Win = readonly [number, number];
-
-/** Maps one slice of the shared progress to 0→1, clamped. */
-function useWindow(progress: MotionValue<number>, win: Win): MotionValue<number> {
-  return useTransform(progress, [win[0], win[1]], [0, 1], { clamp: true });
-}
-
 /**
- * Rise → hold → fall opacity across four progress points, for the travelling
- * signal pulses (replaces the old `opacity: [0, 1, 1, 0]` keyframe arrays).
+ * Staggered entrance helper — each call site owns its place in the timeline.
+ *
+ * R10 fix: every delay literal in this file was originally tuned for a
+ * ~4.7s wall-clock sequence (the last outcome pill landed at delay 4.19s +
+ * its own 0.55s duration). That is real time, not scroll distance — once
+ * `whileInView` fired the timeline kept running regardless of how fast the
+ * reader kept scrolling, so on any normal scroll speed the visual was still
+ * mid-animation long after it (and often the whole section) had left the
+ * viewport. `TIME_SCALE` compresses every hardcoded delay/duration below by
+ * the same factor without renumbering each call site, so the full sequence
+ * now resolves in well under a second — effectively settled within the
+ * first 20-30% of the block's entry into the viewport.
  */
-function usePulse(
-  progress: MotionValue<number>,
-  points: readonly [number, number, number, number],
-): MotionValue<number> {
-  return useTransform(progress, [...points], [0, 1, 1, 0], { clamp: true });
+const TIME_SCALE = 0.28;
+
+function fadeUp(delay: number, y = 14): Variants {
+  return {
+    hidden: { opacity: 0, y },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: { delay: delay * TIME_SCALE, duration: 0.3, ease: "easeOut" },
+    },
+  };
 }
 
 /* --- Act 1: discovery ----------------------------------------------------------- */
@@ -64,39 +63,18 @@ function usePulse(
 /** Capsule centres on the 560-unit field the convergence curves share. */
 const CHANNEL_STARTS = [70, 210, 350, 490];
 
-const CHANNEL_WINDOW_START = 0;
-const CHANNEL_WINDOW_STEP = 0.035;
-const CHANNEL_WINDOW_WIDTH = 0.11;
-
-function DiscoveryChannel({
-  channel,
-  index,
-  progress,
-}: {
-  channel: string;
-  index: number;
-  progress: MotionValue<number>;
-}) {
-  const start = CHANNEL_WINDOW_START + index * CHANNEL_WINDOW_STEP;
-  const reveal = useWindow(progress, [start, start + CHANNEL_WINDOW_WIDTH]);
-  const y = useTransform(reveal, [0, 1], [14, 0]);
-
-  return (
-    <motion.span
-      style={{ opacity: reveal, y }}
-      className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-full border border-border bg-card px-2 text-xs font-medium text-foreground shadow-sm sm:px-4"
-    >
-      <span className="mr-1.5 hidden size-1.5 rounded-full bg-accent-cyan/80 sm:block" />
-      {channel}
-    </motion.span>
-  );
-}
-
-function DiscoveryChannels({ progress }: { progress: MotionValue<number> }) {
+function DiscoveryChannels() {
   return (
     <div className="grid grid-cols-4 gap-1.5 sm:gap-3">
       {PRESENCE_STORY.channels.map((channel, i) => (
-        <DiscoveryChannel key={channel} channel={channel} index={i} progress={progress} />
+        <motion.span
+          key={channel}
+          variants={fadeUp(0.05 + i * 0.08)}
+          className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-full border border-border bg-card px-2 text-xs font-medium text-foreground shadow-sm sm:px-4"
+        >
+          <span className="mr-1.5 hidden size-1.5 rounded-full bg-accent-cyan/80 sm:block" />
+          {channel}
+        </motion.span>
       ))}
     </div>
   );
@@ -104,64 +82,12 @@ function DiscoveryChannels({ progress }: { progress: MotionValue<number> }) {
 
 /* --- Act 1 → 2: convergence into the business ------------------------------------ */
 
-const CONVERGENCE_BASE_START = 0.15;
-const CONVERGENCE_BASE_STEP = 0.025;
-const CONVERGENCE_BASE_WIDTH = 0.08;
-
-const CONVERGENCE_SIGNAL_START = 0.28;
-const CONVERGENCE_SIGNAL_STEP = 0.03;
-const CONVERGENCE_SIGNAL_WIDTH = 0.12;
-
-/** One hairline curve, drawn as its own component so the per-item
-    `useWindow`/`useTransform` calls stay outside the parent's `.map` and
-    obey the rules of hooks (matches `OrbitSatellite`'s convention). */
-function ConvergenceBasePath({ x, index, progress }: { x: number; index: number; progress: MotionValue<number> }) {
-  const start = CONVERGENCE_BASE_START + index * CONVERGENCE_BASE_STEP;
-  const pathLength = useWindow(progress, [start, start + CONVERGENCE_BASE_WIDTH]);
-  return (
-    <motion.path
-      d={`M ${x} 3 C ${x} 52, 280 40, 280 93`}
-      stroke="var(--border-strong)"
-      strokeWidth={1.5}
-      strokeLinecap="round"
-      vectorEffect="non-scaling-stroke"
-      style={{ pathLength }}
-    />
-  );
-}
-
-/** The travelling cyan signal for one channel — dissolves as it nears the
-    business node (rise → hold → fall opacity across its own window). */
-function ConvergenceSignalPath({ x, index, progress }: { x: number; index: number; progress: MotionValue<number> }) {
-  const start = CONVERGENCE_SIGNAL_START + index * CONVERGENCE_SIGNAL_STEP;
-  const end = start + CONVERGENCE_SIGNAL_WIDTH;
-  const travel = useWindow(progress, [start, end]);
-  const pathOffset = useTransform(travel, [0, 1], [0, 0.86]);
-  const opacity = usePulse(progress, [
-    start,
-    start + CONVERGENCE_SIGNAL_WIDTH * 0.12,
-    start + CONVERGENCE_SIGNAL_WIDTH * 0.78,
-    end,
-  ]);
-  return (
-    <motion.path
-      d={`M ${x} 3 C ${x} 52, 280 40, 280 93`}
-      stroke="var(--accent-cyan)"
-      strokeWidth={1.5}
-      strokeLinecap="round"
-      vectorEffect="non-scaling-stroke"
-      pathLength={0.14}
-      style={{ pathOffset, opacity }}
-    />
-  );
-}
-
 /**
  * Four hairline curves draw in, then one cyan signal per channel travels
  * inward and dissolves into the business node. After the sequence the
  * signals are gone — only the quiet hairlines remain at rest.
  */
-function ConvergenceField({ progress }: { progress: MotionValue<number> }) {
+function ConvergenceField() {
   return (
     <svg
       className="h-24 w-full"
@@ -172,38 +98,87 @@ function ConvergenceField({ progress }: { progress: MotionValue<number> }) {
       focusable="false"
     >
       {CHANNEL_STARTS.map((x, i) => (
-        <ConvergenceBasePath key={`base-${x}`} x={x} index={i} progress={progress} />
+        <motion.path
+          key={`base-${x}`}
+          d={`M ${x} 3 C ${x} 52, 280 40, 280 93`}
+          stroke="var(--border-strong)"
+          strokeWidth={1.5}
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+          variants={{
+            hidden: { pathLength: 0 },
+            show: {
+              pathLength: 1,
+              transition: {
+                delay: (0.55 + i * 0.08) * TIME_SCALE,
+                duration: 0.6 * TIME_SCALE,
+                ease: "easeOut",
+              },
+            },
+          }}
+        />
       ))}
       {CHANNEL_STARTS.map((x, i) => (
-        <ConvergenceSignalPath key={`signal-${x}`} x={x} index={i} progress={progress} />
+        <motion.path
+          key={`signal-${x}`}
+          d={`M ${x} 3 C ${x} 52, 280 40, 280 93`}
+          stroke="var(--accent-cyan)"
+          strokeWidth={1.5}
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+          variants={{
+            hidden: { pathLength: 0.14, pathOffset: 0, opacity: 0 },
+            show: {
+              pathLength: 0.14,
+              pathOffset: 0.86,
+              opacity: [0, 1, 1, 0],
+              transition: {
+                delay: (1.05 + i * 0.1) * TIME_SCALE,
+                duration: 0.85 * TIME_SCALE,
+                ease: "linear",
+                opacity: {
+                  delay: (1.05 + i * 0.1) * TIME_SCALE,
+                  duration: 0.85 * TIME_SCALE,
+                  times: [0, 0.12, 0.78, 1],
+                },
+              },
+            },
+          }}
+        />
       ))}
     </svg>
   );
 }
 
-const BUSINESS_NODE_WINDOW: Win = [0.4, 0.48];
-const BUSINESS_RING_WINDOW: Win = [0.46, 0.54];
-const BUSINESS_EDGE_WINDOW: Win = [0.46, 0.52];
-
-function BusinessNode({ progress }: { progress: MotionValue<number> }) {
-  const reveal = useWindow(progress, BUSINESS_NODE_WINDOW);
-  const y = useTransform(reveal, [0, 1], [14, 0]);
-  const ring = useWindow(progress, BUSINESS_RING_WINDOW);
-  const ringOpacity = useTransform(ring, [0, 1], [0.5, 0]);
-  const ringScale = useTransform(ring, [0, 1], [1, 2]);
-  const edgeOpacity = useWindow(progress, BUSINESS_EDGE_WINDOW);
-
+function BusinessNode() {
   return (
-    <motion.div style={{ opacity: reveal, y }} className="flex justify-center">
+    <motion.div variants={fadeUp(1.5)} className="flex justify-center">
       <span className="relative inline-flex">
-        {/* Convergence ring: pulses once as the signals land, then rests. */}
+        {/* One-shot convergence ring: pulses once as the signals land, then rests. */}
         <motion.span
-          style={{ opacity: ringOpacity, scale: ringScale }}
+          variants={{
+            hidden: { opacity: 0.5, scale: 1 },
+            show: {
+              opacity: 0,
+              scale: 2,
+              transition: {
+                delay: 1.85 * TIME_SCALE,
+                duration: 1.1 * TIME_SCALE,
+                ease: "easeOut",
+              },
+            },
+          }}
           className="absolute -inset-1 rounded-full border border-accent-blue/50"
         />
         {/* Activation edge: the node's border quietly turns blue once connected. */}
         <motion.span
-          style={{ opacity: edgeOpacity }}
+          variants={{
+            hidden: { opacity: 0 },
+            show: {
+              opacity: 1,
+              transition: { delay: 1.95 * TIME_SCALE, duration: 0.6 * TIME_SCALE },
+            },
+          }}
           className="absolute -inset-px rounded-full border border-accent-blue/40"
         />
         <span className="relative inline-flex h-11 items-center gap-2 rounded-full border border-border-strong bg-card px-5 text-sm font-semibold text-foreground shadow-sm">
@@ -221,27 +196,13 @@ function BusinessNode({ progress }: { progress: MotionValue<number> }) {
 /** Short vertical hairline whose travelling signal enters the next surface. */
 function SignalLine({
   height,
-  window: win,
+  delay,
   color,
-  progress,
 }: {
   height: number;
-  window: Win;
+  delay: number;
   color: string;
-  progress: MotionValue<number>;
 }) {
-  const [start, end] = win;
-  const span = end - start;
-  const base = useWindow(progress, [start, start + span * 0.6]);
-  const travel = useWindow(progress, win);
-  const pathOffset = useTransform(travel, [0, 1], [0, 0.8]);
-  const opacity = usePulse(progress, [
-    start,
-    start + span * 0.15,
-    start + span * 0.8,
-    end,
-  ]);
-
   return (
     <svg
       className="mx-auto block"
@@ -258,7 +219,17 @@ function SignalLine({
         strokeWidth={1.5}
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
-        style={{ pathLength: base }}
+        variants={{
+          hidden: { pathLength: 0 },
+          show: {
+            pathLength: 1,
+            transition: {
+              delay: Math.max(delay * TIME_SCALE - 0.08, 0),
+              duration: 0.4 * TIME_SCALE,
+              ease: "easeOut",
+            },
+          },
+        }}
       />
       <motion.path
         d={`M 2 0 L 2 ${height}`}
@@ -266,8 +237,24 @@ function SignalLine({
         strokeWidth={1.5}
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
-        pathLength={0.2}
-        style={{ pathOffset, opacity }}
+        variants={{
+          hidden: { pathLength: 0.2, pathOffset: 0, opacity: 0 },
+          show: {
+            pathLength: 0.2,
+            pathOffset: 0.8,
+            opacity: [0, 1, 1, 0],
+            transition: {
+              delay: delay * TIME_SCALE,
+              duration: 0.7 * TIME_SCALE,
+              ease: "linear",
+              opacity: {
+                delay: delay * TIME_SCALE,
+                duration: 0.7 * TIME_SCALE,
+                times: [0, 0.15, 0.8, 1],
+              },
+            },
+          },
+        }}
       />
     </svg>
   );
@@ -279,28 +266,29 @@ function SignalLine({
 const SITE_NAV = ["Services", "About", "Reviews", "Contact"];
 const SITE_TILES = ["Services", "About", "Reviews"];
 
-const WEBSITE_WINDOW: Win = [0.5, 0.6];
-const WEBSITE_HALO_WINDOW: Win = [0.58, 0.68];
-const WEBSITE_EDGE_WINDOW: Win = [0.58, 0.66];
-const WEBSITE_ENQUIRE_WINDOW: Win = [0.6, 0.66];
-
-function WebsiteSurface({ progress }: { progress: MotionValue<number> }) {
-  const reveal = useWindow(progress, WEBSITE_WINDOW);
-  const y = useTransform(reveal, [0, 1], [20, 0]);
-  const halo = useWindow(progress, WEBSITE_HALO_WINDOW);
-  const edge = useWindow(progress, WEBSITE_EDGE_WINDOW);
-  const enquire = useWindow(progress, WEBSITE_ENQUIRE_WINDOW);
-
+function WebsiteSurface() {
   return (
-    <motion.div style={{ opacity: reveal, y }} className="relative mx-auto w-full max-w-lg">
+    <motion.div variants={fadeUp(2.55, 20)} className="relative mx-auto w-full max-w-lg">
       {/* Activation halo — a faint cyan atmosphere, painted only once active. */}
       <motion.span
-        style={{ opacity: halo }}
+        variants={{
+          hidden: { opacity: 0 },
+          show: {
+            opacity: 1,
+            transition: { delay: 3.1 * TIME_SCALE, duration: 1.0 * TIME_SCALE },
+          },
+        }}
         className="pointer-events-none absolute -inset-8 rounded-[2rem] bg-[radial-gradient(closest-side,rgba(14,116,144,0.07),transparent)]"
       />
       {/* Activation edge — a quiet cyan border over the resting hairline. */}
       <motion.span
-        style={{ opacity: edge }}
+        variants={{
+          hidden: { opacity: 0 },
+          show: {
+            opacity: 1,
+            transition: { delay: 3.1 * TIME_SCALE, duration: 0.8 * TIME_SCALE },
+          },
+        }}
         className="pointer-events-none absolute -inset-px rounded-2xl border border-accent-cyan/50"
       />
 
@@ -348,7 +336,13 @@ function WebsiteSurface({ progress }: { progress: MotionValue<number> }) {
             <span className="relative inline-flex h-9 items-center rounded-full bg-primary/10 px-6 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
               Enquire
               <motion.span
-                style={{ opacity: enquire }}
+                variants={{
+                  hidden: { opacity: 0 },
+                  show: {
+                    opacity: 1,
+                    transition: { delay: 3.25 * TIME_SCALE, duration: 0.5 * TIME_SCALE },
+                  },
+                }}
                 className="absolute inset-0 flex items-center justify-center rounded-full bg-primary text-primary-foreground"
               >
                 Enquire
@@ -385,39 +379,18 @@ const OUTPUT_DOTS = [
   "bg-accent-blue",
 ] as const;
 
-const OUTCOME_WINDOW_START = 0.82;
-const OUTCOME_WINDOW_STEP = 0.035;
-const OUTCOME_WINDOW_WIDTH = 0.1;
-
-function Outcome({
-  output,
-  index,
-  progress,
-}: {
-  output: string;
-  index: number;
-  progress: MotionValue<number>;
-}) {
-  const start = OUTCOME_WINDOW_START + index * OUTCOME_WINDOW_STEP;
-  const reveal = useWindow(progress, [start, start + OUTCOME_WINDOW_WIDTH]);
-  const y = useTransform(reveal, [0, 1], [14, 0]);
-
-  return (
-    <motion.span
-      style={{ opacity: reveal, y }}
-      className="inline-flex h-9 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground shadow-sm"
-    >
-      <span className={`size-1.5 rounded-full ${OUTPUT_DOTS[index % OUTPUT_DOTS.length]}`} />
-      {output}
-    </motion.span>
-  );
-}
-
-function Outcomes({ progress }: { progress: MotionValue<number> }) {
+function Outcomes() {
   return (
     <div className="flex flex-wrap justify-center gap-2">
       {PRESENCE_STORY.outputs.map((output, i) => (
-        <Outcome key={output} output={output} index={i} progress={progress} />
+        <motion.span
+          key={output}
+          variants={fadeUp(3.8 + i * 0.13)}
+          className="inline-flex h-9 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground shadow-sm"
+        >
+          <span className={`size-1.5 rounded-full ${OUTPUT_DOTS[i % OUTPUT_DOTS.length]}`} />
+          {output}
+        </motion.span>
       ))}
     </div>
   );
@@ -425,24 +398,39 @@ function Outcomes({ progress }: { progress: MotionValue<number> }) {
 
 /* --- Composition ------------------------------------------------------------------------ */
 
-/** Business → website connector, between `BusinessNode`'s settle and the
-    website's own entrance window. */
-const SIGNAL_TO_WEBSITE_WINDOW: Win = [0.48, 0.56];
-/** Website → outcomes connector, after the website has settled and before
-    the outcome pills begin arriving. */
-const SIGNAL_TO_OUTCOMES_WINDOW: Win = [0.72, 0.8];
-
-export function DigitalHomeVisual({
-  progress: externalProgress,
-}: {
-  progress: MotionValue<number>;
-}) {
+export function DigitalHomeVisual() {
   const shouldReduceMotion = useReducedMotion();
-  const settled = useMotionValue(1);
-  const progress = shouldReduceMotion ? settled : externalProgress;
 
   return (
-    <div aria-hidden="true" className="relative mx-auto mt-14 max-w-xl">
+    <motion.div
+      initial={shouldReduceMotion ? "show" : "hidden"}
+      whileInView="show"
+      /* R10/R11: negative bottom margin used to delay the trigger until the
+         block was 80px past the viewport's bottom edge, then the ~4.7s
+         wall-clock storyboard ran regardless of scroll speed — the visual
+         was routinely still mid-animation after it had scrolled out of
+         view entirely.
+
+         The two-value form `-20% 0px` shrinks BOTH the top and bottom edges
+         of the intersection root by 20% of the viewport height (CSS
+         shorthand: [vertical, horizontal]), not just the bottom. For a
+         visual this short, shrinking both edges collapses the usable
+         "trigger band" into a thin strip near the viewport's centre —
+         `once: true` then only gets one chance to observe the crossing, and
+         on a normal scroll it routinely skipped over that band entirely, so
+         `whileInView` never fired and everything stayed at its `hidden`
+         (opacity: 0 / pathLength: 0) state indefinitely.
+
+         The 4-value form (top right bottom left) shrinks only the bottom
+         edge, matching the original R10 intent: the block is considered
+         "in view" as soon as it crosses the normal top edge, and the
+         trigger additionally requires it to be 20% clear of the bottom
+         edge — exactly the "~20% into the viewport" band, without ever
+         narrowing the root to an unreachable sliver. */
+      viewport={{ once: true, margin: "0px 0px -20% 0px" }}
+      aria-hidden="true"
+      className="relative mx-auto mt-14 max-w-xl"
+    >
       {/* Restrained atmospheric depth: a faint blue light over discovery,
           a faint cyan light around the website. Mostly neutral overall. */}
       <div className="pointer-events-none absolute inset-0">
@@ -451,34 +439,24 @@ export function DigitalHomeVisual({
       </div>
 
       <div className="relative">
-        <DiscoveryChannels progress={progress} />
-        <ConvergenceField progress={progress} />
-        <BusinessNode progress={progress} />
+        <DiscoveryChannels />
+        <ConvergenceField />
+        <BusinessNode />
 
         {/* One signal leaves the business and enters the website. */}
         <div className="py-1">
-          <SignalLine
-            height={48}
-            window={SIGNAL_TO_WEBSITE_WINDOW}
-            color="var(--accent-cyan)"
-            progress={progress}
-          />
+          <SignalLine height={48} delay={2.5} color="var(--accent-cyan)" />
         </div>
 
-        <WebsiteSurface progress={progress} />
+        <WebsiteSurface />
 
         <div className="py-1">
-          <SignalLine
-            height={32}
-            window={SIGNAL_TO_OUTCOMES_WINDOW}
-            color="var(--accent-blue)"
-            progress={progress}
-          />
+          <SignalLine height={32} delay={3.55} color="var(--accent-blue)" />
         </div>
 
-        <Outcomes progress={progress} />
+        <Outcomes />
       </div>
-    </div>
+    </motion.div>
   );
 }
 

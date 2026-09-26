@@ -19,7 +19,7 @@ import { BRIDGE, FLAGSHIP_PROJECT_IDS } from "@/lib/homepage-data";
 import {
   BRAND_TEXT_GRADIENT,
   TYPE_MICRO_LABEL,
-  TYPE_SECTION,
+  TYPE_QUIET,
 } from "@/lib/brand-type";
 import { RHYTHM_SECTION } from "@/lib/section-rhythm";
 import { SPRING, STAGGER_FIELD } from "@/lib/motion";
@@ -175,17 +175,27 @@ export function BentoGrid() {
             with scroll, like every other section on the page. */}
         {/* Left-aligned — a bridge into the solution index, not a scanning
             anchor. See brand-story.tsx. */}
-        <ProgressReveal className="max-w-2xl">
-          {/* Not a scanning anchor — demoted to the muted micro label so the
-              primary eyebrow stays reserved for Services, Work and Process. */}
-          <p className={TYPE_MICRO_LABEL}>{BRIDGE.eyebrow}</p>
-          <h2 className={`mt-3 ${TYPE_SECTION}`}>
+        <ProgressReveal>
+          {/* Label inline with a rule. The industry index is a directory, and a
+              directory opens with a running head, not with the same stacked
+              label-heading-lead block the argued sections use. The rule also
+              draws the eye across to the full width of the field the index
+              below occupies. */}
+          <div className="flex items-center gap-4">
+            {/* Not a scanning anchor — demoted to the muted micro label so the
+                primary eyebrow stays reserved for Services, Work and Process. */}
+            <p className={`shrink-0 ${TYPE_MICRO_LABEL}`}>{BRIDGE.eyebrow}</p>
+            <span aria-hidden className="h-px flex-1 bg-border" />
+          </div>
+          <h2 className={`mt-8 max-w-2xl ${TYPE_QUIET}`}>
             {HEADING_MAIN || BRIDGE.heading}
             {HEADING_MAIN && (
               <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>
             )}
           </h2>
-          <p className="mt-4 text-muted-foreground">{BRIDGE.sub}</p>
+          <p className="mt-5 max-w-xl leading-relaxed text-muted-foreground">
+            {BRIDGE.sub}
+          </p>
         </ProgressReveal>
 
         <div className="mt-16 grid items-stretch gap-10 lg:grid-cols-12">

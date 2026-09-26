@@ -29,10 +29,11 @@ import { projects } from "@/lib/featured-work-data";
 import {
   BRAND_TEXT_GRADIENT,
   TYPE_EYEBROW,
-  TYPE_SECTION,
+  TYPE_LEAD,
+  TYPE_STATEMENT,
 } from "@/lib/brand-type";
 import { RHYTHM_MOVEMENT } from "@/lib/section-rhythm";
-import { SPRING, STAGGER_STAGED } from "@/lib/motion";
+import { RISE_DEFAULT, SPRING, STAGGER_STAGED } from "@/lib/motion";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 import {
   CapabilitySpine,
@@ -112,7 +113,7 @@ const cardVariants: Variants = {
 };
 
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 24, transition: { duration: 0 } },
+  hidden: { opacity: 0, y: RISE_DEFAULT, transition: { duration: 0 } },
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
@@ -536,24 +537,42 @@ export function ServiceVerticals() {
       />
 
       <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
-        <motion.div
-          variants={gridVariants}
-          {...header}
-          className="mx-auto max-w-2xl text-center"
-        >
-          {/* Scanning anchor — Services keeps its eyebrow. */}
-          <motion.p variants={fadeUp} className={TYPE_EYEBROW}>
-            {VERTICALS_SECTION.eyebrow}
-          </motion.p>
-          <motion.h2 variants={fadeUp} className={`mt-3 ${TYPE_SECTION}`}>
-            {HEADING_MAIN || HEADING_TEXT}
-            {HEADING_MAIN && (
-              <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>
-            )}
-          </motion.h2>
-          <motion.p variants={fadeUp} className="mt-4 text-muted-foreground">
-            {VERTICALS_SECTION.sub}
-          </motion.p>
+        {/*
+          The services anchor, composed as a split header.
+
+          This was a centered `max-w-2xl` stack — the page's default, shared with
+          eight other sections. Services is one of the three anchors a visitor
+          actually scans for, and it opens the capability system below it, so it
+          reads at STATEMENT scale with the lead set across the field instead of
+          stacked underneath. The heading and its supporting sentence sit on one
+          horizontal line of the composition, which is what makes this section
+          look different from the teaching movement above it.
+        */}
+        <motion.div variants={gridVariants} {...header}>
+          <div className="lg:grid lg:grid-cols-12 lg:items-end lg:gap-10">
+            <div className="lg:col-span-7">
+              {/* Scanning anchor — Services keeps its eyebrow. */}
+              <motion.p variants={fadeUp} className={TYPE_EYEBROW}>
+                {VERTICALS_SECTION.eyebrow}
+              </motion.p>
+              <motion.h2 variants={fadeUp} className={`mt-4 ${TYPE_STATEMENT}`}>
+                {HEADING_MAIN || HEADING_TEXT}
+                {HEADING_MAIN && (
+                  <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>
+                )}
+              </motion.h2>
+            </div>
+            <motion.div
+              variants={fadeUp}
+              className="mt-8 lg:col-span-5 lg:col-start-8 lg:mt-0"
+            >
+              <span
+                aria-hidden
+                className="hidden h-px w-full bg-gradient-to-r from-border-strong to-transparent lg:block"
+              />
+              <p className={`lg:mt-6 ${TYPE_LEAD}`}>{VERTICALS_SECTION.sub}</p>
+            </motion.div>
+          </div>
         </motion.div>
 
         {/* START → GROW → SCALE spine: a scroll-driven progression indicator.

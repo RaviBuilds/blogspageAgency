@@ -10,9 +10,9 @@ import { CONVERSATION, NEED_LABELS } from "@/lib/homepage-data";
 import { NICHES } from "@/lib/niches";
 import { findApprovedCity } from "@/lib/cities";
 import { NAP } from "@/lib/site";
-import { TYPE_MICRO_LABEL, TYPE_SECTION } from "@/lib/brand-type";
+import { TYPE_LEAD, TYPE_MICRO_LABEL, TYPE_SECTION } from "@/lib/brand-type";
 import { RHYTHM_MOVEMENT } from "@/lib/section-rhythm";
-import { EASE, SPRING, STAGGER_COPY } from "@/lib/motion";
+import { EASE, RISE_DEFAULT, SPRING, STAGGER_COPY } from "@/lib/motion";
 import { useMotionReady } from "@/components/home/progress-reveal";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 
@@ -53,7 +53,7 @@ const container: Variants = {
    timed hidden transition would animate *away* from the painted server
    composition. Only `show` carries the spring. */
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 24, transition: { duration: 0 } },
+  hidden: { opacity: 0, y: RISE_DEFAULT, transition: { duration: 0 } },
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
@@ -261,10 +261,8 @@ export function ConversationExperience() {
           <motion.div variants={fadeUp}>
             {/* Not a scanning anchor — muted micro label, see bento-grid. */}
             <p className={TYPE_MICRO_LABEL}>{CONVERSATION.eyebrow}</p>
-            <h2 className={`mt-3 ${TYPE_SECTION}`}>{CONVERSATION.heading}</h2>
-            <p className="mt-4 max-w-md text-muted-foreground">
-              {CONVERSATION.sub}
-            </p>
+            <h2 className={`mt-4 ${TYPE_SECTION}`}>{CONVERSATION.heading}</h2>
+            <p className={`mt-6 max-w-md ${TYPE_LEAD}`}>{CONVERSATION.sub}</p>
 
             {contextLines.length > 0 ? (
               <div className="mt-5 flex flex-col gap-2">

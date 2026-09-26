@@ -9,7 +9,7 @@ import {
 import { useRef, type ReactNode } from "react";
 
 import { useMotionReady } from "@/components/home/progress-reveal";
-import { EASE } from "@/lib/motion";
+import { EASE, RISE_TIGHT } from "@/lib/motion";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    ScrollReveal — a mount-safe fade-up for one content block.
@@ -120,7 +120,7 @@ export function ScrollReveal({
 
   /** Hidden is instant (pre-paint only, never animated); settled x resolves to 0. */
   const revealVariants: Variants = {
-    hidden: { opacity: 0, y: 20, x, transition: { duration: 0 } },
+    hidden: { opacity: 0, y: RISE_TIGHT, x, transition: { duration: 0 } },
     shown: { opacity: 1, y: 0, x: 0 },
   };
 

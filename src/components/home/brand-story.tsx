@@ -6,9 +6,9 @@ import { motion, useScroll, type Variants } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { BRAND_CHAPTER_ONE, BRAND_CHAPTER_TWO } from "@/lib/brand-story-data";
-import { TYPE_MICRO_LABEL, TYPE_SECTION } from "@/lib/brand-type";
+import { TYPE_LEAD, TYPE_MICRO_LABEL, TYPE_SECTION } from "@/lib/brand-type";
 import { RHYTHM_CONTINUE } from "@/lib/section-rhythm";
-import { SPRING, STAGGER_COPY } from "@/lib/motion";
+import { RISE_DEFAULT, RISE_TIGHT, SPRING, STAGGER_COPY } from "@/lib/motion";
 import {
   BrandOrbit,
   PhysicalToDigitalPanel,
@@ -38,13 +38,13 @@ const container: Variants = {
    as a visible animation out of the already-painted server composition. Only
    `show` carries the spring. */
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 24, transition: { duration: 0 } },
+  hidden: { opacity: 0, y: RISE_DEFAULT, transition: { duration: 0 } },
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
 /** Shorter rise, for the standalone blocks between the chapter headers. */
 const riseIn: Variants = {
-  hidden: { opacity: 0, y: 20, transition: { duration: 0 } },
+  hidden: { opacity: 0, y: RISE_TIGHT, transition: { duration: 0 } },
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
@@ -62,10 +62,21 @@ export function BrandStory() {
   const closing = useStaggerReveal({ margin: "-80px" });
 
   /* ONE section-level progress value drives both chapters' visuals — fully
-     reversible, matching `process-timeline.tsx`'s scroll architecture. */
+     reversible, matching `process-timeline.tsx`'s scroll architecture.
+
+     Both offset endpoints track the wrapper's START (top) edge rather than
+     start→end, so progress 0→1 completes over a fixed, viewport-relative
+     scroll distance instead of the combined height of both chapters. With
+     `end` pinned to the wrapper's bottom, `scrollYProgress` only reached 1
+     once the *entire two-chapter block* had scrolled past — the orbit and
+     the physical→digital panel were still mid-animation long after they had
+     scrolled out of view. Pinning both endpoints to `start` means the whole
+     timeline resolves within roughly half a viewport-height of scroll from
+     first appearance, so the visuals are effectively settled by the time
+     the block is 40–50% through the viewport. */
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start 0.85", "end 0.35"],
+    offset: ["start 0.9", "start 0.35"],
   });
 
   return (
@@ -87,10 +98,22 @@ export function BrandStory() {
                as prose, so it starts at the measure's left edge. */
             className="max-w-2xl"
           >
-            {/* Not a scanning anchor — muted micro label, see bento-grid. */}
-            <motion.p variants={fadeUp} className={TYPE_MICRO_LABEL}>
-              {BRAND_CHAPTER_ONE.eyebrow}
-            </motion.p>
+            {/* Chapter mark. The two brand chapters are the page's only numbered
+                sequence, and numbering them is what makes them read as two parts
+                of one story rather than two more sections. The numeral is set as
+                a quiet tabular figure against a rule, not a display element —
+                the chapter's thesis is still the loudest thing in this block. */}
+            <motion.div variants={fadeUp} className="flex items-center gap-3">
+              <span
+                aria-hidden
+                className="text-xs font-medium tabular-nums text-text-disabled"
+              >
+                01
+              </span>
+              <span aria-hidden className="h-px w-10 bg-border" />
+              {/* Not a scanning anchor — muted micro label, see bento-grid. */}
+              <p className={TYPE_MICRO_LABEL}>{BRAND_CHAPTER_ONE.eyebrow}</p>
+            </motion.div>
             {/* P0-1: `question` / `answer` / `bridgeToBrand` were promoted out
                 of this header into the Manifesto beat directly below the hero
                 (see `manifesto.tsx`) — they are the page's belief, and they
@@ -102,13 +125,19 @@ export function BrandStory() {
                 written, and it was already the chapter's thesis; it simply sat
                 below the orbit instead of leading. It is removed from the
                 bridge block further down, so it still renders exactly once. */}
-            <motion.h2 variants={fadeUp} className={`mt-3 ${TYPE_SECTION}`}>
+            <motion.h2 variants={fadeUp} className={`mt-6 ${TYPE_SECTION}`}>
               {BRAND_CHAPTER_ONE.insight}
             </motion.h2>
-            <motion.p variants={fadeUp} className="mt-4 text-muted-foreground">
+            {/* The chapter's lead carries the LEAD tier; the paragraph after it
+                stays at body size. Two paragraphs at identical size read as a
+                wall — the step down is what marks the first one as the lead. */}
+            <motion.p variants={fadeUp} className={`mt-6 ${TYPE_LEAD}`}>
               {BRAND_CHAPTER_ONE.lead}
             </motion.p>
-            <motion.p variants={fadeUp} className="mt-4 text-muted-foreground">
+            <motion.p
+              variants={fadeUp}
+              className="mt-5 leading-relaxed text-muted-foreground"
+            >
               {BRAND_CHAPTER_ONE.explanation}
             </motion.p>
           </motion.div>
@@ -116,7 +145,7 @@ export function BrandStory() {
           {/* Brand orbit — decorative; sr-only list below carries the words
               as real text for assistive technology and search engines. */}
           <div className="mt-14">
-            <BrandOrbit progress={scrollYProgress} />
+            <BrandOrbit />
             <span className="sr-only">
               A brand is built from: {BRAND_CHAPTER_ONE.dimensions.map((d) => d.label).join(", ")}.
             </span>
@@ -154,14 +183,25 @@ export function BrandStory() {
               {...chapterTwoCopy}
               className="lg:col-span-5"
             >
-              {/* Not a scanning anchor — muted micro label, see bento-grid. */}
-              <motion.p variants={fadeUp} className={TYPE_MICRO_LABEL}>
-                {BRAND_CHAPTER_TWO.eyebrow}
-              </motion.p>
-              <motion.h2 variants={fadeUp} className={`mt-3 ${TYPE_SECTION}`}>
+              {/* Chapter mark — the second half of the pair opened in chapter 1
+                  above. Same treatment, incremented numeral: that repetition is
+                  the whole point, since it is what tells the reader these two
+                  sections are one story. */}
+              <motion.div variants={fadeUp} className="flex items-center gap-3">
+                <span
+                  aria-hidden
+                  className="text-xs font-medium tabular-nums text-text-disabled"
+                >
+                  02
+                </span>
+                <span aria-hidden className="h-px w-10 bg-border" />
+                {/* Not a scanning anchor — muted micro label, see bento-grid. */}
+                <p className={TYPE_MICRO_LABEL}>{BRAND_CHAPTER_TWO.eyebrow}</p>
+              </motion.div>
+              <motion.h2 variants={fadeUp} className={`mt-6 ${TYPE_SECTION}`}>
                 {BRAND_CHAPTER_TWO.question}
               </motion.h2>
-              <motion.p variants={fadeUp} className="mt-4 text-muted-foreground">
+              <motion.p variants={fadeUp} className={`mt-6 ${TYPE_LEAD}`}>
                 {BRAND_CHAPTER_TWO.lead}
               </motion.p>
             </motion.div>
@@ -173,7 +213,7 @@ export function BrandStory() {
               {...officePanel}
               className="lg:col-span-7"
             >
-              <PhysicalToDigitalPanel progress={scrollYProgress} />
+              <PhysicalToDigitalPanel />
               <span className="sr-only">
                 A physical office introduces your brand in person; your website carries the
                 same brand identity online, presented as: {BRAND_CHAPTER_TWO.officeLayers.join(", ")}.

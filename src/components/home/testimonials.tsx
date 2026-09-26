@@ -3,7 +3,12 @@ import { ArrowRight, Star } from "lucide-react";
 import { ScrollReveal } from "@/components/home/scroll-reveal";
 import { AmbientFade, ReviewStars } from "@/components/home/review-stars";
 import { TESTIMONIALS, type Testimonial } from "@/lib/testimonials-data";
-import { BRAND_TEXT_GRADIENT, TYPE_SECTION } from "@/lib/brand-type";
+import {
+  BRAND_TEXT_GRADIENT,
+  TYPE_LEAD,
+  TYPE_MICRO_LABEL,
+  TYPE_STATEMENT,
+} from "@/lib/brand-type";
 import { RHYTHM_SECTION } from "@/lib/section-rhythm";
 
 import ambient from "./testimonials-ambient.module.css";
@@ -176,7 +181,11 @@ function ReviewCard({
 
         <div aria-hidden className="mt-4 border-t border-border-subtle" />
 
-        <blockquote className="mt-4 flex-1 text-[15px] leading-[1.7] whitespace-pre-line text-foreground">
+        {/* The reviewer's own words, at the scale of the thing they actually
+            are: the section's evidence. This was `text-[15px]` — smaller than
+            the page's body copy — which left the strongest material on the page
+            reading as fine print beside its own metadata. */}
+        <blockquote className="mt-5 flex-1 text-lg leading-[1.6] whitespace-pre-line text-foreground sm:text-xl sm:leading-[1.55]">
           {testimonial.quote}
         </blockquote>
       </figure>
@@ -257,14 +266,18 @@ export function Testimonials() {
               />
 
               <ScrollReveal delay={0.05}>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-                  Proof, not promises
-                </p>
-                <h2 className={`mt-3 ${TYPE_SECTION}`}>
+                {/* One label treatment across the page. This was a bespoke
+                    `tracking-[0.22em]` primary eyebrow — a fourth variant of a
+                    label the page already has two tokens for. */}
+                <p className={TYPE_MICRO_LABEL}>Proof, not promises</p>
+                {/* STATEMENT tier — the trust movement is the page's claim
+                    about its own work, and it sits directly after the evidence
+                    gallery. It earns the raised voice. */}
+                <h2 className={`mt-4 ${TYPE_STATEMENT}`}>
                   5-star work gets{" "}
                   <span style={BRAND_TEXT_GRADIENT}>remembered</span>.
                 </h2>
-                <p className="mt-3 max-w-md leading-relaxed text-muted-foreground">
+                <p className={`mt-6 max-w-sm ${TYPE_LEAD}`}>
                   Real words from the businesses that trusted Blogspage AI with
                   their work.
                 </p>

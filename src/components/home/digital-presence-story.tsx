@@ -1,17 +1,19 @@
 "use client";
 
+import { useRef } from "react";
 import Link from "next/link";
-import { motion, type Variants } from "framer-motion";
+import { motion, useScroll, type Variants } from "framer-motion";
 import { ArrowRight, Check } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { PRESENCE_STORY } from "@/lib/homepage-data";
 import {
   BRAND_TEXT_GRADIENT,
+  TYPE_LEAD,
   TYPE_MICRO_LABEL,
   TYPE_SECTION,
 } from "@/lib/brand-type";
 import { RHYTHM_MOVEMENT } from "@/lib/section-rhythm";
-import { SPRING, STAGGER_COPY } from "@/lib/motion";
+import { RISE_DEFAULT, SPRING, STAGGER_COPY } from "@/lib/motion";
 import { useStaggerReveal } from "@/components/home/scroll-reveal";
 import { DigitalHomeVisual } from "./digital-home-visual";
 
@@ -55,7 +57,7 @@ const container: Variants = {
    timed hidden transition would animate *away* from the painted server
    composition. Only `show` carries the spring. */
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 24, transition: { duration: 0 } },
+  hidden: { opacity: 0, y: RISE_DEFAULT, transition: { duration: 0 } },
   show: { opacity: 1, y: 0, transition: SPRING },
 };
 
@@ -65,6 +67,17 @@ export function DigitalPresenceStory() {
   const header = useStaggerReveal();
   const benefits = useStaggerReveal<HTMLUListElement>({ margin: "-80px" });
   const cta = useStaggerReveal({ margin: "-60px" });
+
+  /* R12: one scroll-linked progress value drives the digital home visual —
+     fully reversible, matching `brand-story.tsx`'s `scrollYProgress`
+     architecture. Both offset endpoints track the wrapper's own start/end
+     edges so the sequence resolves over the visual's natural scroll
+     distance through the viewport. */
+  const visualRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: visualRef,
+    offset: ["start 0.85", "end 0.3"],
+  });
 
   return (
     <section
@@ -76,29 +89,47 @@ export function DigitalPresenceStory() {
       className={`scroll-mt-24 border-t border-border-subtle bg-background-subtle ${RHYTHM_MOVEMENT}`}
     >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-        <motion.div
-          variants={container}
-          {...header}
-          /* Left-aligned — narrative movement, see brand-story.tsx. */
-          className="max-w-2xl"
-        >
-          {/* Not a scanning anchor — muted micro label, see bento-grid. */}
-          <motion.p variants={fadeUp} className={TYPE_MICRO_LABEL}>
-            {PRESENCE_STORY.eyebrow}
-          </motion.p>
-          <motion.h2 variants={fadeUp} className={`mt-3 ${TYPE_SECTION}`}>
-            {HEADING_MAIN || PRESENCE_STORY.heading}
-            {HEADING_MAIN && (
-              <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>
-            )}
-          </motion.h2>
-          <motion.p variants={fadeUp} className="mt-4 text-muted-foreground">
-            {PRESENCE_STORY.lead}
-          </motion.p>
+        {/*
+          Heading left, lead right, on one baseline.
+
+          The teaching movement opens here, and it used to open with the page's
+          default stacked block (label → h2 → lead in a single `max-w-2xl`
+          column). Splitting the heading and the lead across the field gives this
+          movement its own opening gesture, distinct from the numbered chapter
+          marks in `brand-story.tsx` below it and from the eyebrow-led split
+          headers on the Services and Work anchors.
+
+          `lg:items-baseline` deliberately aligns the lead's first line to the
+          heading's last, so the two columns read as one line of the composition
+          rather than as two blocks that happen to be side by side.
+        */}
+        <motion.div variants={container} {...header}>
+          <div className="lg:grid lg:grid-cols-12 lg:items-baseline lg:gap-10">
+            <div className="lg:col-span-7">
+              {/* Not a scanning anchor — muted micro label, see bento-grid. */}
+              <motion.p variants={fadeUp} className={TYPE_MICRO_LABEL}>
+                {PRESENCE_STORY.eyebrow}
+              </motion.p>
+              <motion.h2 variants={fadeUp} className={`mt-4 ${TYPE_SECTION}`}>
+                {HEADING_MAIN || PRESENCE_STORY.heading}
+                {HEADING_MAIN && (
+                  <span style={BRAND_TEXT_GRADIENT}>{HEADING_ACCENT}</span>
+                )}
+              </motion.h2>
+            </div>
+            <motion.p
+              variants={fadeUp}
+              className={`mt-6 lg:col-span-5 lg:col-start-8 lg:mt-0 ${TYPE_LEAD}`}
+            >
+              {PRESENCE_STORY.lead}
+            </motion.p>
+          </div>
         </motion.div>
 
         {/* Connection diagram — decorative; copy above/below carries meaning */}
-        <DigitalHomeVisual />
+        <div ref={visualRef}>
+          <DigitalHomeVisual progress={scrollYProgress} />
+        </div>
 
         {/* Benefits — real text, business language (Blueprint §10) */}
         <motion.ul

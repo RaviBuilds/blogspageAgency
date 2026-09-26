@@ -17,9 +17,11 @@ import { FLAGSHIP_PROJECT_IDS, PROOF } from "@/lib/homepage-data";
 import {
   BRAND_TEXT_GRADIENT_ISLAND,
   TYPE_EYEBROW,
-  TYPE_SECTION,
+  TYPE_LEAD,
+  TYPE_STATEMENT,
 } from "@/lib/brand-type";
-import { RHYTHM_MOVEMENT } from "@/lib/section-rhythm";
+import { RHYTHM_CHAPTER } from "@/lib/section-rhythm";
+import { RISE_DISPLAY } from "@/lib/motion";
 import { trackEvent } from "@/lib/analytics";
 import { SystemFlow } from "@/components/home/system-flow";
 import {
@@ -760,7 +762,10 @@ export function FeaturedProof() {
       id="work"
       className={cn(
         "dark relative scroll-mt-24 overflow-hidden border-t border-border bg-background",
-        RHYTHM_MOVEMENT,
+        /* CHAPTER: this is where the page stops arguing and starts showing, and
+           where it crosses into the dark island. One of three uses on the
+           page. */
+        RHYTHM_CHAPTER,
       )}
     >
       {/* Section seam — the light page tone dissolves into the gallery as the
@@ -786,18 +791,45 @@ export function FeaturedProof() {
         }}
       />
       <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
-        {/* R9: the opening establishes with scroll — typography emphasis
-            builds as the gallery arrives, reverses on the way up. */}
-        <ProgressReveal distance={28} className="mx-auto max-w-2xl text-center">
-          {/* Scanning anchor — Work keeps its eyebrow. */}
-          <p className={TYPE_EYEBROW}>{PROOF.eyebrow}</p>
-          <h2 className={`mt-3 ${TYPE_SECTION}`}>
-            {HEADING_MAIN || PROOF.heading}
-            {HEADING_MAIN && (
-              <span style={BRAND_TEXT_GRADIENT_ISLAND}>{HEADING_ACCENT}</span>
-            )}
-          </h2>
-          <p className="mt-4 text-muted-foreground">{PROOF.sub}</p>
+        {/*
+          The gallery's opening title card.
+
+          This was a centered `max-w-2xl` block at `TYPE_SECTION` — the same
+          composition and the same size as the ten light sections above it. The
+          page's evidence chapter, and its visual climax, announced itself in
+          exactly the voice the visitor had already stopped noticing.
+
+          It is now a left-anchored title card at STATEMENT scale, with the lead
+          set across the field from the heading rather than stacked beneath it.
+          Crossing into the dark island is the strongest boundary on the page;
+          the type at that boundary should acknowledge it.
+        */}
+        <ProgressReveal distance={RISE_DISPLAY}>
+          <div className="lg:grid lg:grid-cols-12 lg:items-end lg:gap-8">
+            <div className="lg:col-span-7">
+              {/* Scanning anchor — Work keeps its eyebrow. */}
+              <p className={TYPE_EYEBROW}>{PROOF.eyebrow}</p>
+              <h2 className={`mt-4 ${TYPE_STATEMENT}`}>
+                {HEADING_MAIN || PROOF.heading}
+                {HEADING_MAIN && (
+                  <span style={BRAND_TEXT_GRADIENT_ISLAND}>
+                    {HEADING_ACCENT}
+                  </span>
+                )}
+              </h2>
+            </div>
+
+            {/* The lead sits in the field's last columns, above a hairline that
+                runs to the right edge — the gallery's "exhibition opens here"
+                rule. */}
+            <div className="mt-8 lg:col-span-5 lg:col-start-8 lg:mt-0">
+              <span
+                aria-hidden
+                className="hidden h-px w-full bg-gradient-to-r from-white/20 to-transparent lg:block"
+              />
+              <p className={`lg:mt-6 ${TYPE_LEAD}`}>{PROOF.sub}</p>
+            </div>
+          </div>
         </ProgressReveal>
 
         <div className="mt-20 flex flex-col gap-24 lg:gap-36">

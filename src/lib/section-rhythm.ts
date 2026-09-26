@@ -31,14 +31,36 @@
  */
 
 /**
+ * Tier 0 — CHAPTER. The page's three structural pivots.
+ *
+ * ## Why a tier above MOVEMENT exists
+ *
+ * MOVEMENT was written as "the most air any section gets, reserved for the
+ * handful of sections that genuinely start something" — and was then applied to
+ * six of fourteen sections. At six instances it is no longer the exception, so
+ * "this opens a chapter" stopped being a signal the spacing could send. Uniform
+ * generosity is still uniformity.
+ *
+ * CHAPTER restores the top of the scale by being genuinely scarce. Three uses,
+ * each at a point where the page changes what it is doing rather than what it is
+ * talking about:
+ *
+ *   1. Manifesto      — the page stops presenting and states a belief.
+ *   2. FeaturedProof  — the page stops arguing and shows evidence (and this is
+ *                       also where it crosses into the dark island).
+ *   3. FinalCTA       — the page stops explaining and asks.
+ *
+ * Everything else demotes by one tier, which is what makes this one legible.
+ */
+export const RHYTHM_CHAPTER = "py-36 lg:py-56";
+
+/**
  * Tier 1 — MOVEMENT. Opens a new chapter of the page's argument.
  *
- * The most air any section gets, so the boundary registers as a change of
- * subject rather than the next item in a list. Reserved for the handful of
- * sections that genuinely start something: the wayfinding question, and the
- * three scanning anchors (`#services`, `#work`, `#process`) plus the
- * conversation. Spending this on every section is what produced the flat page
- * in the first place.
+ * Still generous, but no longer the page's ceiling — CHAPTER is. Reserved for
+ * the sections that open a new subject *within* a chapter: the wayfinding
+ * question, the teaching block, the services anchor, the process narrative, the
+ * conversation.
  */
 export const RHYTHM_MOVEMENT = "py-28 lg:py-40";
 
