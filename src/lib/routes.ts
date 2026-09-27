@@ -99,6 +99,8 @@ export const STATIC_ROUTES: readonly RouteDescriptor[] = (
       path: "/solutions/dental-clinic-website-packages",
       label: "Dental Website Packages",
     },
+    { path: "/services/web-design", label: "Web Design" },
+
     { path: "/contact", label: "Contact" },
     { path: "/privacy", label: "Privacy Policy" },
     { path: "/terms", label: "Terms of Service" },

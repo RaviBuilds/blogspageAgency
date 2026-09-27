@@ -151,6 +151,8 @@ const PLANNED_ROUTE_SEEDS: readonly KeywordSeed[] = [
     phrase: "custom saas development company",
   },
   { path: "/services/programmatic-seo", phrase: "programmatic seo services" },
+  { path: "/services/web-design", phrase: "web design agency Hyderabad" },
+
 ];
 
 /**

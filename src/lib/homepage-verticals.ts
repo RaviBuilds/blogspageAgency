@@ -67,10 +67,10 @@ export const HOME_VERTICALS: readonly HomeVertical[] = [
     ],
     body: "Everything a customer sees, searches and clicks — designed properly and built to grow with you.",
     ctaLabel: "Explore Brand & Digital Presence",
-    // Staged destination: the future `/services/brand-digital-presence` hub
-    // does not exist yet. The conversation section understands `need=website`.
-    href: "#contact?need=website",
-    hrefMode: "anchor",
+    // Canonical destination: /services/web-design is the concrete resolution URL
+    // for the Homepage START / Brand & Digital Presence pillar (Blueprint v1.5 §5).
+    href: "/services/web-design",
+    hrefMode: "route",
     proofProjectId: "best100movies",
     proofDetail: "a Sanity-backed content platform with programmatic routes.",
     proofDestination: "#more-work",

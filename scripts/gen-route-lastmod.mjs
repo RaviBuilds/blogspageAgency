@@ -55,6 +55,8 @@ const ROUTE_FILE_MAP = {
   "/services/ai-sales-agents": "src/app/(site)/services/[slug]/page.tsx",
   "/services/custom-saas-development": "src/app/(site)/services/[slug]/page.tsx",
   "/services/programmatic-seo": "src/app/(site)/services/[slug]/page.tsx",
+  "/services/web-design": "src/app/(site)/services/web-design/page.tsx",
+
 };
 
 /**
