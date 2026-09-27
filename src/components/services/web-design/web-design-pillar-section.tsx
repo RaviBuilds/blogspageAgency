@@ -1,7 +1,36 @@
-import { ArrowRight, Sparkles } from "lucide-react";
 import { WEB_DESIGN_PILLAR } from "@/lib/web-design-data";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TYPE_MICRO } from "@/lib/brand-type";
+import { ScrollReveal } from "@/components/home/scroll-reveal";
+
 import { WebDesignChatTrigger } from "./web-design-chat-trigger";
+import { DesignShowcase } from "./visuals/design-showcase";
+import { SectionHeading } from "./visuals/section-shell";
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION 4 — CORE WEB DESIGN (70%). The commercial heart of the page.
+
+   ## What changed and why
+
+   Six identical cards in a `sm:grid-cols-2 lg:grid-cols-3`, visually
+   indistinguishable from the launch-infrastructure grid three sections later.
+   The page's main service had no more visual weight than its supporting ones,
+   which is the opposite of what the 70/20/10 model claims.
+
+   The rebuild puts a design file on the page. `DesignShowcase` is the section's
+   centrepiece: three artboards (desktop / tablet / mobile) on an annotated canvas
+   with a component-state strip — a design studio showing how the work is actually
+   decided. It spans the full container and breaks the page's rhythm deliberately,
+   because this is the section a visitor is here for.
+
+   The six capabilities become supporting information *around* that centrepiece: a
+   two-column editorial index with hairline separators, numbered, tag above title.
+   Same six titles, same six descriptions, same order, no cards.
+
+   ## The anchor
+
+   `id="design-scope"` is preserved: the hero's secondary CTA targets it and that
+   contract is not visual.
+   ──────────────────────────────────────────────────────────────────────────── */
 
 export function WebDesignPillarSection() {
   const { eyebrow, h2, lead, capabilities, ctaLabel } = WEB_DESIGN_PILLAR;
@@ -9,58 +38,71 @@ export function WebDesignPillarSection() {
   return (
     <section
       id="design-scope"
-      className="border-b border-border bg-background-subtle/30 py-20 sm:py-24 lg:py-28"
+      className="relative scroll-mt-24 overflow-hidden border-t border-border-subtle bg-background-subtle/60 py-24 sm:py-28 lg:py-36"
     >
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-semibold tracking-wider text-accent-blue uppercase">
-            {eyebrow}
-          </p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl text-balance">
-            {h2}
-          </h2>
-          <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
-            {lead}
-          </p>
-        </div>
+        {/* ── HEADER ───────────────────────────────────────────────────── */}
+        <ScrollReveal>
+          <SectionHeading
+            eyebrow={eyebrow}
+            title={h2}
+            lead={lead}
+            register="statement"
+            accent="blue"
+            measure="max-w-xl"
+          />
+        </ScrollReveal>
 
-        {/* 6 Capabilities Grid */}
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {capabilities.map((item) => (
-            <Card
-              key={item.id}
-              className="flex flex-col justify-between overflow-hidden border-border bg-card p-6 shadow-xs transition-all duration-200 hover:border-border-strong hover:shadow-md"
-            >
-              <div>
-                <span className="inline-flex items-center rounded-full border border-border bg-background-subtle px-2.5 py-0.5 text-[11px] font-medium text-text-subtle">
-                  {item.tag}
-                </span>
+        {/* ── THE CENTREPIECE ──────────────────────────────────────────── */}
+        <ScrollReveal delay={0.08}>
+          <div aria-hidden className="mt-14 sm:mt-16">
+            <DesignShowcase />
+          </div>
+        </ScrollReveal>
 
-                <CardHeader className="p-0 mt-4">
-                  <CardTitle className="text-lg font-semibold tracking-tight text-foreground">
-                    <h3>{item.title}</h3>
-                  </CardTitle>
-                </CardHeader>
+        {/* ── THE SCOPE INDEX ─────────────────────────────────────────────
+            Two columns of editorial entries rather than six cards. The tag sits
+            above the title as a category marker, and the hairline is the only
+            container — which is what lets these read as the scope of one service
+            instead of six separate offers. */}
+        <div className="mt-20 grid gap-x-16 sm:mt-24 lg:grid-cols-2">
+          {capabilities.map((item, index) => (
+            <ScrollReveal key={item.id} delay={(index % 2) * 0.05}>
+              <article className="border-t border-border py-8">
+                <div className="flex items-baseline gap-4">
+                  <span
+                    aria-hidden
+                    className="font-mono text-xs text-text-disabled"
+                  >
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className={`${TYPE_MICRO} text-accent-blue`}>
+                    {item.tag}
+                  </span>
+                </div>
 
-                <CardContent className="p-0 mt-3">
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {item.description}
-                  </p>
-                </CardContent>
-              </div>
-            </Card>
+                <h3 className="mt-4 text-xl font-semibold leading-snug tracking-tight text-foreground sm:text-[1.375rem]">
+                  {item.title}
+                </h3>
+
+                <p className="mt-3 max-w-[52ch] text-sm leading-relaxed text-muted-foreground sm:text-base">
+                  {item.description}
+                </p>
+              </article>
+            </ScrollReveal>
           ))}
         </div>
 
-        {/* Mid-Section Chat Trigger */}
-        <div className="mt-14 flex justify-center">
-          <WebDesignChatTrigger
-            label={ctaLabel}
-            variant="outline"
-            showSparkle
-          />
-        </div>
+        {/* ── MID-PAGE CONVERSION ──────────────────────────────────────── */}
+        <ScrollReveal delay={0.06}>
+          <div className="mt-16 flex justify-start border-t border-border pt-10">
+            <WebDesignChatTrigger
+              label={ctaLabel}
+              variant="outline"
+              showSparkle
+            />
+          </div>
+        </ScrollReveal>
       </div>
     </section>
   );

@@ -408,6 +408,42 @@
 }
 
 /*
+ * FAQ answer reveal — the /services/web-design accordion is native
+ * `<details>`/`<summary>` (server-rendered, so every answer ships in the HTML and
+ * the expanded-state semantics are the platform's). Native details has no
+ * transition, so the content gets a short settle on open.
+ *
+ * The animation restarts every time the browser flips the panel out of
+ * `display: none`, which is what makes a CSS-only accordion feel deliberate
+ * rather than instant. Scoped to `[data-faq]` so it cannot reach any other
+ * `details` element on the site.
+ *
+ * `both` holds the `from` state before the (zero) delay elapses, matching the
+ * `.hero-word` contract above, and the reduced-motion block below removes the
+ * movement entirely rather than shortening it.
+ */
+@keyframes faq-answer-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+details[data-faq][open] > div {
+  animation: faq-answer-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  details[data-faq][open] > div {
+    animation: none;
+  }
+}
+
+/*
  * Preloader skip flag — the blocking boot script in `(site)/layout.tsx` sets
  * `data-preloader="skip"` on <html> whenever the SSR'd cinematic preloader
  * must not play (session revisit, prefers-reduced-motion, or the no-hydration

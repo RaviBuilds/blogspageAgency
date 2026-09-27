@@ -54,9 +54,14 @@ export default function WebDesignPage() {
     <>
       <JsonLd nodes={structuredDataNodes} />
 
-      <main className="min-h-screen">
-        {/* Breadcrumb Navigation (Home → Web Design) */}
-        <div className="border-b border-border-subtle bg-background px-6 py-4 lg:px-8">
+      <main className="min-h-screen bg-background">
+        {/* Breadcrumb Navigation (Home → Web Design).
+
+            Borderless, and sharing the hero's surface: the previous hairline
+            rule cut a line across the top of the page and made the crumb read as
+            a separate band above the composition rather than as the hero's own
+            first line. */}
+        <div className="bg-background px-6 pt-6 lg:px-8">
           <div className="mx-auto max-w-6xl">
             <Breadcrumb
               trail={[{ name: "Web Design", path: "/services/web-design" }]}
@@ -64,7 +69,26 @@ export default function WebDesignPage() {
           </div>
         </div>
 
-        {/* 11 Canonical Sections */}
+        {/* ── 11 CANONICAL SECTIONS ─────────────────────────────────────────
+            Unchanged in order, content and semantics. What changed is the visual
+            rhythm they now form, which alternates surface and register rather
+            than repeating one centred-header-plus-card-grid eleven times:
+
+              1  Hero                  light   · asymmetric device composition
+              2  Problem diagnosis     subtle  · alternating failure-state rows
+              3  70/20/10 framework    light   · proportional instrument
+              4  Core web design 70%   subtle  · full-width design showcase
+              5  Brand presentation    light   · one brand board
+              6  Local visibility      subtle  · ecosystem chain
+              7  Digital launch        DARK    · infrastructure rack
+              8  Industry showcase     light   · ten distinct site previews
+              9  Process               subtle  · scroll-drawn journey
+              10 Proof                 DARK    · case-study gallery
+              11 FAQ + Final CTA       light + DARK close
+
+            The three dark islands are scoped with `dark` and seamed at both
+            edges, the same mechanism the homepage uses for its Real Work island. */}
+
         {/* Section 1: Hero */}
         <WebDesignHero />
 

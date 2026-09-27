@@ -204,6 +204,12 @@ const FIX_HINT =
  * `SSR_VISIBILITY_DEBT` below names the affected routes, and
  * `auditRoutes()` exists so the sweep can be widened in one line once those
  * templates are converted.
+ *
+ * TODO (next session): add "/services/web-design" here. The art-direction
+ * rebuild routes every reveal on that page through `useStaggerReveal` /
+ * `ScrollReveal` and marks all decorative artwork `aria-hidden`, so it is
+ * expected to pass — but the assertion was not run against a served production
+ * build, so it is left out rather than added unverified.
  */
 const ASSERTED_ROUTES = ["/"] as const;
 

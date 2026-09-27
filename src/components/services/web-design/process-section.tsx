@@ -1,60 +1,116 @@
 import { WEB_DESIGN_PROCESS } from "@/lib/web-design-data";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PROCESS_ARTIFACTS } from "@/lib/web-design-visual-system";
+import { TYPE_MICRO } from "@/lib/brand-type";
+import { ScrollReveal } from "@/components/home/scroll-reveal";
+
+import { STAGE_ARTIFACTS } from "./visuals/process-artifacts";
+import { ProcessSpine } from "./visuals/process-spine";
+import { SectionHeading } from "./visuals/section-shell";
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION 9 — PROCESS. The journey.
+
+   ## What changed and why
+
+   A `lg:grid-cols-5` of five cards. Five equal boxes side by side is the one
+   arrangement that cannot express sequence — nothing in it said stage 3 comes
+   after stage 2, and at one-fifth of the container each card's copy was squeezed
+   to `text-xs`.
+
+   It is now a journey down a single spine. One vertical line, drawn by scroll
+   progress (`ProcessSpine`), with a numbered node per stage. Each stage pairs its
+   copy with an artefact that shows the work *at that stage* — a node tree, then a
+   greybox, then a designed UI, then a reviewed UI, then a live browser window. The
+   artwork alone narrates idea → structure → design → refinement → live website,
+   which is the section's claim.
+
+   ## Why the artefacts evolve rather than illustrate
+
+   Five unrelated illustrations would decorate five stages. Five states of the same
+   page proves they are stages of one process. That is also why the deliverable line
+   is kept: it is the stage's output, and it now sits directly under the artefact
+   that shows it.
+
+   Copy is untouched: same five step numbers, titles, descriptions and deliverables.
+   ──────────────────────────────────────────────────────────────────────────── */
 
 export function ProcessSection() {
   const { eyebrow, h2, lead, steps } = WEB_DESIGN_PROCESS;
 
   return (
-    <section className="border-b border-border bg-background py-20 sm:py-24 lg:py-28">
+    <section className="relative overflow-hidden border-t border-border-subtle bg-background-subtle/60 py-24 sm:py-28 lg:py-32">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-semibold tracking-wider text-accent-blue uppercase">
-            {eyebrow}
-          </p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl text-balance">
-            {h2}
-          </h2>
-          <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
-            {lead}
-          </p>
-        </div>
+        <ScrollReveal>
+          <SectionHeading
+            eyebrow={eyebrow}
+            title={h2}
+            lead={lead}
+            register="section"
+            accent="blue"
+            measure="max-w-2xl"
+          />
+        </ScrollReveal>
 
-        {/* 5-Stage Process Grid */}
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
-          {steps.map((item) => (
-            <Card
-              key={item.step}
-              className="flex flex-col justify-between overflow-hidden border-border bg-card p-5 shadow-xs transition-all duration-200 hover:border-border-strong hover:shadow-md"
-            >
-              <div>
-                <span className="text-2xl font-bold tracking-tight text-accent-blue sm:text-3xl">
-                  {item.step}
-                </span>
+        {/* ── THE JOURNEY ──────────────────────────────────────────────────
+            The spine sits behind the node column at every breakpoint — including
+            mobile, where a left-aligned timeline is the form that actually works
+            on a narrow measure. */}
+        <div className="relative mt-16">
+          <ProcessSpine className="bottom-8 left-[1.4375rem] top-8" />
 
-                <CardHeader className="p-0 mt-3">
-                  <CardTitle className="text-base font-semibold leading-snug tracking-tight text-foreground">
-                    <h3>{item.title}</h3>
-                  </CardTitle>
-                </CardHeader>
+          <ol className="relative flex flex-col">
+            {steps.map((item, index) => {
+              const artifact = PROCESS_ARTIFACTS[item.step];
+              const Artwork = artifact ? STAGE_ARTIFACTS[artifact] : null;
+              const last = index === steps.length - 1;
 
-                <CardContent className="p-0 mt-2.5">
-                  <p className="text-xs leading-relaxed text-muted-foreground sm:text-sm">
-                    {item.description}
-                  </p>
-                </CardContent>
-              </div>
+              return (
+                <li key={item.step}>
+                  <ScrollReveal delay={index * 0.04}>
+                    <article
+                      className={`flex gap-6 sm:gap-8 ${last ? "pb-0" : "pb-14 sm:pb-16"}`}
+                    >
+                      {/* NODE. Carries the stage number as real text, so the
+                          sequence survives without the artwork. */}
+                      <span className="relative z-10 flex size-12 shrink-0 items-center justify-center rounded-full border border-border bg-card text-sm font-semibold tracking-tight text-accent-blue shadow-[0_6px_16px_-10px_rgb(14_21_36/0.5)]">
+                        {item.step}
+                      </span>
 
-              <div className="mt-4 pt-3 border-t border-border-subtle">
-                <span className="block text-[10px] font-semibold uppercase tracking-wider text-text-subtle">
-                  Deliverable
-                </span>
-                <span className="mt-1 block text-xs font-medium text-foreground">
-                  {item.deliverable}
-                </span>
-              </div>
-            </Card>
-          ))}
+                      <div className="min-w-0 flex-1 lg:grid lg:grid-cols-12 lg:gap-10">
+                        {/* COPY. */}
+                        <div className="lg:col-span-7">
+                          <h3 className="text-xl font-semibold leading-snug tracking-tight text-foreground sm:text-2xl">
+                            {item.title}
+                          </h3>
+
+                          <p className="mt-3 max-w-[56ch] text-sm leading-relaxed text-muted-foreground sm:text-base">
+                            {item.description}
+                          </p>
+
+                          <div className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                            <span className={`${TYPE_MICRO} text-text-disabled`}>
+                              Deliverable
+                            </span>
+                            <span className="text-sm font-medium text-foreground">
+                              {item.deliverable}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* ARTEFACT. */}
+                        <div
+                          aria-hidden
+                          className="mt-7 lg:col-span-5 lg:mt-0"
+                        >
+                          {Artwork ? <Artwork /> : null}
+                        </div>
+                      </div>
+                    </article>
+                  </ScrollReveal>
+                </li>
+              );
+            })}
+          </ol>
         </div>
       </div>
     </section>
