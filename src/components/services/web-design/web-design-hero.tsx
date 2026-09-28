@@ -3,6 +3,7 @@ import type { CSSProperties } from "react";
 import { ArrowDown } from "lucide-react";
 
 import { WEB_DESIGN_CORE_POSITIONING, WEB_DESIGN_HERO } from "@/lib/web-design-data";
+import { PILLAR_PLAIN } from "@/lib/web-design-plain-language";
 import { PILLAR_WEIGHT, type PillarAccent } from "@/lib/web-design-visual-system";
 import { TYPE_MICRO } from "@/lib/brand-type";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,40 @@ import { PillarRatioBar, type RatioSegment } from "./visuals/pillar-ratio-bar";
    This is an asymmetric editorial split. Copy holds a seven-column measure on
    the page's left axis; the device composition occupies the right and breaks out
    of the container on wide viewports so the page feels wider than its own grid.
-   The H1 is fluid to 4.5rem and is unambiguously the primary object.
+
+   ## FINAL PASS — the Home page's typographic DNA
+
+   The composition stays; the headline's *voice* changed, because that was the
+   one thing making this page read as a different website from the Home page.
+
+   Three properties carry the Home H1's identity, and none of them is its size:
+
+   1. `leading-[0.92]` — Home sets 0.88. The previous 1.02 here is paragraph
+      leading, and paragraph leading is what made a 4.35rem headline read as
+      large body copy rather than as display type. This is the single most
+      recognisable half of the DNA.
+   2. `tracking-tighter` — the same token Home uses, rather than this page's
+      hand-rolled `-0.025em`.
+   3. One brand-emphasised phrase. Home paints the meaningful tail of its H1
+      ("find, trust and use.") in the approved cyan → blue → violet sweep and
+      leaves the rest at full-strength ink. Here the meaningful tail is
+      "Hyderabad Businesses" — the whole commercial point of the page — and it
+      gets the same treatment against the light-surface stops.
+
+   The ceiling stays below Home's (4.75rem vs 5.75rem) on purpose: this is a
+   sibling, and the site's largest type belongs to the site's front door.
+
+   ## Why the sweep is sliced per word, not applied to a wrapper
+
+   Verbatim the reason documented in `home/hero.tsx`: the words are individual
+   `will-change: transform` compositing layers, and Chrome drops a
+   `background-clip: text` mask owned by an ancestor of those layers — which
+   silently deletes the glyphs, because the mask is the only thing painting them.
+   Declaring the clip on the word span that owns the layer keeps mask and glyphs
+   in one paint layer. `globals.css` carries a `@supports` fallback
+   (`.brand-word-on-paper`, contrast-checked at 6.29:1 on white) for engines that
+   cannot clip a background to text at all, so the headline can never lose its
+   tail.
 
    ## The 70/20/10 promise
 
@@ -34,6 +68,11 @@ import { PillarRatioBar, type RatioSegment } from "./visuals/pillar-ratio-bar";
    the real weights, sitting on the page's left axis as the hero's closing line.
    The same component reappears at display scale in section 3, so the promise and
    the explanation are visibly the same instrument.
+
+   The final pass added the plain-language layer: each segment now leads with
+   what the pillar *is* to a business owner ("The Website", "The Brand", "The
+   Launch") and keeps the deck's own label beneath it. A visitor who reads only
+   the bar still leaves understanding the model.
 
    ## SSR and motion
 
@@ -50,34 +89,110 @@ import { PillarRatioBar, type RatioSegment } from "./visuals/pillar-ratio-bar";
    service page's headline entrance cannot drift from the site's.
    ──────────────────────────────────────────────────────────────────────────── */
 
-/** Per-word spans so the CSS reveal can stagger the headline. */
+/**
+ * The approved light-surface sweep, as gradient stops.
+ *
+ * Mirrors `BRAND_TEXT_GRADIENT` in `brand-type.ts` but as a bare
+ * `background-image` string, because each word needs its own
+ * `background-size` / `background-position` slice of the same sweep and the
+ * token is a complete style object.
+ */
+const BRAND_PHRASE_STOPS =
+  "linear-gradient(92deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)";
+
+/**
+ * The `index`-th of `total` phrase words, painted with the share of the sweep it
+ * would have shown under a single whole-phrase gradient.
+ *
+ * `background-size` stretches the gradient across `total` word widths and
+ * `background-position` slides each word its own step over it, so the
+ * cyan → violet progression runs once across the phrase instead of restarting on
+ * every word.
+ */
+function brandPhraseWordStyle(index: number, total: number): CSSProperties {
+  return {
+    backgroundImage: BRAND_PHRASE_STOPS,
+    backgroundSize: `${total * 100}% 100%`,
+    backgroundPosition: `${total > 1 ? (index / (total - 1)) * 100 : 0}% 0`,
+    WebkitBackgroundClip: "text",
+    backgroundClip: "text",
+    color: "transparent",
+    WebkitTextFillColor: "transparent",
+  };
+}
+
+/**
+ * The first word of the H1's meaningful tail.
+ *
+ * Resolved against the real word order rather than hardcoded as an index, so the
+ * sweep cannot land on the wrong words if the deck's approved headline is ever
+ * re-approved with different wording. If the word is absent the phrase simply
+ * does not start and the H1 renders entirely in ink — a silent, safe fallback
+ * rather than a mis-painted headline.
+ */
+const BRAND_PHRASE_FIRST_WORD = "Hyderabad";
+
+/**
+ * How many leading words paint on the first frame.
+ *
+ * The H1 is this page's likely LCP element and a `.hero-word` still waiting on
+ * its stagger delay is painted at `opacity: 0`. The same three-word exemption
+ * the Home hero uses, for the same measured reason.
+ */
+const LCP_IMMEDIATE_WORDS = 3;
+
+/**
+ * Per-word spans so the CSS reveal can stagger the headline, with the brand
+ * phrase carrying its slice of the sweep.
+ *
+ * The clip is declared on the same span that carries the `hero-word` transform —
+ * never on a wrapper around the phrase — for the compositing reason documented
+ * above.
+ */
 function RevealWords({
   text,
-  step = "70ms",
+  step = "45ms",
   offset = 0,
+  brandFromWord,
 }: {
   text: string;
   step?: string;
   offset?: number;
+  /** Index (within this text) of the first brand-phrase word. -1 disables. */
+  brandFromWord?: number;
 }) {
   const words = text.split(" ");
+  const brandAt = brandFromWord === undefined ? -1 : brandFromWord;
+  const brandTotal = brandAt >= 0 ? words.length - brandAt : 0;
+
   return (
     <>
-      {words.map((word, i) => (
-        <span
-          key={`${i}-${word}`}
-          className="hero-word inline-block"
-          style={
-            {
-              "--word-index": i + offset,
-              "--word-step": step,
-            } as CSSProperties
-          }
-        >
-          {word}
-          {i < words.length - 1 ? "\u00A0" : ""}
-        </span>
-      ))}
+      {words.map((word, i) => {
+        const index = i + offset;
+        const inPhrase = brandAt >= 0 && i >= brandAt;
+
+        return (
+          <span
+            key={`${i}-${word}`}
+            className={`hero-word inline-block${inPhrase ? " brand-word-on-paper" : ""}`}
+            style={
+              {
+                "--word-index": index,
+                "--word-step": step,
+                ...(index < LCP_IMMEDIATE_WORDS
+                  ? { animationDelay: "0ms" }
+                  : null),
+                ...(inPhrase
+                  ? brandPhraseWordStyle(i - brandAt, brandTotal)
+                  : null),
+              } as CSSProperties
+            }
+          >
+            {word}
+            {i < words.length - 1 ? "\u00A0" : ""}
+          </span>
+        );
+      })}
     </>
   );
 }
@@ -94,22 +209,27 @@ export function WebDesignHero() {
     pillarsSummary,
   } = WEB_DESIGN_HERO;
 
+  const brandFromWord = h1.split(" ").indexOf(BRAND_PHRASE_FIRST_WORD);
+
   /* The bar's segments are assembled from the copy deck's own summary plus the
      shared weight table, so the hero cannot describe a different ratio from the
-     framework section. */
-  const segments: RatioSegment[] = pillarsSummary.map((pill, i) => ({
-    id: `${pill.percentage}-${i}`,
-    label: pill.label,
-    percentage: pill.percentage,
-    accent: pill.accent as PillarAccent,
-    weight:
-      PILLAR_WEIGHT[
-        ["web-design", "branding", "local-launch"][i] ?? "web-design"
-      ] ?? 10,
-  }));
+     framework section. The plain-language name is looked up from the same pillar
+     id the weight is, so the two layers cannot fall out of step. */
+  const segments: RatioSegment[] = pillarsSummary.map((pill, i) => {
+    const pillarId =
+      ["web-design", "branding", "local-launch"][i] ?? "web-design";
+    return {
+      id: `${pill.percentage}-${i}`,
+      label: pill.label,
+      plainName: PILLAR_PLAIN[pillarId]?.name,
+      percentage: pill.percentage,
+      accent: pill.accent as PillarAccent,
+      weight: PILLAR_WEIGHT[pillarId] ?? 10,
+    };
+  });
 
   return (
-    <section className="relative overflow-hidden bg-background pt-14 pb-24 sm:pt-20 sm:pb-32 lg:pt-24 lg:pb-40">
+    <section className="relative overflow-hidden bg-background pt-6 pb-24 sm:pt-8 sm:pb-32 lg:pt-10 lg:pb-40">
       {/* ATMOSPHERE. A single wide, very low-alpha wash anchored top-right,
           behind everything, so the hero reads as lit rather than gradient-washed.
           Decorative and inert. */}
@@ -152,19 +272,33 @@ export function WebDesignHero() {
               <span className="max-w-[34ch] leading-relaxed">{eyebrow}</span>
             </p>
 
-            {/* THE PRIMARY OBJECT. Fluid to 4.5rem, tight leading, and the one
-                phrase that carries meaning ("Hyderabad Businesses") is not
-                gradient-treated here: on this light surface the full-strength
-                ink headline is the stronger statement, and the page's brand
-                sweep is spent on the framework and the closing CTA instead. */}
-            <h1 className="mt-7 text-[clamp(2.35rem,5.4vw,4.35rem)] font-semibold leading-[1.02] tracking-[-0.025em] text-foreground text-balance">
-              <RevealWords text={h1} />
+            {/* THE PRIMARY OBJECT.
+
+                `leading-[0.92]` and `tracking-tighter` are the Home H1's own
+                values (0.88 / tracking-tighter), lifted a hair because this
+                headline sits in a six-column measure rather than seven and wraps
+                to three lines at the cap. The ceiling stays below Home's
+                5.75rem: the site's largest type belongs to the site's front
+                door, and a sibling that out-shouts it is not a sibling.
+
+                The tail — "Hyderabad Businesses" — carries the approved
+                light-surface sweep, one word-slice at a time, exactly as Home
+                paints "find, trust and use." The rest of the headline stays at
+                full-strength ink, so the page has one typographic brand moment
+                rather than a gradient wall. */}
+            <h1
+              className="mt-7 text-[clamp(2.5rem,5.8vw,4.75rem)] font-semibold leading-[0.92] tracking-tighter text-foreground text-balance"
+              style={{ opacity: 1 }}
+            >
+              <RevealWords text={h1} brandFromWord={brandFromWord} />
             </h1>
 
             {/* The subhead drops hard in scale — the beat between the two is
                 what makes the H1 read as display type rather than as a big
-                paragraph. */}
-            <h2 className="mt-6 max-w-[30ch] text-xl font-medium leading-snug tracking-tight text-text-subtle sm:text-2xl">
+                paragraph. It also carries the page's whole promise in nine
+                words, which is why it is the one supporting line set at full
+                foreground weight. */}
+            <h2 className="mt-7 max-w-[32ch] text-xl font-medium leading-snug tracking-tight text-foreground/80 sm:text-2xl">
               {subhead}
             </h2>
 

@@ -39,8 +39,8 @@ export function FaqAccordion({ items }: { items: FaqPair[] }) {
           data-faq
           className="group border-b border-border"
         >
-          <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-5 outline-none transition-colors duration-200 hover:text-primary focus-visible:ring-[3px] focus-visible:ring-ring/50 sm:py-6 [&::-webkit-details-marker]:hidden">
-            <h3 className="text-base font-semibold leading-snug tracking-tight text-foreground transition-colors duration-200 group-hover:text-primary group-open:text-primary sm:text-lg">
+          <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-6 outline-none transition-colors duration-200 hover:text-primary focus-visible:ring-[3px] focus-visible:ring-ring/50 sm:py-7 [&::-webkit-details-marker]:hidden">
+            <h3 className="text-base font-semibold leading-snug tracking-tight text-foreground text-pretty transition-colors duration-200 group-hover:text-primary group-open:text-primary sm:text-lg">
               {item.question}
             </h3>
             <ChevronDown
@@ -49,8 +49,12 @@ export function FaqAccordion({ items }: { items: FaqPair[] }) {
             />
           </summary>
 
-          <div className="pb-6 pr-10">
-            <p className="max-w-[72ch] text-sm leading-[1.75] text-muted-foreground sm:text-base">
+          {/* The answers are the page's densest commercial copy and the one place
+              a visitor is reading rather than scanning, so the measure is capped
+              at 68ch and the leading is set for prose. Nothing here animates
+              beyond the platform's own open/close settle. */}
+          <div className="pb-7 pr-6 sm:pr-10">
+            <p className="max-w-[68ch] text-sm leading-[1.8] text-muted-foreground text-pretty sm:text-base">
               {item.answer}
             </p>
           </div>

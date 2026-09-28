@@ -408,6 +408,31 @@
 }
 
 /*
+ * The same insurance for a brand phrase painted on a LIGHT surface.
+ *
+ * This is the contrast check the note above says a light-surface gradient
+ * heading needs before it may join the rule. `BRAND_TEXT_GRADIENT`'s middle stop
+ * — #4353C9, the approved `--accent-blue` — measures 6.29:1 against `--background`
+ * (#FFFFFF): clear of WCAG AA for normal text, not merely for large text, so it
+ * is a safe fallback at any size a heading might use it. #0891B2 (the cyan stop)
+ * measures 3.1:1 and #7C3AED 5.4:1, which is why the fallback is the blue rather
+ * than either end of the sweep.
+ *
+ * Same mechanism, same reason, separate class: a phrase on paper and a phrase on
+ * ink cannot share one fallback colour, and conflating them is how a headline
+ * ends up invisible on the surface it was not tested against.
+ *
+ * Consumer: the /services/web-design H1's accent phrase.
+ */
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+  .brand-word-on-paper {
+    background-image: none !important;
+    color: #4353c9 !important;
+    -webkit-text-fill-color: #4353c9 !important;
+  }
+}
+
+/*
  * FAQ answer reveal — the /services/web-design accordion is native
  * `<details>`/`<summary>` (server-rendered, so every answer ships in the HTML and
  * the expanded-state semantics are the platform's). Native details has no

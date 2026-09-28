@@ -28,6 +28,15 @@ export const metadata: Metadata = buildMetadata({
   description: WEB_DESIGN_META.description,
   type: "website",
   keywordPhrase: WEB_DESIGN_META.keywordPhrase,
+  /* The blueprint's approved title already carries the brand
+     ("Web Design Agency Hyderabad | Blogspage AI"), so the builder must not
+     append `TITLE_TEMPLATE_SUFFIX` on top of it. Without this flag the served
+     HTML shipped `og:title` / `twitter:title` as
+     "... | Blogspage AI | Blogspage AI" while `<title>` was correct — a social
+     preview defect invisible from the JSX and only visible in the response.
+     `titleAbsolute` exists for exactly this case (see `seo.ts`): it is what the
+     root layout uses for its own already-branded title. */
+  titleAbsolute: true,
 });
 
 export default function WebDesignPage() {
@@ -54,14 +63,28 @@ export default function WebDesignPage() {
     <>
       <JsonLd nodes={structuredDataNodes} />
 
-      <main className="min-h-screen bg-background">
+      {/* `(site)/layout.tsx` already provides the document's single
+          `<main id="main">` landmark (it is the skip-link target). This page
+          previously opened a second `<main>` inside it, which nests a landmark
+          inside itself: invalid HTML, and two "main" landmarks for assistive
+          technology. Every other route in the app renders one, so this was
+          local to this page. A plain wrapper keeps the surface colour without
+          re-declaring the landmark. */}
+      <div className="bg-background">
         {/* Breadcrumb Navigation (Home → Web Design).
 
             Borderless, and sharing the hero's surface: the previous hairline
             rule cut a line across the top of the page and made the crumb read as
             a separate band above the composition rather than as the hero's own
-            first line. */}
-        <div className="bg-background px-6 pt-6 lg:px-8">
+            first line.
+
+            The top padding clears the fixed navbar. At `pt-6` the crumb
+            rendered at y 24-44 while the floating header occupies y 16-74, so
+            the trail the blueprint specifies was painted *behind* the navbar and
+            invisible at every viewport — measured in the browser, not inferred.
+            The hero's own top padding is reduced by the same amount below, so
+            the distance from the navbar to the H1 is unchanged. */}
+        <div className="bg-background px-6 pt-24 sm:pt-28 lg:px-8">
           <div className="mx-auto max-w-6xl">
             <Breadcrumb
               trail={[{ name: "Web Design", path: "/services/web-design" }]}
@@ -121,7 +144,7 @@ export default function WebDesignPage() {
 
         {/* Section 11: FAQ + Final CTA */}
         <FAQAndFinalCTASection />
-      </main>
+      </div>
     </>
   );
 }

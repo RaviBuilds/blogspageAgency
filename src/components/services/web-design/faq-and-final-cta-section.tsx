@@ -1,5 +1,9 @@
 import { WEB_DESIGN_FAQS, WEB_DESIGN_FINAL_CTA } from "@/lib/web-design-data";
-import { TYPE_DISPLAY, TYPE_MICRO } from "@/lib/brand-type";
+import {
+  BRAND_TEXT_GRADIENT_ISLAND,
+  TYPE_DISPLAY,
+  TYPE_MICRO,
+} from "@/lib/brand-type";
 import { ScrollReveal } from "@/components/home/scroll-reveal";
 import { SectionSeam } from "@/components/home/section-seam";
 
@@ -19,7 +23,8 @@ import { SectionHeading } from "./visuals/section-shell";
 
    Left-aligned header on a two-column field, answers in a plain hairline list (see
    `faq-accordion.tsx` for why it is now native `<details>` and what that fixed).
-   Nothing about the questions or answers changed.
+   Nothing about the questions or answers changed. The final pass only gave the
+   list more room to be read in: no animation was added, and none was needed.
 
    ## Final CTA
 
@@ -28,13 +33,55 @@ import { SectionHeading } from "./visuals/section-shell";
    bookend tier and it is used here for the same reason: this is where the page
    stops explaining and asks.
 
+   ### FINAL PASS — the page closes in the Home page's voice
+
+   The hero opens with the light-surface brand sweep on its meaningful phrase; this
+   is where the page closes, so it takes the *island* sweep on its own — the exact
+   pair of gradients the Home page uses for the same two jobs
+   (`BRAND_TEXT_GRADIENT` on paper, `BRAND_TEXT_GRADIENT_ISLAND` on ink). Two
+   bookends in the same voice is what makes a page feel authored rather than
+   assembled, and it is also the one thing that makes this closing band
+   unmistakably the same brand as the Home page's closing band.
+
+   The phrase is one wrapper `<span>` rather than per-word slices. The per-word
+   treatment exists in the hero only because those words are individual
+   `will-change: transform` compositing layers whose masks Chrome drops when an
+   ancestor owns them; there is no word-level animation here, so there is no layer
+   to fight and a single clip is correct. `.hero-brand-word` carries the
+   `@supports` fallback for engines that cannot clip a background to text at all —
+   #828FFF, which is the contrast-safe value on this surface and is already
+   proven on it by the Home hero.
+
    The conversion mechanism is unchanged — `WebDesignChatTrigger` dispatching the
    existing `open-ai-chat` event. No form, no phone number, no calendar, no second
    path. The microcopy is the deck's.
    ──────────────────────────────────────────────────────────────────────────── */
 
+/**
+ * Where the closing headline's meaningful phrase begins.
+ *
+ * Resolved by searching the deck's approved string rather than hardcoding an
+ * offset, so a re-approved headline cannot leave the sweep painted across the
+ * wrong words. If the marker is absent the whole headline renders in ink — a
+ * silent, safe degradation.
+ */
+const CTA_BRAND_PHRASE = "Actually Represents Your Business?";
+
+/**
+ * Split a headline into its neutral head and its brand-emphasised tail.
+ *
+ * Returns the whole string as the head when the phrase is not found, which is the
+ * fallback described above.
+ */
+function splitOnPhrase(text: string, phrase: string): [string, string | null] {
+  const at = text.indexOf(phrase);
+  if (at < 0) return [text, null];
+  return [text.slice(0, at), text.slice(at)];
+}
+
 export function FAQAndFinalCTASection() {
   const { h3, lead, buttonLabel, microcopy } = WEB_DESIGN_FINAL_CTA;
+  const [ctaHead, ctaTail] = splitOnPhrase(h3, CTA_BRAND_PHRASE);
 
   return (
     <>
@@ -113,7 +160,15 @@ export function FAQAndFinalCTASection() {
               <h3
                 className={`mt-8 ${TYPE_DISPLAY} text-surface-dark-foreground`}
               >
-                {h3}
+                {ctaHead}
+                {ctaTail ? (
+                  <span
+                    className="hero-brand-word"
+                    style={BRAND_TEXT_GRADIENT_ISLAND}
+                  >
+                    {ctaTail}
+                  </span>
+                ) : null}
               </h3>
             </ScrollReveal>
 

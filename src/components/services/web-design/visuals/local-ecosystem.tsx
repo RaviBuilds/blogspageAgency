@@ -3,10 +3,13 @@
 /**
  * LOCAL ECOSYSTEM — the section 6 diagram.
  *
- * Five nodes and the path between them: business → website → Google → local
- * discovery → customer. Beneath the chain, the two artefacts the setup actually
- * produces, drawn side by side: the website itself, and the local result it
- * resolves to.
+ * The chain the section argues for, drawn once:
+ *
+ *     your business → your website → Google Search → Google Maps
+ *                   → a nearby customer finds you
+ *
+ * Beneath it, the two artefacts the setup actually produces: the website itself,
+ * and the local result it resolves to.
  *
  * ## Why a chain and not another grid
  *
@@ -15,39 +18,62 @@
  * The chain states it before any copy is read, and the four setup items then read
  * as the work that makes the chain connect.
  *
- * ## Motion
+ * ## FINAL PASS — the labels became the explanation
  *
- * The connectors draw left-to-right once, in sequence, when the diagram enters
- * view — the one place on the page where motion carries meaning rather than
- * polish, because the drawing *is* the direction of the relationship. Driven
- * through `animate` behind the `useMotionReady` gate. Under reduced motion the
- * connectors are simply already drawn.
+ * The chain used to be `aria-hidden` artwork with terse decorative labels
+ * ("Google", "Local discovery"), on the reasoning that the section's lead
+ * paragraph carried the meaning in prose. That reasoning was wrong for this
+ * section specifically: this is the page's largest comprehension gap, and the
+ * diagram is the only thing on screen that explains it in a form a non-technical
+ * reader can absorb. Hiding the explanation from assistive technology and leaving
+ * it out of the served HTML was hiding the best version of the argument.
  *
- * The whole diagram is `aria-hidden` and every node label is duplicated nowhere:
- * the labels are the chain's only text and they are decorative annotations of the
- * relationship the section's lead paragraph states in prose.
+ * So the chain is now `ExplainerChain`: a real `<ol>` of real text with the
+ * technical name for each link kept as a subordinate annotation. Only the rules
+ * and chevrons between the nodes are `aria-hidden` and animated — the ordering
+ * the list already carries is what conveys direction without them.
+ *
+ * The two abstract artefacts stay `aria-hidden`, because those genuinely are
+ * decorative: they are div-drawn stand-ins for a browser window and a map result,
+ * and every fact they imply is stated in the chain above and the prose beside it.
+ *
+ * ## Keeping this out of SEO-service territory
+ *
+ * Deliberately restrained: no ranking graphs, no position numbers, no upward
+ * arrows, nothing that implies an ongoing ranking outcome. The artwork shows a
+ * *configured* local presence, which is exactly the scope the copy claims.
  */
 
-import { motion, useInView, useReducedMotion } from "framer-motion";
 import { Building2, Globe, MapPin, Search, UserRound } from "lucide-react";
-import { useRef } from "react";
 
-import { useMotionReady } from "@/components/home/progress-reveal";
-import { EASE } from "@/lib/motion";
+import {
+  LOCAL_ECOSYSTEM_CHAIN,
+  NAP_FAN,
+} from "@/lib/web-design-plain-language";
 import { PILLAR_TONE } from "@/lib/web-design-visual-system";
 
+import { ExplainerChain, NapFan } from "./explainer-chain";
 import { Line, MockNav, Paragraph, Pill, alpha } from "./frames";
 
 const CYAN = PILLAR_TONE.cyan;
 const BLUE = PILLAR_TONE.blue;
 
-const NODES = [
-  { id: "business", label: "Your business", Icon: Building2 },
-  { id: "website", label: "Your website", Icon: Globe },
-  { id: "google", label: "Google", Icon: Search },
-  { id: "discovery", label: "Local discovery", Icon: MapPin },
-  { id: "customer", label: "Nearby customer", Icon: UserRound },
-] as const;
+/**
+ * A recognisable glyph per chain node.
+ *
+ * Decorative only — every one of them sits beside a real text label, so the
+ * diagram never depends on a visitor recognising an icon. They exist because a
+ * shopfront, a globe, a magnifier, a map pin and a person are read faster than
+ * five equally-sized text nodes, which is the whole point of drawing this as a
+ * diagram rather than writing it as a sentence.
+ */
+const CHAIN_ICONS = {
+  business: <Building2 className="size-4" />,
+  website: <Globe className="size-4" />,
+  google: <Search className="size-4" />,
+  maps: <MapPin className="size-4" />,
+  customer: <UserRound className="size-4" />,
+} as const;
 
 /* -------------------------------------------------------------------------- */
 
@@ -141,83 +167,69 @@ function LocalResultArtefact() {
 
 /* -------------------------------------------------------------------------- */
 
-export function LocalEcosystem() {
-  const ref = useRef<HTMLDivElement>(null);
-  const reduce = Boolean(useReducedMotion());
-  const armed = useMotionReady();
-  const inView = useInView(ref, { once: true, margin: "-90px" });
-  const settled = reduce || !armed;
-  const drawn = settled || inView;
-
-  const connector = (i: number) => ({
-    initial: false as const,
-    animate: { scaleX: drawn ? 1 : 0 },
-    transition: settled
-      ? { duration: 0 }
-      : { duration: 0.45, delay: 0.12 + i * 0.16, ease: EASE },
-  });
-
+/** A small caption above an artefact, so the artwork is not unattributed. */
+function ArtefactCaption({ children }: { children: string }) {
   return (
-    <div ref={ref} aria-hidden>
+    <span className="block text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-text-disabled">
+      {children}
+    </span>
+  );
+}
+
+export function LocalEcosystem() {
+  return (
+    <div>
       {/* ── THE CHAIN ────────────────────────────────────────────────────
-          Horizontal from `md`. Below that it becomes a vertical chain, because a
-          five-node horizontal diagram on a phone is either unreadable or a
-          horizontal scroll — neither of which is an intentional mobile design. */}
-      <ol className="flex flex-col gap-3 md:flex-row md:items-start md:gap-0">
-        {NODES.map(({ id, label, Icon }, i) => (
-          <li
-            key={id}
-            className="flex items-center gap-4 md:flex-1 md:flex-col md:items-center md:gap-0"
-          >
-            <div className="flex items-center gap-4 md:w-full md:flex-col md:gap-0">
-              {/* Node + the horizontal connector reaching to the next node. */}
-              <div className="flex items-center md:w-full">
-                {i > 0 ? (
-                  <motion.span
-                    className="hidden h-px flex-1 origin-left md:block"
-                    style={{ backgroundColor: alpha(CYAN, 0.45) }}
-                    {...connector(i - 1)}
-                  />
-                ) : (
-                  <span className="hidden flex-1 md:block" />
-                )}
-
-                <span
-                  className="flex size-12 shrink-0 items-center justify-center rounded-full border"
-                  style={{
-                    borderColor: alpha(CYAN, 0.28),
-                    backgroundColor: alpha(CYAN, 0.07),
-                  }}
-                >
-                  <Icon className="size-5" style={{ color: CYAN }} aria-hidden />
-                </span>
-
-                {i < NODES.length - 1 ? (
-                  <motion.span
-                    className="hidden h-px flex-1 origin-left md:block"
-                    style={{ backgroundColor: alpha(CYAN, 0.45) }}
-                    {...connector(i)}
-                  />
-                ) : (
-                  <span className="hidden flex-1 md:block" />
-                )}
-              </div>
-
-              <span className="text-sm font-medium leading-snug text-text-subtle md:mt-3 md:text-center md:text-xs">
-                {label}
-              </span>
-            </div>
-          </li>
-        ))}
-      </ol>
+          Real text, real list, real reading order. Horizontal from `sm`; below
+          that it recomposes into a vertical chain with downward chevrons rather
+          than shrinking a five-node horizontal diagram into illegibility. */}
+      <ExplainerChain
+        steps={LOCAL_ECOSYSTEM_CHAIN}
+        accent={CYAN}
+        size="feature"
+        icons={CHAIN_ICONS}
+      />
 
       {/* ── THE ARTEFACTS ────────────────────────────────────────────────
-          Positioned under the nodes they belong to: the website under node 2,
-          the local result under nodes 3–4. */}
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 sm:gap-5">
-        <WebsiteArtefact />
-        <LocalResultArtefact />
+          What links two and four of the chain actually look like. Decorative:
+          abstract shapes, no strings, nothing a reader needs. */}
+      <div className="mt-10 grid gap-5 sm:grid-cols-2">
+        <div>
+          <ArtefactCaption>Your website</ArtefactCaption>
+          <div aria-hidden className="mt-2.5">
+            <WebsiteArtefact />
+          </div>
+        </div>
+        <div>
+          <ArtefactCaption>What a customer sees on Google</ArtefactCaption>
+          <div aria-hidden className="mt-2.5">
+            <LocalResultArtefact />
+          </div>
+        </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * The NAP consistency explainer, exported separately so the section can place it
+ * where the reader is actually asking the question rather than folding it into
+ * the chain above.
+ *
+ * "NAP consistency" is the single most opaque phrase in this section's copy, and
+ * it is opaque in a way an icon cannot fix: the concept is not *what* the three
+ * facts are, it is that they must be *identical everywhere*. That is a shape —
+ * three into many into one — so it is drawn as one.
+ */
+export function NapConsistency() {
+  return (
+    <NapFan
+      source={NAP_FAN.source}
+      sourceLabel={NAP_FAN.sourceLabel}
+      destinations={NAP_FAN.destinations}
+      destinationLabel={NAP_FAN.destinationLabel}
+      conclusion={NAP_FAN.conclusion}
+      accent={CYAN}
+    />
   );
 }

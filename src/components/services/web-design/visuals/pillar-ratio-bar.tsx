@@ -39,6 +39,17 @@ export interface RatioSegment {
   percentage: string;
   weight: number;
   accent: PillarAccent;
+  /**
+   * The plain-language name of the pillar ("The Website"), from
+   * `web-design-plain-language.ts`.
+   *
+   * When present it becomes the legend's primary line and the deck's own
+   * `label` drops to a secondary one. That ordering is the point: a visitor who
+   * reads nothing but this bar should still be able to repeat the model back,
+   * and "Core Web Design" does not survive that test the way "The Website"
+   * does. Optional, so a caller without a mapping renders exactly as before.
+   */
+  plainName?: string;
 }
 
 export function PillarRatioBar({
@@ -99,12 +110,26 @@ export function PillarRatioBar({
       </div>
 
       {/* THE LEGEND. Mirrors the bar's proportions so a label sits above the
-          segment it names — the relationship is spatial, not colour-coded only. */}
-      <div className="mt-3 flex w-full gap-1.5">
+          segment it names — the relationship is spatial, not colour-coded only.
+
+          That mapping only survives while a 10%-wide column is still wide enough
+          to set a five-word label in. At 390px it is 39px: the browser overflowed
+          "Local Visibility & Launch Infrastructure" out of its column and across
+          the neighbouring one, and clipped the tail at the viewport edge. Below
+          `sm` the legend therefore becomes three rows — percentage then label on
+          one baseline — which loses the spatial mapping but keeps the words
+          readable, and the proportional bar directly above still carries the
+          ratio. From `sm` up the proportional columns return, with a floor under
+          the narrow ones so the 10% label cannot be squeezed into a one-word
+          column again in a narrower container. */}
+      <div className="mt-3 flex w-full flex-col gap-2.5 sm:flex-row sm:gap-1.5">
         {segments.map((segment) => (
           <div
             key={segment.id}
-            className="min-w-0"
+            className={cn(
+              "flex min-w-0 items-baseline gap-2.5 sm:block",
+              display ? "sm:min-w-28" : "sm:min-w-24",
+            )}
             style={{ flexGrow: segment.weight, flexBasis: 0 }}
           >
             <span
@@ -116,14 +141,39 @@ export function PillarRatioBar({
             >
               {segment.percentage}
             </span>
-            <span
-              className={cn(
-                "mt-0.5 block leading-snug text-text-subtle",
-                display ? "text-sm sm:text-base" : "text-[0.6875rem] sm:text-xs",
-              )}
-            >
-              {segment.label}
-            </span>
+
+            {/* THE PLAIN-LANGUAGE LINE, where the caller supplies one. It takes
+                the legend's primary position — weight, foreground colour — and
+                the deck's own label becomes the technical line beneath it. */}
+            {segment.plainName ? (
+              <span className="min-w-0 sm:mt-1 sm:block">
+                <span
+                  className={cn(
+                    "block font-semibold leading-snug tracking-tight text-foreground",
+                    display ? "text-base sm:text-lg" : "text-xs sm:text-sm",
+                  )}
+                >
+                  {segment.plainName}
+                </span>
+                <span
+                  className={cn(
+                    "mt-0.5 block leading-snug text-text-disabled",
+                    display ? "text-xs sm:text-sm" : "text-[0.625rem] sm:text-[0.6875rem]",
+                  )}
+                >
+                  {segment.label}
+                </span>
+              </span>
+            ) : (
+              <span
+                className={cn(
+                  "block leading-snug text-text-subtle sm:mt-0.5",
+                  display ? "text-sm sm:text-base" : "text-[0.6875rem] sm:text-xs",
+                )}
+              >
+                {segment.label}
+              </span>
+            )}
           </div>
         ))}
       </div>

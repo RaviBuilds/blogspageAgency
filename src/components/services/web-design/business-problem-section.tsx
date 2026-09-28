@@ -73,12 +73,12 @@ export function BusinessProblemSection() {
                         section a rhythm without competing with the title. */}
                     <span
                       aria-hidden
-                      className="block text-5xl font-semibold leading-none tracking-tight text-border-strong sm:text-6xl"
+                      className="block text-5xl font-semibold leading-none tracking-tighter text-border-strong sm:text-6xl"
                     >
                       {String(index + 1).padStart(2, "0")}
                     </span>
 
-                    <h3 className="mt-6 max-w-[24ch] text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-[1.75rem]">
+                    <h3 className="mt-6 max-w-[24ch] text-2xl font-semibold leading-tight tracking-tighter text-foreground sm:text-[1.75rem]">
                       {card.title}
                     </h3>
 

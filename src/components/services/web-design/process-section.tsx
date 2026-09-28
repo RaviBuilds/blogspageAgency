@@ -1,4 +1,5 @@
 import { WEB_DESIGN_PROCESS } from "@/lib/web-design-data";
+import { PROCESS_PLAIN } from "@/lib/web-design-plain-language";
 import { PROCESS_ARTIFACTS } from "@/lib/web-design-visual-system";
 import { TYPE_MICRO } from "@/lib/brand-type";
 import { ScrollReveal } from "@/components/home/scroll-reveal";
@@ -24,12 +25,36 @@ import { SectionHeading } from "./visuals/section-shell";
    artwork alone narrates idea → structure → design → refinement → live website,
    which is the section's claim.
 
+   ## FINAL PASS — two readers, one list
+
+   The spine was right. The words were written for one of the two people reading
+   them. "Discovery & Information Architecture" and "UX Flow & Low-Fidelity
+   Wireframes" tell a technical reader exactly what happens and tell a gym owner
+   nothing about what they will be asked to do, or when they will see something.
+
+   Each stage now carries both registers, in a fixed order:
+
+     1. The action, as one word — Understand, Plan, Design, Refine, Launch. This is
+        the largest type in the row, because it is what makes the process a
+        sequence a customer can hold in their head.
+     2. What it means for them, as one ordinary sentence: "You see exactly how the
+        website will look."
+     3. The methodology name — Discovery, Wireframe, Figma UI, QA, Deployment —
+        beside the deck's own full stage title, both inside the heading so the
+        outline and its search phrases are unchanged.
+     4. The deck's description and deliverable, unchanged, as the detail a
+        technical reader continues into.
+
+   That ordering is the dual-layer requirement: a customer can read only the first
+   two lines of every stage and understand the engagement, while nothing a
+   technical reader needs has been removed or softened.
+
    ## Why the artefacts evolve rather than illustrate
 
    Five unrelated illustrations would decorate five stages. Five states of the same
    page proves they are stages of one process. That is also why the deliverable line
-   is kept: it is the stage's output, and it now sits directly under the artefact
-   that shows it.
+   is kept: it is the stage's output, and it sits directly under the artefact that
+   shows it.
 
    Copy is untouched: same five step numbers, titles, descriptions and deliverables.
    ──────────────────────────────────────────────────────────────────────────── */
@@ -62,6 +87,7 @@ export function ProcessSection() {
             {steps.map((item, index) => {
               const artifact = PROCESS_ARTIFACTS[item.step];
               const Artwork = artifact ? STAGE_ARTIFACTS[artifact] : null;
+              const plain = PROCESS_PLAIN[item.step];
               const last = index === steps.length - 1;
 
               return (
@@ -79,11 +105,38 @@ export function ProcessSection() {
                       <div className="min-w-0 flex-1 lg:grid lg:grid-cols-12 lg:gap-10">
                         {/* COPY. */}
                         <div className="lg:col-span-7">
-                          <h3 className="text-xl font-semibold leading-snug tracking-tight text-foreground sm:text-2xl">
-                            {item.title}
+                          {/* DUAL-LAYER HEADING. The action word leads; the
+                              methodology name and the deck's own stage title sit
+                              inside the same heading element beneath it. */}
+                          <h3>
+                            <span className="block text-2xl font-semibold leading-tight tracking-tighter text-foreground sm:text-3xl">
+                              {plain?.action ?? item.title}
+                            </span>
+                            {plain ? (
+                              <span className="mt-3 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+                                <span
+                                  className={`${TYPE_MICRO} text-accent-blue`}
+                                >
+                                  {plain.technical}
+                                </span>
+                                <span aria-hidden className="text-text-disabled">
+                                  ·
+                                </span>
+                                <span className="text-sm font-medium leading-snug tracking-tight text-text-subtle">
+                                  {item.title}
+                                </span>
+                              </span>
+                            ) : null}
                           </h3>
 
-                          <p className="mt-3 max-w-[56ch] text-sm leading-relaxed text-muted-foreground sm:text-base">
+                          {/* WHAT IT MEANS FOR THE CUSTOMER. */}
+                          {plain?.plain ? (
+                            <p className="mt-5 max-w-[46ch] text-lg font-medium leading-snug text-foreground/80 sm:text-xl">
+                              {plain.plain}
+                            </p>
+                          ) : null}
+
+                          <p className="mt-4 max-w-[56ch] text-sm leading-relaxed text-muted-foreground sm:text-base">
                             {item.description}
                           </p>
 

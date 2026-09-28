@@ -205,13 +205,13 @@ const FIX_HINT =
  * `auditRoutes()` exists so the sweep can be widened in one line once those
  * templates are converted.
  *
- * TODO (next session): add "/services/web-design" here. The art-direction
- * rebuild routes every reveal on that page through `useStaggerReveal` /
- * `ScrollReveal` and marks all decorative artwork `aria-hidden`, so it is
- * expected to pass — but the assertion was not run against a served production
- * build, so it is left out rather than added unverified.
+ * `/services/web-design` is asserted alongside `/`. The art-direction rebuild
+ * routes every reveal on that page through `useStaggerReveal` / `ScrollReveal`
+ * behind the hydration gate and marks all decorative artwork `aria-hidden`; the
+ * assertion has been run against a served production build, so it is held here
+ * as a regression guard rather than left as an intention.
  */
-const ASSERTED_ROUTES = ["/"] as const;
+const ASSERTED_ROUTES = ["/", "/services/web-design"] as const;
 
 /** Known-affected routes, excluded from the assertion above. See the note. */
 export const SSR_VISIBILITY_DEBT = /^\/solutions\//;

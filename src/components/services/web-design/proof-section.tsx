@@ -118,7 +118,7 @@ export function ProofSection() {
                       </span>
                     </div>
 
-                    <h3 className="mt-4 text-2xl font-semibold leading-tight tracking-tight text-surface-dark-foreground sm:text-3xl text-balance">
+                    <h3 className="mt-4 text-2xl font-semibold leading-tight tracking-tighter text-surface-dark-foreground sm:text-3xl text-balance">
                       {project.title}
                     </h3>
 

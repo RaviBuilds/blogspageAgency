@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, ChevronRight } from "lucide-react";
 
 import { WEB_DESIGN_INDUSTRY_ROUTER } from "@/lib/web-design-data";
+import { INDUSTRY_GOAL } from "@/lib/web-design-plain-language";
 import { industryVisual } from "@/lib/web-design-visual-system";
 import { TYPE_MICRO } from "@/lib/brand-type";
 import { ScrollReveal } from "@/components/home/scroll-reveal";
@@ -27,6 +28,22 @@ import { SectionHeading } from "./visuals/section-shell";
    column and a sidebar. The previews differ *structurally*, not just in hue, which
    is what makes the claim legible.
 
+   ## FINAL PASS — the structural difference is now also stated
+
+   Ten structurally distinct previews prove the claim to anyone who studies them.
+   Most visitors will not: they scan ten browser frames, register "ten templates",
+   and move on. The difference was visible and unexplained.
+
+   Each tile now carries its vertical's commercial goal as three beats — Trust →
+   Treatments → Enquiry, Rooms → Availability → Booking, Products → Discovery →
+   Purchase — from `INDUSTRY_GOAL`. It is real text directly beneath the preview,
+   so the preview above it is read as the shape that goal produces rather than as a
+   colourway.
+
+   The beats are deliberately static. Ten animated chains on one viewport is the
+   "constant motion" the brief rules out, and the relationship here is short enough
+   that three words and two chevrons state it without being drawn.
+
    ## Why the previews are drawn rather than photographed
 
    Ten screenshots would be ten images on one viewport, and they would either be
@@ -44,6 +61,38 @@ import { SectionHeading } from "./visuals/section-shell";
    Each tile is a single anchor, so the whole tile is the target — no nested link,
    no duplicate route, and the focus ring lands on the tile.
    ──────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * The vertical's commercial goal, as three beats on one line.
+ *
+ * Real text — this is the tile's explanation, not its decoration. The chevrons
+ * between the beats are `aria-hidden`, because the reading order already carries
+ * the sequence.
+ */
+function GoalBeats({
+  beats,
+  accent,
+}: {
+  beats: readonly [string, string, string];
+  accent: string;
+}) {
+  return (
+    <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs font-medium tracking-tight text-foreground/70">
+      {beats.map((beat, i) => (
+        <span key={beat} className="inline-flex items-center gap-1.5">
+          <span>{beat}</span>
+          {i < beats.length - 1 ? (
+            <ChevronRight
+              aria-hidden
+              className="size-3 shrink-0"
+              style={{ color: alpha(accent, 0.75) }}
+            />
+          ) : null}
+        </span>
+      ))}
+    </p>
+  );
+}
 
 export function IndustryShowcaseSection() {
   const { eyebrow, h2, lead, supportingCopy, industries } =
@@ -67,6 +116,7 @@ export function IndustryShowcaseSection() {
         <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {industries.map((item, index) => {
             const visual = industryVisual(item.id);
+            const beats = INDUSTRY_GOAL[item.id];
 
             return (
               <ScrollReveal key={item.id} delay={(index % 3) * 0.05}>
@@ -111,13 +161,20 @@ export function IndustryShowcaseSection() {
                       {item.name}
                     </h3>
 
-                    <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
+                    {/* WHAT THE LAYOUT ABOVE IS SHAPED AROUND. */}
+                    {beats ? (
+                      <div className="mt-3.5 border-y border-border-subtle py-3">
+                        <GoalBeats beats={beats} accent={visual.accent} />
+                      </div>
+                    ) : null}
+
+                    <p className="mt-3.5 text-sm leading-relaxed text-muted-foreground">
                       {item.description}
                     </p>
 
                     {/* The affordance. Real text, so the destination is
                         announced; the arrow is decoration on top of it. */}
-                    <span className="mt-5 flex items-center gap-1.5 pt-4 text-xs font-semibold text-primary">
+                    <span className="mt-auto flex items-center gap-1.5 pt-5 text-xs font-semibold text-primary">
                       <span>Explore {item.name} Blueprint</span>
                       <ArrowUpRight
                         aria-hidden
