@@ -220,8 +220,7 @@ export function ExplainerChain({
     <ol
       ref={ref}
       className={cn(
-        "flex flex-col sm:flex-row sm:items-stretch",
-        feature ? "sm:gap-0" : "sm:gap-0",
+        "flex flex-col sm:flex-row sm:items-stretch sm:gap-0",
         className,
       )}
     >

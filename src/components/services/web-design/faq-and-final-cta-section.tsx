@@ -1,4 +1,8 @@
-import { WEB_DESIGN_FAQS, WEB_DESIGN_FINAL_CTA } from "@/lib/web-design-data";
+import {
+  WEB_DESIGN_FAQS,
+  WEB_DESIGN_FAQS_HEADING,
+  WEB_DESIGN_FINAL_CTA,
+} from "@/lib/web-design-data";
 import {
   BRAND_TEXT_GRADIENT_ISLAND,
   TYPE_DISPLAY,
@@ -80,6 +84,7 @@ function splitOnPhrase(text: string, phrase: string): [string, string | null] {
 }
 
 export function FAQAndFinalCTASection() {
+  const { eyebrow, h2, lead: faqLead } = WEB_DESIGN_FAQS_HEADING;
   const { h3, lead, buttonLabel, microcopy } = WEB_DESIGN_FINAL_CTA;
   const [ctaHead, ctaTail] = splitOnPhrase(h3, CTA_BRAND_PHRASE);
 
@@ -95,9 +100,9 @@ export function FAQAndFinalCTASection() {
             <div className="lg:col-span-4">
               <ScrollReveal>
                 <SectionHeading
-                  eyebrow="COMMON QUESTIONS"
-                  title="Frequently Asked Questions About Our Web Design Services"
-                  lead="Clear, transparent answers regarding inclusions, boundaries, pricing, and launch infrastructure."
+                  eyebrow={eyebrow}
+                  title={h2}
+                  lead={faqLead}
                   register="quiet"
                   accent="cyan"
                   measure="max-w-md"

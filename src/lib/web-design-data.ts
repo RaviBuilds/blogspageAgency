@@ -175,7 +175,7 @@ export const WEB_DESIGN_PROBLEMS = {
       id: "conversion-friction",
       title: "Friction-Heavy Mobile & Enquiry Journeys",
       description:
-        "Over 70% of local traffic arrives on mobile. Cluttered navigation, sluggish load speeds, and buried contact pathways lose prospective clients before they ever reach your offer.",
+        "Most local customers search for you on their phone first. Cluttered navigation, sluggish load speeds, and buried contact pathways lose prospective clients before they ever reach your offer.",
       iconName: "Smartphone",
     },
   ] as const,
@@ -644,6 +644,17 @@ export const WEB_DESIGN_PROOF = {
 /* -------------------------------------------------------------------------- */
 /* 12. FAQ Data Contract (Section 11)                                         */
 /* -------------------------------------------------------------------------- */
+
+/**
+ * The FAQ section's own heading, following the same eyebrow/h2/lead contract
+ * every other section on this page reads from `web-design-data.ts` rather
+ * than hardcoding as JSX string literals.
+ */
+export const WEB_DESIGN_FAQS_HEADING = {
+  eyebrow: "COMMON QUESTIONS",
+  h2: "Frequently Asked Questions About Our Web Design Services",
+  lead: "Clear, transparent answers regarding inclusions, boundaries, pricing, and launch infrastructure.",
+};
 
 export const WEB_DESIGN_FAQS: FaqPair[] = [
   {

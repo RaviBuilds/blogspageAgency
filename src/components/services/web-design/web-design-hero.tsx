@@ -98,7 +98,7 @@ import { PillarRatioBar, type RatioSegment } from "./visuals/pillar-ratio-bar";
  * token is a complete style object.
  */
 const BRAND_PHRASE_STOPS =
-  "linear-gradient(92deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)";
+  "linear-gradient(90deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)";
 
 /**
  * The `index`-th of `total` phrase words, painted with the share of the sweep it
