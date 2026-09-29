@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Github, Linkedin, Twitter, type LucideIcon } from "lucide-react";
 import { SOCIAL_PROFILES } from "@/lib/site";
-import { serviceRoutes } from "@/lib/routes";
+import { serviceRoutes, STATIC_ROUTES } from "@/lib/routes";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    MOTION PRIMITIVES
@@ -15,11 +15,28 @@ const SPRING = { type: "spring", stiffness: 150, damping: 18, mass: 0.8 } as con
 /* ─────────────────────────────────────────────────────────────────────────────
    DATA
    ───────────────────────────────────────────────────────────────────────────── */
+/* The dedicated Web Design service route, read from the same route registry
+   the other footer service links come from, so its href stays
+   `/services/web-design` and can never drift from the route the page emits as
+   its own canonical. */
+const webDesignRoute = STATIC_ROUTES.find(
+  (route) => route.path === "/services/web-design",
+);
+
+if (!webDesignRoute) {
+  throw new Error(
+    'Footer expects a "/services/web-design" descriptor in STATIC_ROUTES; none was found.',
+  );
+}
+
 const footerLinks = {
-  Solutions: serviceRoutes().map((route) => ({
-    label: route.label,
-    href: route.path,
-  })),
+  Services: [
+    { label: webDesignRoute.label, href: webDesignRoute.path },
+    ...serviceRoutes().map((route) => ({
+      label: route.label,
+      href: route.path,
+    })),
+  ],
   Company: [
     { label: "About", href: "/about" },
     { label: "Process", href: "/#process" },
