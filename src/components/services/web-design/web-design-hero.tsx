@@ -1,5 +1,4 @@
 import Link from "next/link";
-import type { CSSProperties } from "react";
 import { ArrowDown } from "lucide-react";
 
 import { WEB_DESIGN_CORE_POSITIONING, WEB_DESIGN_HERO } from "@/lib/web-design-data";
@@ -7,6 +6,7 @@ import { PILLAR_PLAIN } from "@/lib/web-design-plain-language";
 import { PILLAR_WEIGHT, type PillarAccent } from "@/lib/web-design-visual-system";
 import { TYPE_MICRO } from "@/lib/brand-type";
 import { Button } from "@/components/ui/button";
+import { BrandRevealWords } from "@/components/services/shared/brand-reveal-words";
 
 import { WebDesignChatTrigger } from "./web-design-chat-trigger";
 import { HeroComposition } from "./visuals/hero-composition";
@@ -90,38 +90,6 @@ import { PillarRatioBar, type RatioSegment } from "./visuals/pillar-ratio-bar";
    ──────────────────────────────────────────────────────────────────────────── */
 
 /**
- * The approved light-surface sweep, as gradient stops.
- *
- * Mirrors `BRAND_TEXT_GRADIENT` in `brand-type.ts` but as a bare
- * `background-image` string, because each word needs its own
- * `background-size` / `background-position` slice of the same sweep and the
- * token is a complete style object.
- */
-const BRAND_PHRASE_STOPS =
-  "linear-gradient(90deg, #0891B2 0%, #4353C9 52%, #7C3AED 100%)";
-
-/**
- * The `index`-th of `total` phrase words, painted with the share of the sweep it
- * would have shown under a single whole-phrase gradient.
- *
- * `background-size` stretches the gradient across `total` word widths and
- * `background-position` slides each word its own step over it, so the
- * cyan → violet progression runs once across the phrase instead of restarting on
- * every word.
- */
-function brandPhraseWordStyle(index: number, total: number): CSSProperties {
-  return {
-    backgroundImage: BRAND_PHRASE_STOPS,
-    backgroundSize: `${total * 100}% 100%`,
-    backgroundPosition: `${total > 1 ? (index / (total - 1)) * 100 : 0}% 0`,
-    WebkitBackgroundClip: "text",
-    backgroundClip: "text",
-    color: "transparent",
-    WebkitTextFillColor: "transparent",
-  };
-}
-
-/**
  * The first word of the H1's meaningful tail.
  *
  * Resolved against the real word order rather than hardcoded as an index, so the
@@ -131,71 +99,6 @@ function brandPhraseWordStyle(index: number, total: number): CSSProperties {
  * rather than a mis-painted headline.
  */
 const BRAND_PHRASE_FIRST_WORD = "Hyderabad";
-
-/**
- * How many leading words paint on the first frame.
- *
- * The H1 is this page's likely LCP element and a `.hero-word` still waiting on
- * its stagger delay is painted at `opacity: 0`. The same three-word exemption
- * the Home hero uses, for the same measured reason.
- */
-const LCP_IMMEDIATE_WORDS = 3;
-
-/**
- * Per-word spans so the CSS reveal can stagger the headline, with the brand
- * phrase carrying its slice of the sweep.
- *
- * The clip is declared on the same span that carries the `hero-word` transform —
- * never on a wrapper around the phrase — for the compositing reason documented
- * above.
- */
-function RevealWords({
-  text,
-  step = "45ms",
-  offset = 0,
-  brandFromWord,
-}: {
-  text: string;
-  step?: string;
-  offset?: number;
-  /** Index (within this text) of the first brand-phrase word. -1 disables. */
-  brandFromWord?: number;
-}) {
-  const words = text.split(" ");
-  const brandAt = brandFromWord === undefined ? -1 : brandFromWord;
-  const brandTotal = brandAt >= 0 ? words.length - brandAt : 0;
-
-  return (
-    <>
-      {words.map((word, i) => {
-        const index = i + offset;
-        const inPhrase = brandAt >= 0 && i >= brandAt;
-
-        return (
-          <span
-            key={`${i}-${word}`}
-            className={`hero-word inline-block${inPhrase ? " brand-word-on-paper" : ""}`}
-            style={
-              {
-                "--word-index": index,
-                "--word-step": step,
-                ...(index < LCP_IMMEDIATE_WORDS
-                  ? { animationDelay: "0ms" }
-                  : null),
-                ...(inPhrase
-                  ? brandPhraseWordStyle(i - brandAt, brandTotal)
-                  : null),
-              } as CSSProperties
-            }
-          >
-            {word}
-            {i < words.length - 1 ? "\u00A0" : ""}
-          </span>
-        );
-      })}
-    </>
-  );
-}
 
 export function WebDesignHero() {
   const {
@@ -290,7 +193,7 @@ export function WebDesignHero() {
               className="mt-7 text-[clamp(2.5rem,5.8vw,4.75rem)] font-semibold leading-[0.92] tracking-tighter text-foreground text-balance"
               style={{ opacity: 1 }}
             >
-              <RevealWords text={h1} brandFromWord={brandFromWord} />
+              <BrandRevealWords text={h1} brandFromWord={brandFromWord} />
             </h1>
 
             {/* The subhead drops hard in scale — the beat between the two is

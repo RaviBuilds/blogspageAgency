@@ -152,6 +152,7 @@ const PLANNED_ROUTE_SEEDS: readonly KeywordSeed[] = [
   },
   { path: "/services/programmatic-seo", phrase: "programmatic seo services" },
   { path: "/services/web-design", phrase: "web design agency Hyderabad" },
+  { path: "/services/web-development", phrase: "web development company in Hyderabad" },
 
 ];
 

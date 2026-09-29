@@ -210,8 +210,18 @@ const FIX_HINT =
  * behind the hydration gate and marks all decorative artwork `aria-hidden`; the
  * assertion has been run against a served production build, so it is held here
  * as a regression guard rather than left as an intention.
+ *
+ * `/services/web-development` joined it after its own final polish pass, for the
+ * same reason and on the same terms: its one bespoke client island
+ * (`visuals/request-path.tsx`) drives every reveal through `animate` behind the
+ * same gate, its diagrams' rails and node markers are `aria-hidden`, and the scan
+ * has been run against a served production build of that page.
  */
-const ASSERTED_ROUTES = ["/", "/services/web-design"] as const;
+const ASSERTED_ROUTES = [
+  "/",
+  "/services/web-design",
+  "/services/web-development",
+] as const;
 
 /** Known-affected routes, excluded from the assertion above. See the note. */
 export const SSR_VISIBILITY_DEBT = /^\/solutions\//;

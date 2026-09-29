@@ -1,3 +1,6 @@
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
+
 import {
   WEB_DESIGN_FAQS,
   WEB_DESIGN_FAQS_HEADING,
@@ -107,6 +110,26 @@ export function FAQAndFinalCTASection() {
                   accent="cyan"
                   measure="max-w-md"
                 />
+              </ScrollReveal>
+
+              {/* Contextual internal link to Web Development (canonical
+                  spec §22 requirement, applied from the Web Design side):
+                  a visitor whose questions here are about functionality
+                  rather than appearance is pointed at the page that
+                  actually answers them, rather than being left to guess
+                  from the FAQ prose alone. */}
+              <ScrollReveal delay={0.06}>
+                <p className="mt-6 max-w-md border-l-2 border-accent-blue/40 pl-4 text-sm leading-relaxed text-text-subtle">
+                  Need logins, bookings, payments or a custom dashboard, not
+                  just a visual presence?{" "}
+                  <Link
+                    href="/services/web-development"
+                    className="group inline-flex items-center gap-1 font-semibold text-foreground underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-foreground"
+                  >
+                    See our Web Development service
+                    <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+                  </Link>
+                </p>
               </ScrollReveal>
             </div>
 

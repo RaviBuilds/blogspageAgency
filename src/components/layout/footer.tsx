@@ -15,12 +15,15 @@ const SPRING = { type: "spring", stiffness: 150, damping: 18, mass: 0.8 } as con
 /* ─────────────────────────────────────────────────────────────────────────────
    DATA
    ───────────────────────────────────────────────────────────────────────────── */
-/* The dedicated Web Design service route, read from the same route registry
-   the other footer service links come from, so its href stays
-   `/services/web-design` and can never drift from the route the page emits as
-   its own canonical. */
+/* The dedicated Web Design and Web Development service routes, read from the
+   same route registry the other footer service links come from, so their
+   hrefs stay `/services/web-design` / `/services/web-development` and can
+   never drift from the routes those pages emit as their own canonicals. */
 const webDesignRoute = STATIC_ROUTES.find(
   (route) => route.path === "/services/web-design",
+);
+const webDevelopmentRoute = STATIC_ROUTES.find(
+  (route) => route.path === "/services/web-development",
 );
 
 if (!webDesignRoute) {
@@ -29,9 +32,16 @@ if (!webDesignRoute) {
   );
 }
 
+if (!webDevelopmentRoute) {
+  throw new Error(
+    'Footer expects a "/services/web-development" descriptor in STATIC_ROUTES; none was found.',
+  );
+}
+
 const footerLinks = {
   Services: [
     { label: webDesignRoute.label, href: webDesignRoute.path },
+    { label: webDevelopmentRoute.label, href: webDevelopmentRoute.path },
     ...serviceRoutes().map((route) => ({
       label: route.label,
       href: route.path,
