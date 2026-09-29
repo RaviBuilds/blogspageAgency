@@ -432,6 +432,30 @@ export const WEB_DESIGN_LAUNCH_FOUNDATION = {
 /* 9. Industry Showcase Router Data Contract (Section 8)                      */
 /* -------------------------------------------------------------------------- */
 
+/*
+ * ROUTE CONTRACT — every `route` below must be a path the site actually serves.
+ *
+ * Each `id` here is deliberately the same token as the corresponding `Niche.id`
+ * in `src/lib/niches.ts`, but the `route` string is NOT derived from it: this
+ * module is a pure data contract and `niches.ts` carries Lucide icon *values*,
+ * so importing it here would pull React components into a module that must stay
+ * framework-free.
+ *
+ * The cost of that separation is that a slug can drift from the registry
+ * silently — and it did. Three of the ten routes below shipped as paths no
+ * generator produces, so three tiles in the industry gallery 404'd:
+ *
+ *   food-delivery-business-solution-...    → online-delivery-business-solution-...
+ *   consulting-agency-business-solution-…  → consulting-firm-business-solution-...
+ *   pet-care-business-solution-...         → pet-cares-online-business-solution-...
+ *
+ * They survived a visual pass, a build and an SSR audit because none of those
+ * resolve an `href` against the route registry — a `<Link>` to a non-existent
+ * route is valid JSX, type-checks, renders and only fails when a visitor clicks.
+ *
+ * `tests/unit/web-design-routes.spec.ts` now resolves every route in this file
+ * against `ALL_ROUTES`, which is the only check that can catch this class.
+ */
 export const WEB_DESIGN_INDUSTRY_ROUTER = {
   eyebrow: "TAILORED INDUSTRY SOLUTIONS",
   h2: "Web Design Architectures Engineered for Your Industry",
@@ -466,7 +490,7 @@ export const WEB_DESIGN_INDUSTRY_ROUTER = {
     {
       id: "online-delivery",
       name: "Online Food Delivery",
-      route: "/solutions/food-delivery-business-solution-website-at-hyderabad",
+      route: "/solutions/online-delivery-business-solution-website-at-hyderabad",
       focus: "Direct Local Orders",
       description:
         "Local ordering storefront, categorized menu displays, and direct customer relationships.",
@@ -474,7 +498,7 @@ export const WEB_DESIGN_INDUSTRY_ROUTER = {
     {
       id: "consulting",
       name: "Consulting & Agencies",
-      route: "/solutions/consulting-agency-business-solution-website-at-hyderabad",
+      route: "/solutions/consulting-firm-business-solution-website-at-hyderabad",
       focus: "Authority & Inbound Leads",
       description:
         "High-value authority positioning, structured case study proof, and qualified lead intake.",
@@ -490,7 +514,7 @@ export const WEB_DESIGN_INDUSTRY_ROUTER = {
     {
       id: "pet-care",
       name: "Pet Care & Clinics",
-      route: "/solutions/pet-care-business-solution-website-at-hyderabad",
+      route: "/solutions/pet-cares-online-business-solution-website-at-hyderabad",
       focus: "Service Booking & Care",
       description:
         "Service clarity, veterinary/grooming appointment bookings, and compassionate trust signals.",
