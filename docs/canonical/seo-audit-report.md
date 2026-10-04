@@ -633,7 +633,7 @@ One primary keyword phrase per indexable route: 2 to 8 words, 60 characters or f
 | `/solutions/pet-cares-online-business-solution-website-at-hyderabad` | `https://blogspage.com/solutions/pet-cares-online-business-solution-website-at-hyderabad` | pet care booking software hyderabad | 5 | 34 |
 | `/solutions/consulting-firm-business-solution-website-at-hyderabad` | `https://blogspage.com/solutions/consulting-firm-business-solution-website-at-hyderabad` | consulting firm website development hyderabad | 5 | 45 |
 | `/solutions/educational-platform-business-solution-website-at-hyderabad` | `https://blogspage.com/solutions/educational-platform-business-solution-website-at-hyderabad` | education platform development hyderabad | 4 | 40 |
-| `/solutions/gym-business-solution-website-at-hyderabad` | `https://blogspage.com/solutions/gym-business-solution-website-at-hyderabad` | gym management software hyderabad | 4 | 32 |
+| `/solutions/gym-business-solution-website-at-hyderabad` | `https://blogspage.com/solutions/gym-business-solution-website-at-hyderabad` | Gym Website Development Hyderabad | 4 | 33 |
 | `/solutions/dental-hospital-business-solution-website-at-hyderabad` | `https://blogspage.com/solutions/dental-hospital-business-solution-website-at-hyderabad` | dental clinic website development hyderabad | 5 | 43 |
 | `/solutions/product-selling-online-ecommerce-website-at-hyderabad` | `https://blogspage.com/solutions/product-selling-online-ecommerce-website-at-hyderabad` | ecommerce website development hyderabad | 4 | 39 |
 | `/solutions/subscription-saas-business-website-at-hyderabad` | `https://blogspage.com/solutions/subscription-saas-business-website-at-hyderabad` | saas platform development hyderabad | 4 | 35 |
@@ -668,7 +668,7 @@ The Service_Catalog is the ten verticals defined in `src/lib/niches.ts` and mirr
 | Pet Care | `https://blogspage.com/solutions/pet-cares-online-business-solution-website-at-hyderabad` | pet care booking software hyderabad |
 | Consulting | `https://blogspage.com/solutions/consulting-firm-business-solution-website-at-hyderabad` | consulting firm website development hyderabad |
 | Education | `https://blogspage.com/solutions/educational-platform-business-solution-website-at-hyderabad` | education platform development hyderabad |
-| Gym & Fitness | `https://blogspage.com/solutions/gym-business-solution-website-at-hyderabad` | gym management software hyderabad |
+| Gym & Fitness | `https://blogspage.com/solutions/gym-business-solution-website-at-hyderabad` | Gym Website Development Hyderabad |
 | Dental & Medical | `https://blogspage.com/solutions/dental-hospital-business-solution-website-at-hyderabad` | dental clinic website development hyderabad |
 | E-commerce | `https://blogspage.com/solutions/product-selling-online-ecommerce-website-at-hyderabad` | ecommerce website development hyderabad |
 | SaaS Platforms | `https://blogspage.com/solutions/subscription-saas-business-website-at-hyderabad` | saas platform development hyderabad |

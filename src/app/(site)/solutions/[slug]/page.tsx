@@ -17,7 +17,7 @@ import { findKeywordPhrase } from "@/lib/keyword-map";
 import { faqNode, MIN_SOLUTION_FAQ_PAIRS, serviceNode } from "@/lib/structured-data";
 import { createHeadingSlugger } from "@/lib/heading-slug";
 import { JsonLd } from "@/components/seo/json-ld";
-import { Breadcrumb } from "@/components/seo/breadcrumb";
+import { SolutionBreadcrumb } from "@/components/solutions/solution-breadcrumb";
 import { client } from "@/sanity/lib/client";
 import { LATEST_POSTS_QUERY, type LatestPost } from "@/sanity/lib/queries";
 
@@ -107,6 +107,17 @@ function solutionTitle(
   return labelled.length <= TITLE_BUDGET ? labelled : keywordPhrase;
 }
 
+/** Gym page title: the mapped phrase, verbatim, plus a short qualifier. */
+function gymTitle(keywordPhrase: string | undefined): string {
+  if (!keywordPhrase) return "Gym Website Development for Fitness Clubs";
+  const qualified = `${keywordPhrase} for Fitness Clubs`;
+  return qualified.length <= TITLE_BUDGET ? qualified : keywordPhrase;
+}
+
+function gymDescription(cityName: string): string {
+  return `Gym website development in ${cityName}: programs, reviews, interactive guidance tools and a WhatsApp enquiry flow that prepares the conversation for your team.`;
+}
+
 export async function generateMetadata({
   params,
 }: SolutionPageProps): Promise<Metadata> {
@@ -122,6 +133,21 @@ export async function generateMetadata({
 
   const { niche, city } = resolved;
   const keywordPhrase = findKeywordPhrase(`/solutions/${slug}`) ?? undefined;
+
+  // The gym page is a website-and-guidance story rather than a software
+  // pitch, so it carries its own title and description instead of the generic
+  // niche-derived pair. Both still hold the keyword phrase / city verbatim
+  // (Requirements 12.5, 12.7).
+  if (niche.id === "gym-fitness") {
+    return buildMetadata({
+      path: `/solutions/${slug}`,
+      title: gymTitle(keywordPhrase),
+      description: clampDescription(gymDescription(city.displayName)),
+      type: "website",
+      keywordPhrase,
+    });
+  }
+
   const title = solutionTitle(niche.title, city.displayName, keywordPhrase);
   // The city mention is placed first so it survives `clampDescription`'s
   // 160-character window regardless of how long the niche copy runs
@@ -188,23 +214,34 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
   const faq = faqNode(niche.faq, { minPairs: MIN_SOLUTION_FAQ_PAIRS });
   if (faq) nodes.push(faq);
 
+  // One breadcrumb band for every solution template. It paints no surface of
+  // its own, so where it is mounted decides what it sits on: the gym landing
+  // takes it as a prop and renders it inside its dark island (so the trail
+  // shares the page's background, glow and dark tokens), while the light
+  // templates render it here, directly on the site's own background. The trail
+  // and the `BreadcrumbList` JSON-LD are unchanged.
+  const isGym = niche.id === "gym-fitness";
+  const breadcrumb = (
+    <SolutionBreadcrumb
+      width={isGym ? "max-w-7xl" : undefined}
+      trail={[
+        { name: "Solutions", path: "/solutions" },
+        {
+          name: `${niche.title} in ${city.displayName}`,
+          path: `/solutions/${slug}`,
+        },
+      ]}
+    />
+  );
+
   return (
     <>
       <JsonLd nodes={nodes} />
-      <div className="mx-auto max-w-6xl px-6 pt-6 lg:px-8">
-        <Breadcrumb
-          trail={[
-            { name: "Solutions", path: "/solutions" },
-            {
-              name: `${niche.title} in ${city.displayName}`,
-              path: `/solutions/${slug}`,
-            },
-          ]}
-        />
-      </div>
+      {isGym ? null : breadcrumb}
       {niche.id === "gym-fitness" ? (
         <GymSolutionLanding
           cityLabel={city.displayName}
+          breadcrumb={breadcrumb}
           faq={niche.faq}
           headingIds={gymHeadingIds(slugger)}
           relatedPosts={relatedPosts}

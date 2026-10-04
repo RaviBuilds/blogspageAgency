@@ -109,7 +109,7 @@ const EXISTING_ROUTE_SEEDS: readonly KeywordSeed[] = [
   },
   {
     path: "/solutions/gym-business-solution-website-at-hyderabad",
-    phrase: "gym management software hyderabad",
+    phrase: "Gym Website Development Hyderabad",
     serviceCatalogId: "gym-fitness",
   },
   {

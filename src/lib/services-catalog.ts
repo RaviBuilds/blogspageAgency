@@ -47,9 +47,9 @@ export const SERVICE_CATALOG: CatalogEntry[] = [
   },
   {
     title: "Gym & Fitness",
-    focus: "Churn defense",
+    focus: "Member journey & enquiries",
     summary:
-      "A dynamic Pause-Credit Engine that recalculates membership contracts in real time, plus QR check-ins and owner dashboards (live occupancy, conversions). Built to defend recurring revenue from churn.",
+      "A premium gym website with interactive member tools (Find Your Starting Point, Map Your Fitness Journey, Plan Your First 30 Days), a context-rich WhatsApp enquiry flow, and Google Business Profile and Search Console setup. Member app, operations and owner-analytics systems are a broader direction scoped separately. No guaranteed rankings or membership growth; the gym team stays central to every conversation.",
   },
   {
     title: "Dental & Medical",

@@ -479,3 +479,165 @@ details[data-faq][open] > div {
 html[data-preloader="skip"] [data-preloader-overlay] {
   display: none;
 }
+
+/* ==========================================================================
+ * Gym solution page (/solutions/gym-business-solution-website-at-[city]).
+ *
+ * Page-scoped surfaces and one-shot motion. Every `gym-*` class is consumed
+ * only by `src/components/solutions/gym/**`.
+ *
+ * Motion contract: the classes' natural styles ARE the settled state, so the
+ * server HTML is always fully visible. `InView` (gym/in-view.tsx) arms
+ * `data-gym-motion="armed"` after mount (start states) and flips it to "in"
+ * once the block enters the viewport (keyframes play once, `both` fill).
+ * Reduced motion never arms. Opacity / transform / stroke only.
+ * ======================================================================== */
+
+/* --- Surfaces ----------------------------------------------------------- */
+
+.gym-surface-system {
+  background-color: #0b0e14;
+  background-image: radial-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+  background-position: center;
+}
+
+.gym-surface-blueprint {
+  background-color: #070a10;
+  background-image:
+    linear-gradient(rgb(130 143 255 / 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(130 143 255 / 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: center top;
+}
+
+.gym-surface-stage {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 0%, rgb(94 106 210 / 0.22), transparent 70%),
+    linear-gradient(180deg, #0a0c16 0%, #07080d 100%);
+  border-block: 1px solid rgb(130 143 255 / 0.14);
+}
+
+.gym-surface-whatsapp {
+  background:
+    radial-gradient(ellipse 50% 40% at 85% 20%, rgb(37 211 102 / 0.07), transparent 70%),
+    #0a1115;
+}
+
+/* Paper: the site's own light palette, used for the calm trust chapter. The
+   page wrapper is a `.dark` island, so the light tokens are restated here
+   (0,2,0 beats `.dark`). Values are the approved :root palette. */
+.dark .gym-paper {
+  color: var(--foreground);
+  background-color: #f7f8fa;
+  --background: #f7f8fa;
+  --foreground: #0e1524;
+  --card: #ffffff;
+  --card-foreground: #0e1524;
+  --muted-foreground: #475467;
+  --text-subtle: #5d6b7e;
+  --border: #dde3ec;
+  --border-strong: #c6cfdc;
+  --primary: #4353c9;
+  --primary-foreground: #ffffff;
+  --ring: #4353c9;
+}
+
+/* --- One-shot motion ---------------------------------------------------- */
+
+@keyframes gym-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes gym-pop {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes gym-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes gym-grow-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes gym-grow-y {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+@keyframes gym-light {
+  from { opacity: 0.2; }
+  to { opacity: 1; }
+}
+@keyframes gym-signal {
+  0% { offset-distance: 0%; opacity: 0; }
+  10% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+@keyframes gym-typing {
+  0%, 70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.gym-draw { stroke-dasharray: 1; stroke-dashoffset: 0; }
+.gym-grow-x { transform-origin: left center; }
+.gym-grow-y { transform-origin: center top; }
+.gym-signal { opacity: 0; offset-rotate: 0deg; }
+.gym-typing { opacity: 0; }
+
+[data-gym-motion="armed"] :is(.gym-rise, .gym-pop) { opacity: 0; }
+[data-gym-motion="armed"] .gym-draw { stroke-dashoffset: 1; }
+[data-gym-motion="armed"] .gym-grow-x { transform: scaleX(0); }
+[data-gym-motion="armed"] .gym-grow-y { transform: scaleY(0); }
+[data-gym-motion="armed"] .gym-light { opacity: 0.2; }
+
+[data-gym-motion="in"] .gym-rise {
+  animation: gym-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0ms) both;
+}
+[data-gym-motion="in"] .gym-pop {
+  animation: gym-pop 0.5s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0ms) both;
+}
+[data-gym-motion="in"] .gym-draw {
+  animation: gym-draw 0.9s cubic-bezier(0.65, 0, 0.35, 1) var(--d, 0ms) both;
+}
+[data-gym-motion="in"] .gym-grow-x {
+  animation: gym-grow-x 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0ms) both;
+}
+[data-gym-motion="in"] .gym-grow-y {
+  animation: gym-grow-y 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0ms) both;
+}
+[data-gym-motion="in"] .gym-light {
+  animation: gym-light 0.5s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0ms) both;
+}
+[data-gym-motion="in"] .gym-signal {
+  animation: gym-signal 1.8s cubic-bezier(0.45, 0, 0.25, 1) var(--d, 0ms) both;
+}
+[data-gym-motion="in"] .gym-typing {
+  animation: gym-typing 0.9s linear var(--d, 0ms) both;
+}
+
+/* Typing dots: the one place a short repeat is allowed, and only while the
+   typing indicator itself is visible (≈1s). */
+@keyframes gym-dot {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+.gym-typing span { animation: gym-dot 0.6s ease-in-out infinite; }
+.gym-typing span:nth-child(2) { animation-delay: 0.15s; }
+.gym-typing span:nth-child(3) { animation-delay: 0.3s; }
+
+/* Interactive crossfades (guidance demo, discovery phone screens). */
+.gym-fade { transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+
+@keyframes gym-flash {
+  from { box-shadow: 0 0 0 2px rgb(37 211 102 / 0.55); }
+  to { box-shadow: 0 0 0 2px rgb(37 211 102 / 0); }
+}
+.gym-flash { animation: gym-flash 0.9s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-gym-motion] * { animation: none !important; }
+  .gym-typing span, .gym-flash { animation: none !important; }
+  .gym-fade { transition: none !important; }
+}

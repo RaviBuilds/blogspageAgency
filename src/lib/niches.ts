@@ -17,6 +17,7 @@ import {
   findApprovedCity,
   type ApprovedCity,
 } from "@/lib/cities";
+import { GYM_FAQ } from "@/lib/gym-faq";
 import type { FaqPair } from "@/lib/structured-data";
 
 /**
@@ -469,70 +470,52 @@ const NICHE_SEEDS: NicheSeed[] = [
   {
     id: "gym-fitness",
     title: "Gym & Fitness",
-    focus: "Churn defense & retention",
+    focus: "Member journey & enquiries",
     description:
-      "Defend against churn with a dynamic pause-credit engine that recalculates contracts in real time.",
+      "Gym websites and digital systems built around how members research: programs, reviews, guidance tools, Google setup and a WhatsApp enquiry your team can act on.",
     icon: Dumbbell,
     slugTemplate: "gym-business-solution-website-at-[city]",
     seoLabel:
-      "Gym and fitness platforms with a dynamic pause-credit retention engine.",
+      "Gym website development and digital presence for fitness clubs.",
     className: "md:col-span-1 md:row-span-2",
     hero: {
-      headline: "Defend membership revenue against churn.",
+      headline:
+        "Before they walk into your gym, they've already started evaluating it.",
       subhead:
-        "A dynamic pause-credit engine that lets members freeze fairly while protecting your contract value.",
+        "A premium gym website with interactive guidance tools and local search setup, so research turns into a better-prepared conversation with your team.",
     },
     problem: {
-      heading: "Churn and seasonal dips erode recurring revenue.",
-      lead: "Rigid contracts and fragmented systems push members to cancel instead of pausing.",
+      heading: "Members research before they ever contact you.",
+      lead: "When answers are scattered across Google, Instagram and word of mouth, the first message is often just \u201cHi, what is the price?\u201d",
       points: [
-        "High subscription churn and seasonal attendance drops.",
-        "Friction in handling member pauses pushes cancellations.",
-        "Fragmented internal systems across packages, app, and accounting.",
+        "Programs, timings, reviews and membership details are hard to find in one place.",
+        "First-timers do not know where to start.",
+        "Enquiries arrive without context, so every conversation starts from zero.",
       ],
     },
     solution: {
-      heading: "A unified ecosystem with a pause-credit engine at its core.",
-      lead: "A high-conversion interface linked to an admin panel bridging packages, mobile engagement, and accounting.",
+      heading: "One clear journey from search to your front desk.",
+      lead: "A gym website that answers the questions members ask before they visit, then hands a prepared enquiry to your team.",
       capabilities: [
-        "Dynamic Pause-Credit Engine that recalculates expiry in real time.",
-        "Each active pause day injects an extension record into the ledger.",
-        "Capacitor native bridge for QR check-ins and re-engagement alerts.",
-        "Live floor occupancy and conversion dashboards for owners.",
+        "Premium, mobile-first gym website with programs, membership, reviews, gallery and FAQs.",
+        "Interactive member tools: Find Your Starting Point, Map Your Fitness Journey, Plan Your First 30 Days.",
+        "Context-rich WhatsApp enquiry flow and click-to-call.",
+        "Google Business Profile optimization and Google Search Console setup.",
       ],
     },
     dashboards: [
       {
-        title: "Pause-credit ledger",
+        title: "Find Your Starting Point",
         description:
-          "Real-time contract recalculation as members freeze and resume their plans.",
+          "A short guided flow that helps a first-timer understand where to begin.",
       },
       {
-        title: "Floor occupancy",
+        title: "Plan Your First 30 Days",
         description:
-          "Live attendance, conversion uplift, and lead-capture widgets in one view.",
+          "A simple first-month plan that turns into a context-rich WhatsApp enquiry.",
       },
     ],
-    faq: [
-      {
-        question:
-          "How does a pause-credit engine stop members from cancelling instead of pausing?",
-        answer:
-          "The pause-credit engine recalculates a membership's contract expiry in real time as a member freezes and resumes their plan, so a seasonal break extends the contract fairly instead of forcing a full cancellation. Each active pause day writes an extension record into the ledger, giving members an easy, transparent option that protects your recurring revenue instead of losing it outright.",
-      },
-      {
-        question:
-          "Can members check in and get alerts without extra hardware at the front desk?",
-        answer:
-          "Yes. A native mobile bridge handles QR check-ins on the member's own phone and pushes re-engagement alerts directly to them, so front-desk staff are not manually scanning cards or chasing down members who have gone quiet. This keeps check-in fast during busy hours and keeps at-risk members engaged before they lapse.",
-      },
-      {
-        question:
-          "What do gym owners see on their dashboard day to day?",
-        answer:
-          "Owners get a live view of floor occupancy, conversion uplift from lead-capture widgets, and the pause-credit ledger, all in one dashboard rather than scattered across separate tools. That gives a clear read on attendance patterns and revenue health without needing to cross-reference spreadsheets or ask staff for manual updates.",
-      },
-    ],
+    faq: GYM_FAQ,
   },
   {
     id: "dental-medical",

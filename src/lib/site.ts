@@ -69,6 +69,25 @@ export const NAP = {
 } as const;
 
 /**
+ * WhatsApp number used for click-to-chat links, digits only with the country
+ * code (wa.me format).
+ *
+ * TODO(business-owner): no dedicated WhatsApp number exists in the repository.
+ * This falls back to the published phone number ({@link NAP.telephone}) on the
+ * assumption that it is WhatsApp-enabled. Set `NEXT_PUBLIC_WHATSAPP_NUMBER`
+ * (digits only, e.g. `918019443314`) to override it without a code change.
+ */
+export const WHATSAPP_NUMBER: string = (
+  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? NAP.telephoneHref
+).replace(/\D/g, "");
+
+/** A `wa.me` click-to-chat URL with an optional pre-filled message. */
+export function whatsappHref(message?: string): string {
+  const base = `https://wa.me/${WHATSAPP_NUMBER}`;
+  return message ? `${base}?text=${encodeURIComponent(message)}` : base;
+}
+
+/**
  * Opening hours in Schema.org `openingHours` syntax, covering all seven days
  * (Requirement 5.4).
  *

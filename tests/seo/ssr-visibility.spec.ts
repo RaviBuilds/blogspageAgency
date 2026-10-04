@@ -221,9 +221,16 @@ const ASSERTED_ROUTES = [
   "/",
   "/services/web-design",
   "/services/web-development",
+  "/solutions/gym-business-solution-website-at-hyderabad",
 ] as const;
 
-/** Known-affected routes, excluded from the assertion above. See the note. */
+/**
+ * Known-affected routes, excluded from the assertion above. See the note.
+ *
+ * The gym solution page is asserted explicitly above: its rebuild routes every
+ * reveal through `ScrollReveal` / the gym `InView` wrapper (which ships settled
+ * HTML and arms motion only after hydration), so it no longer carries the debt.
+ */
 export const SSR_VISIBILITY_DEBT = /^\/solutions\//;
 
 /**

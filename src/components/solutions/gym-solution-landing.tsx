@@ -1,550 +1,130 @@
-"use client";
+import { ArrowDown, Dumbbell } from "lucide-react";
+import type { ReactNode } from "react";
 
-import Link from "next/link";
-import { motion, type Variants } from "framer-motion";
-import {
-  ArrowRight,
-  BarChart3,
-  Bot,
-  Boxes,
-  Dumbbell,
-  Globe,
-  LayoutDashboard,
-  ShieldCheck,
-  ShoppingBag,
-  Sparkles,
-  Users,
-} from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import {
-  GymAdminPlaceholder,
-  GymMemberPlaceholder,
-  GymOwnerPlaceholder,
-  GymWebsitePlaceholder,
-} from "@/components/solutions/placeholders";
+import { ScrollReveal } from "@/components/home/scroll-reveal";
 import type { FaqPair } from "@/lib/structured-data";
 import type { LatestPost } from "@/sanity/lib/queries";
 
-/* -------------------------------------------------------------------------- */
-/*  Motion primitives — blueprint spring physics + cubic-bezier easing        */
-/* -------------------------------------------------------------------------- */
-
-const EASE = [0.16, 1, 0.3, 1] as const;
-
-/** Kinetic word-reveal container: staggers each word of the headline. */
-const headlineContainer: Variants = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
-  },
-};
-
-const headlineWord: Variants = {
-  hidden: { y: "100%", opacity: 0 },
-  visible: {
-    y: "0%",
-    opacity: 1,
-    transition: { type: "spring", damping: 18, stiffness: 140, mass: 0.9 },
-  },
-};
-
-/** Generic scroll-in reveal used for pillar entrances. */
-const reveal: Variants = {
-  hidden: { opacity: 0, y: 40 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.8, ease: EASE },
-  },
-};
-
-/** Parent that staggers its children as the group enters the viewport. */
-const staggerParent: Variants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
-};
-
-/* -------------------------------------------------------------------------- */
-/*  Pillar data                                                               */
-/* -------------------------------------------------------------------------- */
-
-type Pillar = {
-  index: string;
-  badge: string;
-  icon: typeof Globe;
-  title: string;
-  tagline: string;
-  copy: string;
-  features: { icon: typeof Globe; label: string }[];
-  Preview: typeof GymWebsitePlaceholder;
-  imageAlt: string;
-  /** Optional preview chrome label shown in the browser window bar. */
-  url: string;
-};
-
-const PILLARS: Pillar[] = [
-  {
-    index: "01",
-    badge: "The Growth Engine",
-    icon: Globe,
-    title: "Website & AI Sales Agent",
-    tagline: "Your 24/7 front-desk employee that never sleeps.",
-    copy: "A local-SEO dominant, Awwwards-grade public website engineered to rank and convert. At its core sits a custom AI Sales Agent that acts as a round-the-clock front-desk employee — fielding inquiries, qualifying prospects, capturing leads, and funneling them straight into your management pipeline.",
-    features: [
-      { icon: Globe, label: "Local-SEO dominant public site" },
-      { icon: Bot, label: "Custom AI sales & front-desk agent" },
-      { icon: Sparkles, label: "Automated lead capture & routing" },
-    ],
-    Preview: GymWebsitePlaceholder,
-    imageAlt: "Award-winning gym marketing website with embedded AI sales agent",
-    url: "elitefitness.club",
-  },
-  {
-    index: "02",
-    badge: "The Member Experience",
-    icon: Users,
-    title: "Member Portal & App",
-    tagline: "A premium app your members actually want to open.",
-    copy: "A dedicated app and portal that puts the entire membership in your members' pockets. They manage their plan, request BMI and health checks, upgrade into specialized high-weight strength or calisthenics programs, and order supplements — whey protein, pre-workout, and more — for seamless front-desk pickup.",
-    features: [
-      { icon: Users, label: "Self-serve membership management" },
-      { icon: Dumbbell, label: "BMI checks & specialized training upgrades" },
-      { icon: ShoppingBag, label: "In-app supplement ordering & pickup" },
-    ],
-    Preview: GymMemberPlaceholder,
-    imageAlt: "Gym member portal dashboard on a dark interface",
-    url: "app.elitefitness.club",
-  },
-  {
-    index: "03",
-    badge: "The Admin OS",
-    icon: LayoutDashboard,
-    title: "Operations Command Center",
-    tagline: "Run the entire floor from a single control plane.",
-    copy: "The daily command center your staff lives in. Track every piece of equipment, build and manage custom training packages, handle member billing, and run e-commerce operations end to end — from supplement stock levels to order fulfillment — without a single spreadsheet.",
-    features: [
-      { icon: Boxes, label: "Equipment & package management" },
-      { icon: ShoppingBag, label: "Inventory & order fulfillment" },
-      { icon: ShieldCheck, label: "Member billing & access control" },
-    ],
-    Preview: GymAdminPlaceholder,
-    imageAlt: "Gym admin operations dashboard with inventory and billing panels",
-    url: "admin.elitefitness.club",
-  },
-  {
-    index: "04",
-    badge: "The Owner's Dashboard",
-    icon: BarChart3,
-    title: "Executive Analytics",
-    tagline: "Total visibility, zero micromanagement.",
-    copy: "High-level executive oversight built for owners. Track revenue in real time, surface daily, weekly, and monthly audit logs, and keep a finger on operational health across every location — the clarity to lead the business without getting buried in the day-to-day.",
-    features: [
-      { icon: BarChart3, label: "Real-time revenue tracking" },
-      { icon: ShieldCheck, label: "Daily / weekly / monthly audit logs" },
-      { icon: LayoutDashboard, label: "Multi-location operational oversight" },
-    ],
-    Preview: GymOwnerPlaceholder,
-    imageAlt: "Gym owner executive analytics dashboard with revenue charts",
-    url: "owner.elitefitness.club",
-  },
-];
-
-/* -------------------------------------------------------------------------- */
-/*  Browser window mockup — dark macOS chrome + "muted reveal" image          */
-/* -------------------------------------------------------------------------- */
-
-function BrowserMock({
-  Preview,
-  alt,
-  url,
-}: {
-  Preview: typeof GymWebsitePlaceholder;
-  alt: string;
-  url: string;
-}) {
-  return (
-    <div className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0a0a0b] shadow-[0_40px_120px_-40px_rgba(0,0,0,0.9)]">
-      {/* glow that warms on hover */}
-      <div className="pointer-events-none absolute -inset-px -z-10 rounded-2xl bg-[radial-gradient(circle_at_top,rgba(94,106,210,0.25),transparent_60%)] opacity-0 blur-2xl transition-opacity duration-700 group-hover:opacity-100" />
-
-      {/* window chrome */}
-      <div className="flex items-center gap-2 border-b border-white/[0.06] bg-[#141516] px-4 py-3">
-        <span className="size-3 rounded-full bg-[#ff5f57]" />
-        <span className="size-3 rounded-full bg-[#febc2e]" />
-        <span className="size-3 rounded-full bg-[#28c840]" />
-        <div className="ml-3 hidden h-6 flex-1 items-center rounded-md border border-white/[0.06] bg-black/40 px-3 text-[11px] text-muted-foreground sm:flex">
-          {url}
-        </div>
-      </div>
-
-      {/* muted-reveal viewport */}
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-[linear-gradient(135deg,#141516,#010102)]">
-        <Preview
-          role="img"
-          aria-label={alt}
-          className="size-full object-cover opacity-80 brightness-[0.7] grayscale-[40%] transition-all duration-700 ease-out group-hover:scale-[1.02] group-hover:opacity-100 group-hover:brightness-100 group-hover:grayscale-0"
-        />
-      </div>
-    </div>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Page                                                                      */
-/* -------------------------------------------------------------------------- */
+import { ChapterRail } from "./gym/chapter-rail";
+import { EXAMPLE_ENQUIRY, PLANNER_ANCHOR } from "./gym/content";
+import { AnswersSection, FinalCtaSection, ProcessSection, RelatedSection } from "./gym/sections-close";
+import { BuildSection, EnquirySection, GuidanceSection, WebsiteSection } from "./gym/sections-offer";
+import { ChannelsSection, DiscoverySection, QuestionsSection } from "./gym/sections-story";
+import { GrowSection, LifecycleSection } from "./gym/sections-system";
+import { StickyWhatsApp } from "./gym/sticky-whatsapp";
+import { HeroComposition } from "./gym/visuals";
+import { WhatsAppCta } from "./gym/whatsapp-cta";
 
 type GymSolutionLandingProps = {
   cityLabel: string;
-  /** At least three question-and-answer pairs (Requirement 9.6). */
+  /**
+   * The route's breadcrumb band. Rendered inside the page's dark surface (not
+   * above it) so it shares the background, glow and token scope of the hero.
+   */
+  breadcrumb?: ReactNode;
+  /** Question-and-answer pairs; also emitted as FAQPage JSON-LD by the route. */
   faq?: FaqPair[];
   /**
    * Heading text -> `id`, precomputed by the parent page's single
-   * `createHeadingSlugger` instance. A function cannot cross the server ->
-   * client boundary as a prop (this component is `"use client"`), so the
-   * page derives every id this component needs up front and passes the
-   * lookup down as plain data (Requirement 9.5).
+   * `createHeadingSlugger` instance (Requirement 9.5).
    */
   headingIds: Record<string, string>;
   /** Fallback "related reading" posts (Requirement 7.8). */
   relatedPosts?: LatestPost[];
 };
 
-export function GymSolutionLanding({
-  cityLabel,
-  faq = [],
-  headingIds,
-  relatedPosts = [],
-}: GymSolutionLandingProps) {
-  const headline = [
-    "The",
-    "AI-Powered",
-    "Operating",
-    "System",
-    "for",
-    "Elite",
-    "Fitness",
-    "Clubs",
-    "in",
-    `${cityLabel}.`,
-  ];
+/**
+ * The gym solution page.
+ *
+ * A server component: the narrative renders as plain HTML, and only the
+ * genuinely interactive pieces are client islands (discovery phone, website
+ * anatomy, member-tools demo, lifecycle rail, chapter rail, CTAs, sticky CTA).
+ * All reveals are SSR-safe: content ships visible and motion arms after
+ * hydration (`ScrollReveal`, `InView`).
+ *
+ * Five acts, each with its own surface and picture:
+ * I   The visitor    — 01 hero trail · 02 research journey · 03 questions · 04 channel system
+ * II  The website    — 05 anatomy blueprint · 06 guidance product stage
+ * III The handoff    — 07 WhatsApp conversation (+ AI add-on)
+ * IV  The foundation — 08 layered deliverables
+ * V   The system     — 09 growth staircase · 10 lifecycle rail
+ * then trust on paper (11 answers, 12 process) and the invitation (13).
+ */
+export function GymSolutionLanding({ cityLabel, breadcrumb, faq = [], headingIds, relatedPosts = [] }: GymSolutionLandingProps) {
+  const hid = (text: string) => headingIds[text];
 
   return (
-    <div className="dark relative overflow-hidden bg-[#050505]">
-      {/* ambient hero glow */}
-      <div className="pointer-events-none absolute left-1/2 top-0 -z-10 size-[40rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(94,106,210,0.30),rgba(147,51,234,0.12)_42%,transparent_70%)] blur-3xl" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[640px] bg-[radial-gradient(ellipse_at_center,transparent_0%,#050505_74%)]" />
+    <div className="dark relative overflow-x-clip bg-[#050505]">
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-0 h-[720px] bg-[radial-gradient(ellipse_60%_50%_at_70%_20%,rgba(94,106,210,0.16),transparent_70%)]" />
 
-      {/* ----------------------------------------------------------------- */}
-      {/*  HERO — kinetic word reveal                                       */}
-      {/* ----------------------------------------------------------------- */}
-      <section className="mx-auto flex min-h-[88vh] max-w-6xl flex-col justify-center px-6 py-28 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: EASE }}
-          className="mb-8 inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs text-muted-foreground"
-        >
-          <Dumbbell className="size-3.5 text-primary" />
-          Enterprise gym ecosystem · {cityLabel}
-        </motion.div>
+      {breadcrumb}
 
-        <motion.h1
-          variants={headlineContainer}
-          initial="hidden"
-          animate="visible"
-          className="max-w-5xl text-4xl font-semibold leading-[1.05] tracking-tight text-balance sm:text-6xl lg:text-7xl"
-        >
-          {headline.map((word, i) => {
-            const isAccent = word === "AI-Powered" || word === "Elite";
-            return (
-              <span
-                key={`${word}-${i}`}
-                className="mr-[0.25em] inline-block overflow-hidden align-bottom"
-              >
-                <motion.span
-                  variants={headlineWord}
-                  className={`inline-block ${isAccent ? "text-gradient" : ""}`}
-                >
-                  {word}
-                </motion.span>
-              </span>
-            );
-          })}
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.7, ease: EASE }}
-          className="mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground lg:text-xl"
-        >
-          We engineer end-to-end ecosystems. From award-winning websites with AI
-          sales agents that capture leads, to complete management portals for
-          members, admins, and owners.
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.85, ease: EASE }}
-          className="mt-12 flex flex-col gap-4 sm:flex-row"
-        >
-          <Button
-            size="lg"
-            className="glow-border h-12 bg-white px-7 text-black transition-transform hover:bg-white/90 active:scale-[0.98]"
-            asChild
-          >
-            <Link href="/#contact?niche=gym-fitness">
-              Book an architecture review
-              <ArrowRight className="size-4" />
-            </Link>
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="h-12 border-white/10 bg-transparent px-7 hover:bg-white/[0.04]"
-            asChild
-          >
-            <Link href="#ecosystem">Explore the ecosystem</Link>
-          </Button>
-        </motion.div>
-      </section>
-
-      {/* ----------------------------------------------------------------- */}
-      {/*  SECTION INTRO                                                    */}
-      {/* ----------------------------------------------------------------- */}
-      <section
-        id="ecosystem"
-        className="border-t border-white/[0.06] py-24 lg:py-32"
-      >
-        <div className="mx-auto max-w-6xl px-6 lg:px-8">
-          <motion.div
-            variants={reveal}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            className="max-w-3xl"
-          >
-            <p className="text-sm font-medium text-primary">
-              The Four-Pillar Ecosystem
-            </p>
-            <h2
-              id={headingIds["One connected platform. Four systems working as one."]}
-              className="mt-4 text-3xl font-semibold tracking-tight text-balance sm:text-5xl"
-            >
-              One connected platform. Four systems working as one.
-            </h2>
-            <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-              Most studios stitch together a website, a billing tool, and a
-              spreadsheet. We replace all of it with a single, AI-native
-              operating system — purpose-built for the way elite fitness clubs
-              actually run.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ----------------------------------------------------------------- */}
-      {/*  PILLARS — vertical staggered layout                              */}
-      {/* ----------------------------------------------------------------- */}
-      <section className="pb-8">
-        <div className="mx-auto flex max-w-6xl flex-col gap-24 px-6 lg:gap-36 lg:px-8">
-          {PILLARS.map((pillar, i) => {
-            const imageFirst = i % 2 === 1;
-            return (
-              <motion.div
-                key={pillar.index}
-                variants={staggerParent}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-120px" }}
-                className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20"
-              >
-                {/* Copy column */}
-                <motion.div
-                  variants={reveal}
-                  className={imageFirst ? "lg:order-2" : ""}
-                >
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm font-medium tabular-nums text-primary/70">
-                      {pillar.index}
-                    </span>
-                    <span className="h-px flex-1 bg-gradient-to-r from-white/20 to-transparent" />
-                    <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-muted-foreground">
-                      <pillar.icon className="size-3.5 text-primary" />
-                      {pillar.badge}
-                    </span>
-                  </div>
-
-                  <h3
-                    id={headingIds[pillar.title]}
-                    className="mt-6 text-3xl font-semibold tracking-tight sm:text-4xl"
-                  >
-                    {pillar.title}
-                  </h3>
-                  <p className="mt-3 text-lg font-medium text-foreground/80">
-                    {pillar.tagline}
-                  </p>
-                  <p className="mt-5 leading-relaxed text-muted-foreground">
-                    {pillar.copy}
-                  </p>
-
-                  <ul className="mt-8 grid gap-3">
-                    {pillar.features.map((feature) => (
-                      <li
-                        key={feature.label}
-                        className="flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.02] px-4 py-3 text-sm text-foreground/85 transition-colors hover:border-white/[0.14] hover:bg-white/[0.04]"
-                      >
-                        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-primary/10">
-                          <feature.icon className="size-4 text-primary" />
-                        </span>
-                        {feature.label}
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-
-                {/* Visual column */}
-                <motion.div
-                  variants={reveal}
-                  className={imageFirst ? "lg:order-1" : ""}
-                >
-                  <BrowserMock
-                    Preview={pillar.Preview}
-                    alt={pillar.imageAlt}
-                    url={pillar.url}
-                  />
-                </motion.div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ----------------------------------------------------------------- */}
-      {/*  CTA                                                              */}
-      {/* ----------------------------------------------------------------- */}
-      <section className="border-t border-white/[0.06] py-24 lg:py-32">
-        <div className="mx-auto max-w-6xl px-6 lg:px-8">
-          <motion.div
-            variants={reveal}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-[#0a0a0b] p-10 text-center lg:p-16"
-          >
-            <div className="pointer-events-none absolute -right-32 -top-32 size-80 rounded-full bg-primary/20 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-32 -left-32 size-80 rounded-full bg-fuchsia-500/10 blur-3xl" />
-            <div className="relative mx-auto max-w-2xl">
-              <h2
-                id={headingIds["Build the operating system your club deserves."]}
-                className="text-3xl font-semibold tracking-tight text-balance sm:text-5xl"
-              >
-                Build the operating system your club deserves.
-              </h2>
-              <p className="mt-5 text-lg text-muted-foreground">
-                From the public website to the owner&apos;s dashboard, we ship a
-                single production-grade ecosystem for fitness clubs in{" "}
-                {cityLabel}. Let&apos;s map your architecture.
-              </p>
-              <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-                <Button
-                  size="lg"
-                  className="glow-border h-12 bg-primary px-7 text-primary-foreground transition-transform hover:bg-primary/90 active:scale-[0.98]"
-                  asChild
-                >
-                  <Link href="/#contact?niche=gym-fitness">
-                    Start your project
-                    <ArrowRight className="size-4" />
-                  </Link>
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-12 border-white/10 bg-transparent px-7 hover:bg-white/[0.04]"
-                  asChild
-                >
-                  <Link href="/#process">See our process</Link>
-                </Button>
-              </div>
+      {/* 01 — Hero: the research trail */}
+      <section className="relative mx-auto max-w-7xl px-6 pb-24 pt-10 lg:px-8 lg:pb-32 lg:pt-14">
+        <div className="grid items-center gap-14 xl:grid-cols-[minmax(0,1fr)_540px] xl:gap-12">
+          <ScrollReveal>
+            <div className="mb-8 inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs text-foreground/75">
+              <Dumbbell className="size-3.5 text-primary" />
+              Gym websites &amp; digital presence · {cityLabel}
             </div>
-          </motion.div>
+
+            <h1 className="max-w-[15ch] text-[clamp(2.6rem,6.4vw,4.75rem)] font-semibold leading-[0.98] tracking-[-0.03em] text-balance xl:max-w-none">
+              Before they walk into your gym,{" "}
+              <span className="text-gradient">they&apos;ve already started evaluating it.</span>
+            </h1>
+
+            <p className="mt-8 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              Potential members discover gyms through Google, Instagram and search, then look for answers before they contact
+              anyone. BLOGSPAGE AI builds the gym website and guidance tools that turn that research into a better-prepared
+              conversation with your team.
+            </p>
+
+            <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <WhatsAppCta location="hero-quote" intent="quote" tone="white">
+                Get a Quote
+              </WhatsAppCta>
+              <WhatsAppCta location="hero" tone="outline">
+                Show Me What This Could Look Like
+              </WhatsAppCta>
+            </div>
+            <p className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+              <span>Both buttons open a WhatsApp chat with BLOGSPAGE AI.</span>
+              <a
+                href={`#${PLANNER_ANCHOR}`}
+                className="inline-flex min-h-11 items-center gap-1 font-medium text-foreground/80 underline-offset-4 hover:text-foreground hover:underline"
+              >
+                or try the 30-day planner <ArrowDown className="size-3.5" />
+              </a>
+            </p>
+          </ScrollReveal>
+
+          <div className="xl:justify-self-end">
+            <p className="sr-only">
+              Illustration: a potential member searches for a beginner gym, checks the Maps listing and reviews, looks at the
+              gym&apos;s Instagram, finds a personalized starting point on the gym&apos;s website, and sends a WhatsApp enquiry
+              that reaches the gym team with that context.
+            </p>
+            <HeroComposition enquiry={EXAMPLE_ENQUIRY} />
+          </div>
         </div>
       </section>
 
-      {/* Frequently asked questions (Requirements 9.6, 9.8, 9.9) */}
-      {faq.length ? (
-        <section className="border-t border-white/[0.06] py-24 lg:py-32">
-          <div className="mx-auto max-w-3xl px-6 lg:px-8">
-            <motion.div
-              variants={reveal}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-            >
-              <h2
-                id={headingIds["Frequently asked questions"]}
-                className="text-3xl font-semibold tracking-tight"
-              >
-                Frequently asked questions
-              </h2>
-              <dl className="mt-8 space-y-6">
-                {faq.map((item, index) => (
-                  <div key={index}>
-                    <dt className="font-medium text-foreground">
-                      {item.question}
-                    </dt>
-                    <dd className="mt-2 text-muted-foreground">
-                      {item.answer}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </motion.div>
-          </div>
-        </section>
-      ) : null}
+      <DiscoverySection hid={hid} />
+      <QuestionsSection hid={hid} />
+      <ChannelsSection hid={hid} />
+      <WebsiteSection hid={hid} />
+      <GuidanceSection hid={hid} />
+      <EnquirySection hid={hid} />
+      <BuildSection hid={hid} />
+      <GrowSection hid={hid} />
+      <LifecycleSection hid={hid} />
+      <AnswersSection hid={hid} faq={faq} />
+      <ProcessSection hid={hid} />
+      <FinalCtaSection hid={hid} />
+      <RelatedSection hid={hid} posts={relatedPosts} />
 
-      {/* Related reading (Requirement 7.8) */}
-      {relatedPosts.length ? (
-        <section className="border-t border-white/[0.06] py-24 lg:py-32">
-          <div className="mx-auto max-w-6xl px-6 lg:px-8">
-            <motion.div
-              variants={reveal}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-            >
-              <h2
-                id={headingIds["Related reading"]}
-                className="text-3xl font-semibold tracking-tight"
-              >
-                Related reading
-              </h2>
-              <ul className="mt-8 grid gap-6 sm:grid-cols-3">
-                {relatedPosts.map((post) => (
-                  <li key={post._id}>
-                    <Link
-                      href={`/blogs/${post.slug}`}
-                      className="group flex h-full flex-col rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 transition-colors hover:border-white/[0.16]"
-                    >
-                      <h3 className="line-clamp-2 text-base font-medium tracking-tight transition-colors group-hover:text-primary">
-                        {post.title}
-                      </h3>
-                      {post.excerpt ? (
-                        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-                          {post.excerpt}
-                        </p>
-                      ) : null}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          </div>
-        </section>
-      ) : null}
+      <ChapterRail />
+      <StickyWhatsApp />
     </div>
   );
 }
