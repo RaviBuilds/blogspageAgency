@@ -10,6 +10,7 @@ import {
   ChevronDown,
   Crown,
   Headset,
+  Plus,
   Rocket,
   Sparkles,
   Stethoscope,
@@ -63,6 +64,25 @@ type FeatureGroup = {
    */
   description?: string;
   items: string[];
+  /**
+   * Paid optional extras for this plan, shown with a "+" marker instead of a
+   * check so they are never mistaken for inclusions.
+   */
+  addOns?: string[];
+};
+
+/**
+ * Shared by every public plan, so the cards, accordion, and comparison table
+ * tell one story: CMS-controlled content and first-year domain & hosting.
+ */
+const CMS_HOSTING_GROUP: FeatureGroup = {
+  label: "CMS & hosting",
+  description:
+    "Update selected content — doctor info, announcements, gallery, FAQs — yourself, without a developer for every small change.",
+  items: [
+    "CMS-controlled content updates",
+    "Free domain & hosting for 1 year",
+  ],
 };
 
 type Plan = {
@@ -155,6 +175,12 @@ const PLANS: Plan[] = [
       {
         label: "Integrations",
         items: ["WhatsApp", "Google Maps", "Social media links"],
+      },
+      CMS_HOSTING_GROUP,
+      {
+        label: "Google Business Profile",
+        items: [],
+        addOns: ["Google Business Profile optimization — Add-on ₹5,000/profile"],
       },
       {
         label: "Support",
@@ -291,6 +317,7 @@ const PLANS: Plan[] = [
       {
         label: "Citations & local presence",
         items: [
+          "Google Business Profile optimization — Included (1 profile)",
           "Citation setup/cleanup — up to 5 relevant directories (Justdial, Practo, Sulekha, Lybrate, + one local health directory)",
         ],
       },
@@ -332,6 +359,7 @@ const PLANS: Plan[] = [
           "Core Web Vitals optimization",
         ],
       },
+      CMS_HOSTING_GROUP,
       { label: "Support", items: ["3 months support", "3 design revisions"] },
     ],
     bestFor: [
@@ -428,6 +456,7 @@ const PLANS: Plan[] = [
           "Internal SEO strategy",
         ],
       },
+      CMS_HOSTING_GROUP,
       { label: "Support", items: ["3 months support", "SEO guidance"] },
     ],
     bestFor: [
@@ -474,6 +503,7 @@ const PLANS: Plan[] = [
           "Monthly performance reports",
         ],
       },
+      CMS_HOSTING_GROUP,
       { label: "Operations", items: ["Security & maintenance"] },
     ],
     bestFor: [
@@ -530,6 +560,37 @@ const COMPARISON_ROWS: { label: string; values: string[] }[] = [
     ],
   },
   { label: "Blog CMS", values: ["—", "—", "Yes", "Yes"] },
+  {
+    label: "CMS-controlled content updates",
+    values: ["Included", "Included", "Included", "Included"],
+  },
+  {
+    label: "Domain & hosting",
+    values: [
+      "Free for 1 year",
+      "Free for 1 year",
+      "Free for 1 year",
+      "Free for 1 year",
+    ],
+  },
+  {
+    label: "Google Business Profile optimization",
+    values: [
+      "Add-on ₹5,000/profile",
+      "Included (1 profile)",
+      "Included (up to 2 locations)",
+      "Included (up to 2 locations)",
+    ],
+  },
+  {
+    label: "Website maintenance",
+    values: [
+      "₹1,500/month",
+      "₹1,500/month",
+      "₹1,500/month",
+      "Security & maintenance included",
+    ],
+  },
   {
     label: "Online appointment booking",
     values: [
@@ -684,7 +745,11 @@ const ADD_ONS = [
   { service: "Online appointment booking setup", price: "On request" },
   { service: "Professional content writing", price: "₹6,000" },
   { service: "Blog setup", price: "₹7,500" },
-  { service: "Google Business Profile optimization", price: "₹5,000" },
+  {
+    service:
+      "Google Business Profile optimization (included for 1 profile in Premium Practice)",
+    price: "₹5,000 / profile",
+  },
   {
     service:
       "Monthly SEO — Local SEO, 1 location (GBP posts/updates, citation monitoring, minor page updates, review monitoring, monthly report)",
@@ -699,7 +764,6 @@ const ADD_ONS = [
   { service: "AI receptionist", price: "Starting from ₹40,000+" },
   { service: "WhatsApp automation", price: "₹10,000" },
   { service: "Website maintenance", price: "₹1,500 / month" },
-  { service: "Hosting & domain management", price: "₹3,000 / year" },
 ];
 
 const PAYMENT_TERMS = [
@@ -778,6 +842,12 @@ function FeatureList({ group }: { group: FeatureGroup }) {
         {group.items.map((item) => (
           <li key={item} className="flex gap-2.5 text-sm text-muted-foreground">
             <Check className="mt-0.5 size-3.5 shrink-0 text-primary" />
+            <span>{item}</span>
+          </li>
+        ))}
+        {group.addOns?.map((item) => (
+          <li key={item} className="flex gap-2.5 text-sm text-muted-foreground">
+            <Plus className="mt-0.5 size-3.5 shrink-0 text-muted-foreground/70" />
             <span>{item}</span>
           </li>
         ))}
@@ -1447,6 +1517,11 @@ export function DentalPackagesLanding({
                 </tbody>
               </table>
             </div>
+            <p className="mt-6 text-xs text-muted-foreground/60">
+              Domain &amp; hosting are free for the first year with every plan.
+              Applicable renewal and management charges apply from year 2 and
+              are separate from website maintenance (₹1,500 / month).
+            </p>
           </FadeUp>
         </div>
       </section>

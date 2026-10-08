@@ -32,7 +32,7 @@ export const PACKAGE_FAQS = [
   {
     question: "What is not included in the package prices?",
     answer:
-      "The package prices cover the website build and the features listed per plan. Ongoing services are separate add-ons: monthly SEO — Local SEO, 1 location (₹7,000/month; GBP posts/updates, citation monitoring, minor page updates, review monitoring, monthly report) or 2 locations / Growth-tier sites (₹12,000/month; same scope, doubled for a second GBP profile and more content to maintain). Also website maintenance (₹1,500/month), hosting and domain management (₹3,000/year), professional content writing (₹6,000), blog setup (₹7,500), Google Business Profile optimization (₹5,000), WhatsApp automation (₹10,000), and the AI chatbot and AI receptionist on plans where they are not already included.",
+      "The package prices cover the website build and the features listed per plan. Ongoing services are separate add-ons: monthly SEO — Local SEO, 1 location (₹7,000/month; GBP posts/updates, citation monitoring, minor page updates, review monitoring, monthly report) or 2 locations / Growth-tier sites (₹12,000/month; same scope, doubled for a second GBP profile and more content to maintain). Also website maintenance (₹1,500/month), professional content writing (₹6,000), blog setup (₹7,500), Google Business Profile optimization (₹5,000 per profile; one profile is already included in Premium Practice and above), WhatsApp automation (₹10,000), and the AI chatbot and AI receptionist on plans where they are not already included. Domain and hosting are free for the first year with every plan; applicable renewal and management charges apply from year 2.",
   },
   {
     question: "Do I own the website?",
