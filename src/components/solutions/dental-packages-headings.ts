@@ -7,6 +7,7 @@
  * cross the server -> client boundary (Requirement 9.5).
  */
 export const DENTAL_PACKAGES_HEADINGS = [
+  "What your website is built with",
   "Three ways to start. One goal: more patients.",
   "Explore all four packages.",
   "Compare every plan side by side.",

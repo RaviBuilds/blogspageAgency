@@ -21,7 +21,7 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { BookingCta } from "@/components/booking/booking-cta";
 import { FadeUp } from "@/components/solutions/fade-up";
-import { PACKAGE_FAQS } from "@/components/solutions/dental-packages-faqs";
+import { PACKAGE_FAQS, FAIR_USE_NOTE } from "@/components/solutions/dental-packages-faqs";
 import type { FaqPair } from "@/lib/structured-data";
 
 /* -------------------------------------------------------------------------- */
@@ -50,6 +50,34 @@ const staggerChild: Variants = {
 };
 
 const CONTACT_HREF = "/#contact?niche=dental-medical&city=hyderabad";
+
+/**
+ * Revision and support terms shared by Premium Practice and Practice Growth,
+ * so the cards, the accordion, and the comparison table state them once.
+ * Launch Story Website and Signature AI Practice keep their own text.
+ */
+const UNLIMITED_REVISIONS =
+  "Unlimited revisions until launch: we keep refining the agreed design and content until you approve it for publishing.";
+const POST_LAUNCH_SUPPORT =
+  "12 months post-launch support: fixes, security updates and minor content changes to the published website.";
+const MAINTENANCE_AFTER_SUPPORT = "₹1,500/month after the 12-month support period";
+
+/** "What your website is built with" — technology and skills, as named by the agency. */
+const BUILT_WITH_TECH = [
+  "Next.js",
+  "TypeScript",
+  "Tailwind CSS",
+  "Sanity CMS (content you can edit yourself)",
+  "Vercel hosting",
+];
+
+const BUILT_WITH_SKILLS = [
+  "Custom UI/UX design",
+  "Front-end engineering",
+  "Technical SEO",
+  "Google Business Profile optimization",
+  "Content structure",
+];
 
 /* -------------------------------------------------------------------------- */
 /*  Plan data — one source for the cards, the accordion, and the table         */
@@ -360,7 +388,7 @@ const PLANS: Plan[] = [
         ],
       },
       CMS_HOSTING_GROUP,
-      { label: "Support", items: ["3 months support", "3 design revisions"] },
+      { label: "Support", items: [UNLIMITED_REVISIONS, POST_LAUNCH_SUPPORT] },
     ],
     bestFor: [
       "Cosmetic dentists",
@@ -457,7 +485,10 @@ const PLANS: Plan[] = [
         ],
       },
       CMS_HOSTING_GROUP,
-      { label: "Support", items: ["3 months support", "SEO guidance"] },
+      {
+        label: "Support",
+        items: [UNLIMITED_REVISIONS, POST_LAUNCH_SUPPORT, "SEO guidance"],
+      },
     ],
     bestFor: [
       "Clinics targeting Google rankings",
@@ -586,8 +617,8 @@ const COMPARISON_ROWS: { label: string; values: string[] }[] = [
     label: "Website maintenance",
     values: [
       "₹1,500/month",
-      "₹1,500/month",
-      "₹1,500/month",
+      MAINTENANCE_AFTER_SUPPORT,
+      MAINTENANCE_AFTER_SUPPORT,
       "Security & maintenance included",
     ],
   },
@@ -616,14 +647,19 @@ const COMPARISON_ROWS: { label: string; values: string[] }[] = [
     label: "Support",
     values: [
       "1 month",
-      "3 months",
-      "3 months + SEO guidance",
+      "12 months post-launch",
+      "12 months post-launch + SEO guidance",
       "Ongoing",
     ],
   },
   {
     label: "Design revisions",
-    values: ["Minor changes", "3", "3", "Custom scope"],
+    values: [
+      "Minor changes",
+      "Unlimited until launch",
+      "Unlimited until launch",
+      "Custom scope",
+    ],
   },
 ];
 
@@ -763,7 +799,11 @@ const ADD_ONS = [
   { service: "AI chatbot", price: "Starting from ₹15,000" },
   { service: "AI receptionist", price: "Starting from ₹40,000+" },
   { service: "WhatsApp automation", price: "₹10,000" },
-  { service: "Website maintenance", price: "₹1,500 / month" },
+  {
+    service:
+      "Website maintenance (Premium Practice and Practice Growth: starts after the 12-month support period)",
+    price: "₹1,500 / month",
+  },
 ];
 
 const PAYMENT_TERMS = [
@@ -1105,6 +1145,56 @@ export function DentalPackagesLanding({
         </div>
       </section>
 
+      {/* SECTION 1B: BUILT WITH (technology + skills) */}
+      <section id="built-with" className="border-t border-border-subtle py-12 lg:py-16">
+        <div className="mx-auto max-w-6xl px-6 lg:px-8">
+          <FadeUp>
+            <h2
+              id={headingIds["What your website is built with"]}
+              className="text-2xl font-semibold tracking-tight"
+            >
+              What your website is built with
+            </h2>
+            <div className="mt-8 grid gap-5 md:grid-cols-2">
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <p className="text-xs font-medium uppercase tracking-[0.18em] text-primary">
+                  Technology
+                </p>
+                <ul className="mt-4 flex flex-wrap gap-2">
+                  {BUILT_WITH_TECH.map((item) => (
+                    <li
+                      key={item}
+                      className="rounded-full border border-border-subtle bg-muted px-3 py-1 text-xs text-foreground/80"
+                    >
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <p className="text-xs font-medium uppercase tracking-[0.18em] text-primary">
+                  Skills behind the build
+                </p>
+                <ul className="mt-4 flex flex-wrap gap-2">
+                  {BUILT_WITH_SKILLS.map((item) => (
+                    <li
+                      key={item}
+                      className="rounded-full border border-border-subtle bg-muted px-3 py-1 text-xs text-foreground/80"
+                    >
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <p className="mt-5 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+              Why it matters to your clinic: pages that load fast, no plugin
+              upkeep, and you own everything we build.
+            </p>
+          </FadeUp>
+        </div>
+      </section>
+
       {/* SECTION 2: FEATURED PACKAGES */}
       <section id="packages" className="border-t border-border-subtle py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
@@ -1314,6 +1404,9 @@ export function DentalPackagesLanding({
                 </tbody>
               </table>
             </div>
+            <p className="mt-6 max-w-3xl text-xs leading-relaxed text-muted-foreground/60">
+              {FAIR_USE_NOTE}
+            </p>
           </FadeUp>
         </div>
       </section>
@@ -1520,7 +1613,9 @@ export function DentalPackagesLanding({
             <p className="mt-6 text-xs text-muted-foreground/60">
               Domain &amp; hosting are free for the first year with every plan.
               Applicable renewal and management charges apply from year 2 and
-              are separate from website maintenance (₹1,500 / month).
+              are separate from website maintenance (₹1,500 / month). For
+              Premium Practice and Practice Growth, website maintenance starts
+              after the 12-month post-launch support period.
             </p>
           </FadeUp>
         </div>

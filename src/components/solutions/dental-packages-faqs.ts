@@ -8,6 +8,14 @@
  * `dental-packages-landing.tsx` (PLANS / ADD_ONS / PAYMENT_TERMS) — no
  * invented figures, no invented outcomes.
  */
+/**
+ * Plain-language fair-use note for the Premium Practice and Practice Growth
+ * revision and support terms. Shared so the note under the comparison table
+ * and the "What is not included" FAQ (and its FAQPage JSON-LD) cannot drift.
+ */
+export const FAIR_USE_NOTE =
+  "Unlimited revisions apply to the agreed pages, design and content brief until launch. New pages or features beyond the agreed scope are quoted separately (additional pages ₹2,500 each). Post-launch support covers fixes, security and minor content updates, not new pages or features.";
+
 export const PACKAGE_FAQS = [
   {
     question: "How much does a dental clinic website cost?",
@@ -32,7 +40,8 @@ export const PACKAGE_FAQS = [
   {
     question: "What is not included in the package prices?",
     answer:
-      "The package prices cover the website build and the features listed per plan. Ongoing services are separate add-ons: monthly SEO — Local SEO, 1 location (₹7,000/month; GBP posts/updates, citation monitoring, minor page updates, review monitoring, monthly report) or 2 locations / Growth-tier sites (₹12,000/month; same scope, doubled for a second GBP profile and more content to maintain). Also website maintenance (₹1,500/month), professional content writing (₹6,000), blog setup (₹7,500), Google Business Profile optimization (₹5,000 per profile; one profile is already included in Premium Practice and above), WhatsApp automation (₹10,000), and the AI chatbot and AI receptionist on plans where they are not already included. Domain and hosting are free for the first year with every plan; applicable renewal and management charges apply from year 2.",
+      "The package prices cover the website build and the features listed per plan. Ongoing services are separate add-ons: monthly SEO — Local SEO, 1 location (₹7,000/month; GBP posts/updates, citation monitoring, minor page updates, review monitoring, monthly report) or 2 locations / Growth-tier sites (₹12,000/month; same scope, doubled for a second GBP profile and more content to maintain). Also website maintenance (₹1,500/month; for Premium Practice and Practice Growth it starts after the 12-month post-launch support period), professional content writing (₹6,000), blog setup (₹7,500), Google Business Profile optimization (₹5,000 per profile; one profile is already included in Premium Practice and above), WhatsApp automation (₹10,000), and the AI chatbot and AI receptionist on plans where they are not already included. Domain and hosting are free for the first year with every plan; applicable renewal and management charges apply from year 2 and are separate from website maintenance. " +
+      FAIR_USE_NOTE,
   },
   {
     question: "Do I own the website?",
