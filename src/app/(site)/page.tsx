@@ -16,6 +16,12 @@ import { LatestBlogs } from "@/components/home/latest-blogs";
 import { JsonLd } from "@/components/seo/json-ld";
 import { webSiteNode } from "@/lib/structured-data";
 
+// The "From the journal" rail (LatestBlogs) sources the 3 newest published
+// posts live from Sanity. Without a revalidate window the homepage is fully
+// static (prerendered once at build), so a newly published post would not
+// appear until the next deploy. Matches the /blogs index's cadence.
+export const revalidate = 300;
+
 /*
  * Homepage v2.0 composition (R1).
  *
